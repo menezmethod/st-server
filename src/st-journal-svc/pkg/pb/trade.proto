@@ -8,8 +8,9 @@ import "google/protobuf/timestamp.proto";
 
 service TradeService {
   rpc CreateTrade(CreateTradeRequest) returns (CreateTradeResponse) {}
-  rpc FindOne(FindOneRequest) returns (FindOneResponse) {}
   rpc Delete(DeleteRequest) returns (DeleteResponse) {}
+  rpc EditTrade(EditTradeRequest) returns (EditTradeResponse) {}
+  rpc FindOne(FindOneRequest) returns (FindOneResponse) {}
 }
 
 // CreateTrade
@@ -37,18 +38,65 @@ message CreateTradeResponse {
   uint64 id = 3;
 }
 
+// EditTrade
+
+message EditTradeData {
+  uint64 id = 1;
+  google.protobuf.Timestamp time_executed = 2;
+  string market = 3;
+  float stop_loss = 4;
+  float entry_price = 5;
+  float exit_price = 6;
+  float quantity = 7;
+  string outcome = 8;
+  string direction = 9;
+  string instrument = 10;
+  float take_profit = 11;
+  string comments = 12;
+  string strategy = 13;
+  google.protobuf.Timestamp time_closed = 14;
+}
+
+message EditTradeRequest {
+  uint64 id = 1;
+  google.protobuf.Timestamp time_executed = 2;
+  string market = 3;
+  float stop_loss = 4;
+  float entry_price = 5;
+  float exit_price = 6;
+  float quantity = 7;
+  string outcome = 8;
+  string direction = 9;
+  string instrument = 10;
+  float take_profit = 11;
+  string comments = 12;
+  string strategy = 13;
+  google.protobuf.Timestamp time_closed = 14;
+}
+
+message EditTradeResponse {
+  uint64 status = 1;
+  string error = 2;
+  EditTradeData data = 3;
+}
+
 // FindOne
 
 message FindOneData {
   uint64 id = 1;
   google.protobuf.Timestamp time_executed = 2;
   string market = 3;
-  string outcome = 4;
-  string direction = 5;
-  string instrument = 6;
-  string comments = 7;
-  string strategy = 8;
-  google.protobuf.Timestamp time_closed = 9;
+  float stop_loss = 4;
+  float entry_price = 5;
+  float exit_price = 6;
+  float quantity = 7;
+  string outcome = 8;
+  string direction = 9;
+  string instrument = 10;
+  float take_profit = 11;
+  string comments = 12;
+  string strategy = 13;
+  google.protobuf.Timestamp time_closed = 14;
 }
 
 message FindOneRequest {
