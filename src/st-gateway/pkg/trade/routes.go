@@ -19,6 +19,7 @@ func RegisterRoutes(r *gin.Engine, c *config.Config, authSvc *auth.ServiceClient
 	routes.Use(a.AuthRequired)
 	routes.POST("/", svc.CreateTrade)
 	routes.GET("/:id", svc.FindOne)
+	routes.DELETE("/:id", svc.Delete)
 }
 
 func (svc *ServiceClient) FindOne(ctx *gin.Context) {
@@ -27,4 +28,8 @@ func (svc *ServiceClient) FindOne(ctx *gin.Context) {
 
 func (svc *ServiceClient) CreateTrade(ctx *gin.Context) {
 	routes.CreateTrade(ctx, svc.Client)
+}
+
+func (svc *ServiceClient) Delete(ctx *gin.Context) {
+	routes.Delete(ctx, svc.Client)
 }

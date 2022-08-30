@@ -30,6 +30,7 @@ func (s *Server) Register(ctx context.Context, req *pb.RegisterRequest) (*pb.Reg
 	user.Email = req.Email
 	user.Password = utils.HashPassword(req.Password)
 	user.FullName = req.FullName
+	user.Role = req.Role
 	user.TimeRegistered = timestamppb.Now().AsTime()
 
 	s.H.DB.Create(&user)
@@ -49,9 +50,7 @@ func (s *Server) Login(ctx context.Context, req *pb.LoginRequest) (*pb.LoginResp
 		}, nil
 	}
 
-	match := utils.CheckPasswordHash(req.Password, user.Password)
-
-	if !match {
+	if !utils.CheckPasswordHash(req.Password, user.Password) {
 		return &pb.LoginResponse{
 			Status: http.StatusNotFound,
 			Error:  "User not found",
@@ -63,6 +62,8 @@ func (s *Server) Login(ctx context.Context, req *pb.LoginRequest) (*pb.LoginResp
 	return &pb.LoginResponse{
 		Status: http.StatusOK,
 		Token:  token,
+		Role:   user.Role,
+		Id:     user.Id,
 	}, nil
 }
 

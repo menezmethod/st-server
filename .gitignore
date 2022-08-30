@@ -1,4 +1,5 @@
 *.exe
+*.dmg
 *.exe~
 *.dll
 *.so
@@ -11,6 +12,7 @@
 *.out
 
 # Dependency directories (remove the comment below to include it)
+/builds
 /src/st-gateway/vendor/
 /src/st-auth-svc/vendor/
 /src/st-journal-svc/vendor/

@@ -12,6 +12,7 @@ type RegisterRequestBody struct {
 	Email    string `json:"email"`
 	Password string `json:"password"`
 	FullName string `json:"fullName"`
+	Role     string `json:"role"`
 }
 
 func Register(ctx *gin.Context, c pb.AuthServiceClient) {
@@ -26,6 +27,7 @@ func Register(ctx *gin.Context, c pb.AuthServiceClient) {
 		Email:    b.Email,
 		Password: b.Password,
 		FullName: b.FullName,
+		Role:     b.Role,
 	})
 
 	if err != nil {

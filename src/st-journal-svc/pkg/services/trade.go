@@ -4,10 +4,10 @@ import (
 	"context"
 	"google.golang.org/protobuf/types/known/timestamppb"
 	"net/http"
-
 	"st-journal-svc/pkg/db"
 	"st-journal-svc/pkg/models"
 	"st-journal-svc/pkg/pb"
+	"strconv"
 )
 
 type Server struct {
@@ -73,32 +73,25 @@ func (s *Server) FindOne(ctx context.Context, req *pb.FindOneRequest) (*pb.FindO
 	}, nil
 }
 
-func (s *Server) DeleteTrade(ctx context.Context, req *pb.DeleteTradeRequest) (*pb.DeleteTradeResponse, error) {
-	var trade models.Trade
+func (s *Server) Delete(ctx context.Context, req *pb.DeleteRequest) (*pb.DeleteResponse, error) {
+	var log models.TradeDeleteLog
 
-	if result := s.H.DB.First(&trade, req.Id); result.Error != nil {
-		return &pb.DeleteTradeResponse{
+	if result := s.H.DB.First(&models.Trade{}, req.Id); result.Error != nil {
+		return &pb.DeleteResponse{
 			Status: http.StatusNotFound,
 			Error:  result.Error.Error(),
 		}, nil
 	}
 
-	var log models.TradeDeleteLog
+	s.H.DB.Where("ID IN (?)", req.Id).Delete(&models.Trade{})
 
-	if result := s.H.DB.Where(&models.TradeDeleteLog{TradeId: req.TradeId}).First(&log); result.Error == nil {
-		return &pb.DeleteTradeResponse{
-			Status: http.StatusConflict,
-			Error:  "Trade already deleted",
-		}, nil
+	for i := range req.Id {
+		log.TradeId, _ = strconv.ParseUint(req.Id[i], 10, 32)
 	}
-
-	s.H.DB.Save(&trade)
-
-	log.TradeId = req.TradeId
 
 	s.H.DB.Create(&log)
 
-	return &pb.DeleteTradeResponse{
+	return &pb.DeleteResponse{
 		Status: http.StatusOK,
 	}, nil
 }

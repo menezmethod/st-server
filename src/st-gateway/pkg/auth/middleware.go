@@ -9,31 +9,27 @@ import (
 	"st-gateway/pkg/auth/pb"
 )
 
-type AuthMiddlewareConfig struct {
+type MiddlewareConfig struct {
 	svc *ServiceClient
 }
 
-func InitAuthMiddleware(svc *ServiceClient) AuthMiddlewareConfig {
-	return AuthMiddlewareConfig{svc}
+func InitAuthMiddleware(svc *ServiceClient) MiddlewareConfig {
+	return MiddlewareConfig{svc}
 }
 
-func (c *AuthMiddlewareConfig) AuthRequired(ctx *gin.Context) {
-	authorization := ctx.Request.Header.Get("authorization")
-
-	if authorization == "" {
+func (c *MiddlewareConfig) AuthRequired(ctx *gin.Context) {
+	if ctx.Request.Header.Get("authorization") == "" {
 		ctx.AbortWithStatus(http.StatusUnauthorized)
 		return
 	}
 
-	token := strings.Split(authorization, "Bearer ")
-
-	if len(token) < 2 {
+	if len(strings.Split(ctx.Request.Header.Get("authorization"), "Bearer ")) < 2 {
 		ctx.AbortWithStatus(http.StatusUnauthorized)
 		return
 	}
 
 	res, err := c.svc.Client.Validate(context.Background(), &pb.ValidateRequest{
-		Token: token[1],
+		Token: strings.Split(ctx.Request.Header.Get("authorization"), "Bearer ")[1],
 	})
 
 	if err != nil || res.Status != http.StatusOK {
