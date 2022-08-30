@@ -1,0 +1,58 @@
+syntax = "proto3";
+
+package trade;
+
+option go_package = "./pkg/trade/pb";
+import "google/protobuf/timestamp.proto";
+
+service TradeService {
+  rpc CreateTrade(CreateTradeRequest) returns (CreateTradeResponse) {}
+  rpc FindOne(FindOneRequest) returns (FindOneResponse) {}
+}
+
+// CreateTrade
+
+message CreateTradeRequest {
+  uint64 id = 1;
+  google.protobuf.Timestamp time_executed = 2;
+  string market = 3;
+  uint64 stop_loss = 4;
+  uint64 entry_price = 5;
+  uint64 exit_price = 6;
+  uint32 quantity = 7;
+  string outcome = 8;
+  string direction = 9;
+  string instrument = 10;
+  uint64 take_profit = 11;
+  string comments = 12;
+  string strategy = 13;
+  google.protobuf.Timestamp time_closed = 14;
+}
+
+message CreateTradeResponse {
+  uint64 status = 1;
+  string error = 2;
+  uint64 id = 3;}
+
+// FindOne
+
+message FindOneData {
+  uint64 id = 1;
+  google.protobuf.Timestamp time_executed = 2;
+  string market = 3;
+  string outcome = 4;
+  string direction = 5;
+  string instrument = 6;
+  string comments = 7;
+  string strategy = 8;
+}
+
+message FindOneRequest {
+  uint64 id = 1;
+}
+
+message FindOneResponse {
+  uint64 status = 1;
+  string error = 2;
+  FindOneData data = 3;
+}
