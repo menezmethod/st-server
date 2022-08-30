@@ -13,15 +13,15 @@ import (
 type CreateTradeRequestBody struct {
 	Comments     string    `json:"comments"`
 	Direction    string    `json:"direction"`
-	EntryPrice   uint64    `json:"entryPrice"`
-	ExitPrice    uint64    `json:"exitPrice"`
+	EntryPrice   float32   `json:"entryPrice"`
+	ExitPrice    float32   `json:"exitPrice"`
 	Instrument   string    `json:"instrument"`
 	Market       string    `json:"market"`
 	Outcome      string    `json:"outcome"`
-	Quantity     uint32    `json:"quantity"`
-	StopLoss     uint64    `json:"stopLoss"`
+	Quantity     float32   `json:"quantity"`
+	StopLoss     float32   `json:"stopLoss"`
 	Strategy     string    `json:"strategy"`
-	TakeProfit   uint64    `json:"takeProfit"`
+	TakeProfit   float32   `json:"takeProfit"`
 	TimeClosed   time.Time `json:"timeClosed"`
 	TimeExecuted time.Time `json:"timeExecuted"`
 }

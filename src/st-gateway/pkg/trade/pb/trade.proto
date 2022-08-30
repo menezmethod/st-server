@@ -8,6 +8,7 @@ import "google/protobuf/timestamp.proto";
 service TradeService {
   rpc CreateTrade(CreateTradeRequest) returns (CreateTradeResponse) {}
   rpc FindOne(FindOneRequest) returns (FindOneResponse) {}
+  rpc Delete(DeleteRequest) returns (DeleteResponse) {}
 }
 
 // CreateTrade
@@ -16,14 +17,14 @@ message CreateTradeRequest {
   uint64 id = 1;
   google.protobuf.Timestamp time_executed = 2;
   string market = 3;
-  uint64 stop_loss = 4;
-  uint64 entry_price = 5;
-  uint64 exit_price = 6;
-  uint32 quantity = 7;
+  float stop_loss = 4;
+  float entry_price = 5;
+  float exit_price = 6;
+  float quantity = 7;
   string outcome = 8;
   string direction = 9;
   string instrument = 10;
-  uint64 take_profit = 11;
+  float take_profit = 11;
   string comments = 12;
   string strategy = 13;
   google.protobuf.Timestamp time_closed = 14;
@@ -55,4 +56,13 @@ message FindOneResponse {
   uint64 status = 1;
   string error = 2;
   FindOneData data = 3;
+}
+
+message DeleteRequest {
+  repeated string id = 1;
+}
+
+message DeleteResponse {
+  uint64 status = 1;
+  string error = 2;
 }

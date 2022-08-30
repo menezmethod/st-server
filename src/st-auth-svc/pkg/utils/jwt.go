@@ -21,18 +21,14 @@ type jwtClaims struct {
 }
 
 func (w *JwtWrapper) GenerateToken(user models.User) (signedToken string, err error) {
-	claims := &jwtClaims{
+	signedToken, err = jwt.NewWithClaims(jwt.SigningMethodHS256, &jwtClaims{
 		Id:    user.Id,
 		Email: user.Email,
 		StandardClaims: jwt.StandardClaims{
 			ExpiresAt: time.Now().Local().Add(time.Hour * time.Duration(w.ExpirationHours)).Unix(),
 			Issuer:    w.Issuer,
 		},
-	}
-
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-
-	signedToken, err = token.SignedString([]byte(w.SecretKey))
+	}).SignedString([]byte(w.SecretKey))
 
 	if err != nil {
 		return "", err
@@ -57,7 +53,7 @@ func (w *JwtWrapper) ValidateToken(signedToken string) (claims *jwtClaims, err e
 	claims, ok := token.Claims.(*jwtClaims)
 
 	if !ok {
-		return nil, errors.New("Couldn't parse claims")
+		return nil, errors.New("couldn't parse claims")
 	}
 
 	if claims.ExpiresAt < time.Now().Local().Unix() {

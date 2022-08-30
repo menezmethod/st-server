@@ -24,7 +24,7 @@ const _ = grpc.SupportPackageIsVersion7
 type TradeServiceClient interface {
 	CreateTrade(ctx context.Context, in *CreateTradeRequest, opts ...grpc.CallOption) (*CreateTradeResponse, error)
 	FindOne(ctx context.Context, in *FindOneRequest, opts ...grpc.CallOption) (*FindOneResponse, error)
-	DeleteTrade(ctx context.Context, in *DeleteTradeRequest, opts ...grpc.CallOption) (*DeleteTradeResponse, error)
+	Delete(ctx context.Context, in *DeleteRequest, opts ...grpc.CallOption) (*DeleteResponse, error)
 }
 
 type tradeServiceClient struct {
@@ -53,9 +53,9 @@ func (c *tradeServiceClient) FindOne(ctx context.Context, in *FindOneRequest, op
 	return out, nil
 }
 
-func (c *tradeServiceClient) DeleteTrade(ctx context.Context, in *DeleteTradeRequest, opts ...grpc.CallOption) (*DeleteTradeResponse, error) {
-	out := new(DeleteTradeResponse)
-	err := c.cc.Invoke(ctx, "/trade.TradeService/DeleteTrade", in, out, opts...)
+func (c *tradeServiceClient) Delete(ctx context.Context, in *DeleteRequest, opts ...grpc.CallOption) (*DeleteResponse, error) {
+	out := new(DeleteResponse)
+	err := c.cc.Invoke(ctx, "/trade.TradeService/Delete", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -68,7 +68,7 @@ func (c *tradeServiceClient) DeleteTrade(ctx context.Context, in *DeleteTradeReq
 type TradeServiceServer interface {
 	CreateTrade(context.Context, *CreateTradeRequest) (*CreateTradeResponse, error)
 	FindOne(context.Context, *FindOneRequest) (*FindOneResponse, error)
-	DeleteTrade(context.Context, *DeleteTradeRequest) (*DeleteTradeResponse, error)
+	Delete(context.Context, *DeleteRequest) (*DeleteResponse, error)
 	mustEmbedUnimplementedTradeServiceServer()
 }
 
@@ -82,8 +82,8 @@ func (UnimplementedTradeServiceServer) CreateTrade(context.Context, *CreateTrade
 func (UnimplementedTradeServiceServer) FindOne(context.Context, *FindOneRequest) (*FindOneResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method FindOne not implemented")
 }
-func (UnimplementedTradeServiceServer) DeleteTrade(context.Context, *DeleteTradeRequest) (*DeleteTradeResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method DeleteTrade not implemented")
+func (UnimplementedTradeServiceServer) Delete(context.Context, *DeleteRequest) (*DeleteResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Delete not implemented")
 }
 func (UnimplementedTradeServiceServer) mustEmbedUnimplementedTradeServiceServer() {}
 
@@ -134,20 +134,20 @@ func _TradeService_FindOne_Handler(srv interface{}, ctx context.Context, dec fun
 	return interceptor(ctx, in, info, handler)
 }
 
-func _TradeService_DeleteTrade_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(DeleteTradeRequest)
+func _TradeService_Delete_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DeleteRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(TradeServiceServer).DeleteTrade(ctx, in)
+		return srv.(TradeServiceServer).Delete(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/trade.TradeService/DeleteTrade",
+		FullMethod: "/trade.TradeService/Delete",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(TradeServiceServer).DeleteTrade(ctx, req.(*DeleteTradeRequest))
+		return srv.(TradeServiceServer).Delete(ctx, req.(*DeleteRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -168,8 +168,8 @@ var TradeService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _TradeService_FindOne_Handler,
 		},
 		{
-			MethodName: "DeleteTrade",
-			Handler:    _TradeService_DeleteTrade_Handler,
+			MethodName: "Delete",
+			Handler:    _TradeService_Delete_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
