@@ -7,7 +7,6 @@ import (
 	"st-journal-svc/pkg/db"
 	"st-journal-svc/pkg/models"
 	"st-journal-svc/pkg/pb"
-	"strconv"
 )
 
 type Server struct {
@@ -74,7 +73,6 @@ func (s *Server) FindOne(ctx context.Context, req *pb.FindOneRequest) (*pb.FindO
 }
 
 func (s *Server) Delete(ctx context.Context, req *pb.DeleteRequest) (*pb.DeleteResponse, error) {
-	var log models.TradeDeleteLog
 
 	if result := s.H.DB.First(&models.Trade{}, req.Id); result.Error != nil {
 		return &pb.DeleteResponse{
@@ -84,12 +82,6 @@ func (s *Server) Delete(ctx context.Context, req *pb.DeleteRequest) (*pb.DeleteR
 	}
 
 	s.H.DB.Where("ID IN (?)", req.Id).Delete(&models.Trade{})
-
-	for i := range req.Id {
-		log.TradeId, _ = strconv.ParseUint(req.Id[i], 10, 32)
-	}
-
-	s.H.DB.Create(&log)
 
 	return &pb.DeleteResponse{
 		Status: http.StatusOK,
