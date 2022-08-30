@@ -13,9 +13,9 @@ func RegisterRoutes(r *gin.Engine, c *config.Config) *ServiceClient {
 		Client: InitServiceClient(c),
 	}
 
-	routes := r.Group(fmt.Sprintf("v%v/auth", c.ApiVersion))
-	routes.POST("/register", svc.Register)
-	routes.POST("/login", svc.Login)
+	routerGroup := r.Group(fmt.Sprintf("v%v/auth", c.ApiVersion))
+	routerGroup.POST("/register", svc.Register)
+	routerGroup.POST("/login", svc.Login)
 
 	return svc
 }

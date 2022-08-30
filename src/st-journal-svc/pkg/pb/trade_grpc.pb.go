@@ -23,6 +23,7 @@ const _ = grpc.SupportPackageIsVersion7
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type TradeServiceClient interface {
 	CreateTrade(ctx context.Context, in *CreateTradeRequest, opts ...grpc.CallOption) (*CreateTradeResponse, error)
+	EditTrade(ctx context.Context, in *EditTradeRequest, opts ...grpc.CallOption) (*EditTradeResponse, error)
 	FindOne(ctx context.Context, in *FindOneRequest, opts ...grpc.CallOption) (*FindOneResponse, error)
 	Delete(ctx context.Context, in *DeleteRequest, opts ...grpc.CallOption) (*DeleteResponse, error)
 }
@@ -38,6 +39,15 @@ func NewTradeServiceClient(cc grpc.ClientConnInterface) TradeServiceClient {
 func (c *tradeServiceClient) CreateTrade(ctx context.Context, in *CreateTradeRequest, opts ...grpc.CallOption) (*CreateTradeResponse, error) {
 	out := new(CreateTradeResponse)
 	err := c.cc.Invoke(ctx, "/trade.TradeService/CreateTrade", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *tradeServiceClient) EditTrade(ctx context.Context, in *EditTradeRequest, opts ...grpc.CallOption) (*EditTradeResponse, error) {
+	out := new(EditTradeResponse)
+	err := c.cc.Invoke(ctx, "/trade.TradeService/EditTrade", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -67,6 +77,7 @@ func (c *tradeServiceClient) Delete(ctx context.Context, in *DeleteRequest, opts
 // for forward compatibility
 type TradeServiceServer interface {
 	CreateTrade(context.Context, *CreateTradeRequest) (*CreateTradeResponse, error)
+	EditTrade(context.Context, *EditTradeRequest) (*EditTradeResponse, error)
 	FindOne(context.Context, *FindOneRequest) (*FindOneResponse, error)
 	Delete(context.Context, *DeleteRequest) (*DeleteResponse, error)
 	mustEmbedUnimplementedTradeServiceServer()
@@ -78,6 +89,9 @@ type UnimplementedTradeServiceServer struct {
 
 func (UnimplementedTradeServiceServer) CreateTrade(context.Context, *CreateTradeRequest) (*CreateTradeResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateTrade not implemented")
+}
+func (UnimplementedTradeServiceServer) EditTrade(context.Context, *EditTradeRequest) (*EditTradeResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method EditTrade not implemented")
 }
 func (UnimplementedTradeServiceServer) FindOne(context.Context, *FindOneRequest) (*FindOneResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method FindOne not implemented")
@@ -112,6 +126,24 @@ func _TradeService_CreateTrade_Handler(srv interface{}, ctx context.Context, dec
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(TradeServiceServer).CreateTrade(ctx, req.(*CreateTradeRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _TradeService_EditTrade_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(EditTradeRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(TradeServiceServer).EditTrade(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/trade.TradeService/EditTrade",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(TradeServiceServer).EditTrade(ctx, req.(*EditTradeRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -162,6 +194,10 @@ var TradeService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "CreateTrade",
 			Handler:    _TradeService_CreateTrade_Handler,
+		},
+		{
+			MethodName: "EditTrade",
+			Handler:    _TradeService_EditTrade_Handler,
 		},
 		{
 			MethodName: "FindOne",
