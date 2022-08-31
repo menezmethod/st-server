@@ -1,0 +1,7 @@
+go 1.19
+
+use (
+	./src/st-auth-svc
+	./src/st-gateway
+	./src/st-journal-svc
+)

@@ -44,6 +44,60 @@ func (s *Server) CreateTrade(ctx context.Context, req *pb.CreateTradeRequest) (*
 	}, nil
 }
 
+// EditTrade TODO PUT is working fine but we need this to work with PATCH instead
+func (s *Server) EditTrade(ctx context.Context, req *pb.EditTradeRequest) (*pb.EditTradeResponse, error) {
+	if result := s.H.DB.Model(models.Trade{}).Where("ID = ?", req.Id).Updates(models.TradePatch{
+		ID:           &req.Id,
+		Comments:     &req.Comments,
+		Direction:    &req.Direction,
+		EntryPrice:   &req.EntryPrice,
+		ExitPrice:    &req.ExitPrice,
+		Instrument:   &req.Instrument,
+		Market:       &req.Market,
+		Outcome:      &req.Outcome,
+		Quantity:     &req.Quantity,
+		StopLoss:     &req.StopLoss,
+		Strategy:     &req.Strategy,
+		TakeProfit:   &req.TakeProfit,
+		TimeClosed:   req.TimeClosed.AsTime(),
+		TimeExecuted: req.TimeExecuted.AsTime(),
+	}); result.Error != nil {
+		return &pb.EditTradeResponse{
+			Status: http.StatusConflict,
+			Error:  result.Error.Error(),
+		}, nil
+	}
+
+	var db models.Trade
+
+	if result := s.H.DB.First(&db, req.Id); result.Error != nil {
+		return &pb.EditTradeResponse{
+			Status: http.StatusNotFound,
+			Error:  result.Error.Error(),
+		}, nil
+	}
+
+	return &pb.EditTradeResponse{
+		Status: http.StatusCreated,
+		Data: &pb.EditTradeData{
+			Id:           req.Id,
+			Comments:     db.Comments,
+			Direction:    db.Direction,
+			EntryPrice:   db.EntryPrice,
+			ExitPrice:    db.ExitPrice,
+			Instrument:   db.Instrument,
+			Market:       db.Market,
+			Outcome:      db.Outcome,
+			Quantity:     db.Quantity,
+			StopLoss:     db.StopLoss,
+			Strategy:     db.Strategy,
+			TakeProfit:   db.TakeProfit,
+			TimeClosed:   timestamppb.New(db.TimeClosed),
+			TimeExecuted: timestamppb.New(db.TimeExecuted),
+		},
+	}, nil
+}
+
 func (s *Server) FindOne(ctx context.Context, req *pb.FindOneRequest) (*pb.FindOneResponse, error) {
 	var trade models.Trade
 
@@ -58,10 +112,15 @@ func (s *Server) FindOne(ctx context.Context, req *pb.FindOneRequest) (*pb.FindO
 		Id:           trade.ID,
 		Comments:     trade.Comments,
 		Direction:    trade.Direction,
+		EntryPrice:   trade.EntryPrice,
+		ExitPrice:    trade.ExitPrice,
 		Instrument:   trade.Instrument,
 		Market:       trade.Market,
 		Outcome:      trade.Outcome,
+		Quantity:     trade.Quantity,
+		StopLoss:     trade.StopLoss,
 		Strategy:     trade.Strategy,
+		TakeProfit:   trade.TakeProfit,
 		TimeClosed:   timestamppb.New(trade.TimeClosed),
 		TimeExecuted: timestamppb.New(trade.TimeExecuted),
 	}
