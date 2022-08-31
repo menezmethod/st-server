@@ -12,10 +12,9 @@
 *.out
 
 # Dependency directories (remove the comment below to include it)
+/bin
 /builds
-/src/st-gateway/vendor/
+/pkg
 /src/st-auth-svc/vendor/
+/src/st-gateway/vendor/
 /src/st-journal-svc/vendor/
-
-# Go workspace file
-#go.work
