@@ -1,0 +1,12 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="strat-trader" type="docker-deploy" factoryName="docker-image" server-name="Docker">
+    <deployment type="docker-image">
+      <settings>
+        <option name="imageTag" value="postgres:14.5-alpine" />
+        <option name="containerName" value="strat-trader" />
+        <option name="commandLineOptions" value="-e POSTGRES_USER=root -e POSTGRES_PASSWORD=StratTrad3r" />
+      </settings>
+    </deployment>
+    <method v="2" />
+  </configuration>
+</component>
