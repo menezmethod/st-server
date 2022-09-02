@@ -14,20 +14,20 @@ type Server struct {
 	pb.TradeServiceServer
 }
 
-func (s *Server) CreateTrade(ctx context.Context, req *pb.CreateTradeRequest) (*pb.CreateTradeResponse, error) {
+func (s *Server) CreateTrade(_ context.Context, req *pb.CreateTradeRequest) (*pb.CreateTradeResponse, error) {
 	var trade models.Trade
-
-	trade.Comments = req.Comments
-	trade.Direction = req.Direction
-	trade.EntryPrice = req.EntryPrice
-	trade.ExitPrice = req.ExitPrice
-	trade.Instrument = req.Instrument
-	trade.Market = req.Market
-	trade.Outcome = req.Outcome
-	trade.Quantity = req.Quantity
-	trade.StopLoss = req.StopLoss
-	trade.Strategy = req.Strategy
-	trade.TakeProfit = req.TakeProfit
+	//TODO This needs validation
+	trade.Comments = req.GetComments().Value
+	trade.Direction = req.GetDirection().Value
+	trade.EntryPrice = req.GetEntryPrice().Value
+	trade.ExitPrice = req.GetExitPrice().Value
+	trade.Instrument = req.GetInstrument().Value
+	trade.Market = req.GetMarket().Value
+	trade.Outcome = req.GetOutcome().Value
+	trade.Quantity = req.GetQuantity().Value
+	trade.StopLoss = req.GetStopLoss().Value
+	trade.Strategy = req.GetStrategy().Value
+	trade.TakeProfit = req.GetTakeProfit().Value
 	trade.TimeClosed = req.TimeClosed.AsTime()
 	trade.TimeExecuted = req.TimeExecuted.AsTime()
 
@@ -44,33 +44,61 @@ func (s *Server) CreateTrade(ctx context.Context, req *pb.CreateTradeRequest) (*
 	}, nil
 }
 
-// EditTrade TODO PUT is working fine but we need this to work with PATCH instead
-func (s *Server) EditTrade(ctx context.Context, req *pb.EditTradeRequest) (*pb.EditTradeResponse, error) {
-	if result := s.H.DB.Model(models.Trade{}).Where("ID = ?", req.Id).Updates(models.TradePatch{
-		ID:           &req.Id,
-		Comments:     &req.Comments,
-		Direction:    &req.Direction,
-		EntryPrice:   &req.EntryPrice,
-		ExitPrice:    &req.ExitPrice,
-		Instrument:   &req.Instrument,
-		Market:       &req.Market,
-		Outcome:      &req.Outcome,
-		Quantity:     &req.Quantity,
-		StopLoss:     &req.StopLoss,
-		Strategy:     &req.Strategy,
-		TakeProfit:   &req.TakeProfit,
-		TimeClosed:   req.TimeClosed.AsTime(),
-		TimeExecuted: req.TimeExecuted.AsTime(),
-	}); result.Error != nil {
+func (s *Server) EditTrade(_ context.Context, req *pb.EditTradeRequest) (*pb.EditTradeResponse, error) {
+	var trade models.Trade
+
+	if req.GetComments().Value != "" {
+		trade.Comments = req.GetComments().Value
+	}
+	if req.GetDirection().GetValue() != "" {
+		trade.Comments = req.GetDirection().GetValue()
+	}
+	if req.GetEntryPrice().Value != 0 {
+		trade.EntryPrice = req.GetEntryPrice().Value
+	}
+	if req.GetExitPrice().Value != 0 {
+		trade.ExitPrice = req.GetExitPrice().Value
+	}
+	if req.GetInstrument().Value != "" {
+		trade.Instrument = req.GetInstrument().Value
+	}
+	if req.GetMarket().Value != "" {
+		trade.Market = req.GetMarket().Value
+	}
+	if req.GetOutcome().Value != "" {
+		trade.Outcome = req.GetOutcome().Value
+	}
+	if req.GetQuantity().Value != 0 {
+		trade.Quantity = req.GetQuantity().Value
+	}
+	if req.GetStopLoss().Value != 0 {
+		trade.StopLoss = req.GetStopLoss().Value
+	}
+	if req.GetStrategy().Value != "" {
+		trade.Strategy = req.GetStrategy().Value
+	}
+	if req.GetTakeProfit().Value != 0 {
+		trade.TakeProfit = req.GetTakeProfit().Value
+	}
+	if req.GetTimeClosed() != nil {
+		trade.TimeClosed = req.GetTimeClosed().AsTime()
+	}
+	if req.GetTimeExecuted() != nil {
+		trade.TimeExecuted = req.GetTimeExecuted().AsTime()
+	}
+
+	trade.ID = req.GetId()
+
+	if result := s.H.DB.Updates(&trade); result.Error != nil {
 		return &pb.EditTradeResponse{
 			Status: http.StatusConflict,
 			Error:  result.Error.Error(),
 		}, nil
 	}
 
-	var db models.Trade
+	var dbRes models.Trade
 
-	if result := s.H.DB.First(&db, req.Id); result.Error != nil {
+	if result := s.H.DB.First(&trade, req.Id); result.Error != nil {
 		return &pb.EditTradeResponse{
 			Status: http.StatusNotFound,
 			Error:  result.Error.Error(),
@@ -81,24 +109,24 @@ func (s *Server) EditTrade(ctx context.Context, req *pb.EditTradeRequest) (*pb.E
 		Status: http.StatusCreated,
 		Data: &pb.EditTradeData{
 			Id:           req.Id,
-			Comments:     db.Comments,
-			Direction:    db.Direction,
-			EntryPrice:   db.EntryPrice,
-			ExitPrice:    db.ExitPrice,
-			Instrument:   db.Instrument,
-			Market:       db.Market,
-			Outcome:      db.Outcome,
-			Quantity:     db.Quantity,
-			StopLoss:     db.StopLoss,
-			Strategy:     db.Strategy,
-			TakeProfit:   db.TakeProfit,
-			TimeClosed:   timestamppb.New(db.TimeClosed),
-			TimeExecuted: timestamppb.New(db.TimeExecuted),
+			Comments:     dbRes.Comments,
+			Direction:    dbRes.Direction,
+			EntryPrice:   dbRes.EntryPrice,
+			ExitPrice:    dbRes.ExitPrice,
+			Instrument:   dbRes.Instrument,
+			Market:       dbRes.Market,
+			Outcome:      dbRes.Outcome,
+			Quantity:     dbRes.Quantity,
+			StopLoss:     dbRes.StopLoss,
+			Strategy:     dbRes.Strategy,
+			TakeProfit:   dbRes.TakeProfit,
+			TimeClosed:   timestamppb.New(dbRes.TimeClosed),
+			TimeExecuted: timestamppb.New(dbRes.TimeExecuted),
 		},
 	}, nil
 }
 
-func (s *Server) FindOne(ctx context.Context, req *pb.FindOneRequest) (*pb.FindOneResponse, error) {
+func (s *Server) FindOne(_ context.Context, req *pb.FindOneRequest) (*pb.FindOneResponse, error) {
 	var trade models.Trade
 
 	if result := s.H.DB.First(&trade, req.Id); result.Error != nil {
@@ -131,7 +159,7 @@ func (s *Server) FindOne(ctx context.Context, req *pb.FindOneRequest) (*pb.FindO
 	}, nil
 }
 
-func (s *Server) Delete(ctx context.Context, req *pb.DeleteRequest) (*pb.DeleteResponse, error) {
+func (s *Server) Delete(_ context.Context, req *pb.DeleteRequest) (*pb.DeleteResponse, error) {
 
 	if result := s.H.DB.First(&models.Trade{}, req.Id); result.Error != nil {
 		return &pb.DeleteResponse{
