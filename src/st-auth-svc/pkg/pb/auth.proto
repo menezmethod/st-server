@@ -4,24 +4,23 @@ package auth;
 
 option go_package = "./pkg/pb";
 import "google/protobuf/timestamp.proto";
+import "google/protobuf/wrappers.proto";
 
 service AuthService {
-  rpc Register(RegisterRequest) returns (RegisterResponse) {}
+  rpc DeleteUser(DeleteUserRequest) returns (DeleteUserResponse) {}
   rpc Login(LoginRequest) returns (LoginResponse) {}
+  rpc Register(RegisterRequest) returns (RegisterResponse) {}
+  rpc UpdateUser(UpdateUserRequest) returns (UpdateUserResponse) {}
   rpc Validate(ValidateRequest) returns (ValidateResponse) {}
 }
 
-// Register
+// DeleteTrade
 
-message RegisterRequest {
-  string email = 1;
-  string password = 2;
-  string full_name = 3;
-  string role = 4;
-  google.protobuf.Timestamp time_registered = 5;
+message DeleteUserRequest {
+  repeated string id = 1;
 }
 
-message RegisterResponse {
+message DeleteUserResponse {
   uint64 status = 1;
   string error = 2;
 }
@@ -29,8 +28,8 @@ message RegisterResponse {
 // Login
 
 message LoginRequest {
-  string email = 1;
-  string password = 2;
+  google.protobuf.StringValue email = 1;
+  google.protobuf.StringValue password = 2;
 }
 
 message LoginResponse {
@@ -41,12 +40,56 @@ message LoginResponse {
   uint64 id = 5;
 }
 
+// Register
+
+message RegisterRequest {
+  google.protobuf.StringValue email = 1;
+  google.protobuf.StringValue password = 2;
+  google.protobuf.StringValue full_name = 3;
+  google.protobuf.StringValue role = 4;
+  google.protobuf.Timestamp time_registered = 5;
+}
+
+message RegisterResponse {
+  uint64 status = 1;
+  string error = 2;
+  User data = 3;
+}
+
+
+// Update
+
+message UpdateUserRequest {
+  google.protobuf.StringValue email = 1;
+  google.protobuf.StringValue password = 2;
+  google.protobuf.StringValue full_name = 3;
+  google.protobuf.StringValue role = 4;
+  google.protobuf.Timestamp time_registered = 5;
+  uint64 id = 6;
+}
+
+message UpdateUserResponse {
+  uint64 status = 1;
+  string error = 2;
+  User data = 3;
+}
+
 // Validate
 
-message ValidateRequest { string token = 1; }
+message ValidateRequest { google.protobuf.StringValue token = 1; }
 
 message ValidateResponse {
   uint64 status = 1;
   string error = 2;
   uint64 userId = 3;
+}
+
+message User {
+  uint64 id = 1;
+  string email = 2;
+  string password = 3;
+  string full_name = 4;
+  string role = 5;
+  string token = 6;
+  google.protobuf.Timestamp time_registered = 7;
 }

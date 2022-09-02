@@ -2,6 +2,8 @@ package services
 
 import (
 	"context"
+	"errors"
+	"fmt"
 	"google.golang.org/protobuf/types/known/timestamppb"
 	"net/http"
 
@@ -17,47 +19,90 @@ type Server struct {
 	pb.UnimplementedAuthServiceServer
 }
 
-func (s *Server) Register(ctx context.Context, req *pb.RegisterRequest) (*pb.RegisterResponse, error) {
+func (s *Server) Register(_ context.Context, req *pb.RegisterRequest) (*pb.RegisterResponse, error) {
 	var user models.User
 
-	if result := s.H.DB.Where(&models.User{Email: req.Email}).First(&user); result.Error == nil {
+	if result := s.H.DB.Where(&models.User{Email: req.Email.Value}).First(&user); result.Error == nil {
 		return &pb.RegisterResponse{
 			Status: http.StatusConflict,
-			Error:  "E-Mail already exists",
+			Error:  "email already exists",
 		}, nil
 	}
 
-	user.Email = req.Email
-	user.Password = utils.HashPassword(req.Password)
-	user.FullName = req.FullName
-	user.Role = req.Role
-	user.TimeRegistered = timestamppb.Now().AsTime()
+	if v := req.GetEmail(); v != nil {
+		user.Email = v.Value
+	}
+	if v := req.GetPassword(); v != nil {
+		user.Password = v.Value
+	}
+	if v := req.GetFullName(); v != nil {
+		user.FullName = v.Value
+	}
+	if v := req.GetRole(); v != nil {
+		user.Role = v.Value
+	}
+	if v := req.GetTimeRegistered(); v != nil {
+		if err := v.CheckValid(); err != nil {
+			err = fmt.Errorf("invalid TimeRegistered: %s%w", err.Error(), errors.New(""))
+			return nil, err
+		}
+		if t := v.AsTime(); !t.IsZero() {
+			user.TimeRegistered = v.AsTime()
+		}
+	}
 
-	s.H.DB.Create(&user)
+	if result := s.H.DB.Create(&user); result.Error != nil {
+		return &pb.RegisterResponse{
+			Status: http.StatusConflict,
+			Error:  result.Error.Error(),
+		}, nil
+	}
 
 	return &pb.RegisterResponse{
 		Status: http.StatusCreated,
+		Data: &pb.User{
+			Id:             user.Id,
+			Email:          user.Email,
+			Password:       user.Password,
+			FullName:       user.FullName,
+			Role:           user.Role,
+			TimeRegistered: timestamppb.New(user.TimeRegistered),
+		},
 	}, nil
 }
 
-func (s *Server) Login(ctx context.Context, req *pb.LoginRequest) (*pb.LoginResponse, error) {
+func (s *Server) Login(_ context.Context, req *pb.LoginRequest) (*pb.LoginResponse, error) {
 	var user models.User
 
-	if result := s.H.DB.Where(&models.User{Email: req.Email}).First(&user); result.Error != nil {
+	if result := s.H.DB.Where("email = ?", req.Email.Value).First(&user); result.Error != nil {
 		return &pb.LoginResponse{
 			Status: http.StatusNotFound,
-			Error:  "User not found",
+			Error:  "user not found",
 		}, nil
 	}
 
-	if !utils.CheckPasswordHash(req.Password, user.Password) {
+	if v := req.GetEmail(); v != nil {
+		user.Email = v.Value
+	}
+	if v := req.GetPassword(); v != nil {
+		user.Password = utils.HashPassword(v.Value)
+	}
+
+	if !utils.CheckPasswordHash(req.Password.Value, user.Password) {
 		return &pb.LoginResponse{
 			Status: http.StatusNotFound,
-			Error:  "User not found",
+			Error:  "user not found",
 		}, nil
 	}
 
 	token, _ := s.Jwt.GenerateToken(user)
+
+	if loginDb := s.H.DB.First(&user); loginDb.Error != nil {
+		return &pb.LoginResponse{
+			Status: http.StatusNotFound,
+			Error:  loginDb.Error.Error(),
+		}, nil
+	}
 
 	return &pb.LoginResponse{
 		Status: http.StatusOK,
@@ -67,8 +112,9 @@ func (s *Server) Login(ctx context.Context, req *pb.LoginRequest) (*pb.LoginResp
 	}, nil
 }
 
-func (s *Server) Validate(ctx context.Context, req *pb.ValidateRequest) (*pb.ValidateResponse, error) {
-	claims, err := s.Jwt.ValidateToken(req.Token)
+func (s *Server) Validate(_ context.Context, req *pb.ValidateRequest) (*pb.ValidateResponse, error) {
+	var user models.User
+	claims, err := s.Jwt.ValidateToken(req.Token.Value)
 
 	if err != nil {
 		return &pb.ValidateResponse{
@@ -76,8 +122,6 @@ func (s *Server) Validate(ctx context.Context, req *pb.ValidateRequest) (*pb.Val
 			Error:  err.Error(),
 		}, nil
 	}
-
-	var user models.User
 
 	if result := s.H.DB.Where(&models.User{Email: claims.Email}).First(&user); result.Error != nil {
 		return &pb.ValidateResponse{
@@ -89,5 +133,82 @@ func (s *Server) Validate(ctx context.Context, req *pb.ValidateRequest) (*pb.Val
 	return &pb.ValidateResponse{
 		Status: http.StatusOK,
 		UserId: user.Id,
+	}, nil
+}
+
+func (s *Server) UpdateUser(_ context.Context, req *pb.UpdateUserRequest) (*pb.UpdateUserResponse, error) {
+	var user models.User
+
+	if result := s.H.DB.Where(&models.User{Email: req.Email.Value}).First(&user); result.Error == nil {
+		return &pb.UpdateUserResponse{
+			Status: http.StatusConflict,
+			Error:  "email already exists",
+		}, nil
+	}
+
+	if req.GetEmail().Value != "" {
+		user.Email = req.GetEmail().Value
+	}
+
+	if req.GetPassword().Value != "" {
+		user.Password = utils.HashPassword(req.GetPassword().Value)
+	}
+
+	if req.GetFullName().Value != "" {
+		user.FullName = req.GetFullName().Value
+	}
+
+	if req.GetRole().Value != "" {
+		user.Role = req.GetRole().Value
+	}
+
+	if v := req.GetTimeRegistered(); v != nil {
+		if err := v.CheckValid(); err != nil {
+			err = fmt.Errorf("invalid TimeRegistered: %s%w", err.Error(), errors.New(""))
+			return nil, err
+		}
+		if t := v.AsTime(); !t.IsZero() {
+			user.TimeRegistered = v.AsTime()
+		}
+	}
+	user.Id = req.GetId()
+
+	if result := s.H.DB.Updates(&user); result.Error != nil {
+		return &pb.UpdateUserResponse{
+			Status: http.StatusConflict,
+			Error:  result.Error.Error(),
+		}, nil
+	}
+
+	return &pb.UpdateUserResponse{
+		Status: http.StatusCreated,
+		Data: &pb.User{
+			Id:             user.Id,
+			Email:          user.Email,
+			FullName:       user.FullName,
+			Role:           user.Role,
+			TimeRegistered: timestamppb.New(user.TimeRegistered),
+		},
+	}, nil
+}
+
+func (s *Server) DeleteUser(_ context.Context, req *pb.DeleteUserRequest) (*pb.DeleteUserResponse, error) {
+
+	if result := s.H.DB.First(&models.User{}, req.Id); result.Error != nil {
+		return &pb.DeleteUserResponse{
+			Status: http.StatusNotFound,
+			Error:  result.Error.Error(),
+		}, nil
+	}
+
+	if result := s.H.DB.Where("ID IN (?)", req.Id).Delete(&models.User{}); result.Error != nil {
+		return &pb.DeleteUserResponse{
+			Status: http.StatusConflict,
+			Error:  result.Error.Error(),
+		}, nil
+	}
+
+	return &pb.DeleteUserResponse{
+		Status: http.StatusOK,
 	}, nil
 }
