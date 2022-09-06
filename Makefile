@@ -1,17 +1,20 @@
 proto gateway:
-	protoc pkg/**/=pb/*.proto --go_out=. --go-grpc_out=.
+	protoc pkg/**/pb/*.proto --go_out=. --go-grpc_out=.
 
 proto auth:
-	protoc pkg/**/pb/*.proto --go_out=. --go-grpc_out=.
+	protoc pkg/pb/*.proto --go_out=. --go-grpc_out=.
 
 proto journal:
-	protoc pkg/**/pb/*.proto --go_out=. --go-grpc_out=.
+	protoc pkg/pb/*.proto --go_out=. --go-grpc_out=.
 
 gateway server:
-	go run ./src/st-gateway/cmd/main.go
+	go build ./src/st-gateway/cmd/main.go
 
 auth server:
-	go run ./src/st-auth-svc/cmd/main.go
+	go build ./src/st-auth-svc/cmd/main.go
 
 journal server:
-	go run ./src/st-journal-svc/cmd/main.go
+	go build ./src/st-journal-svc/cmd/main.go
+
+all servers:
+	go build ./src/st-gateway/cmd/main.go ./src/st-auth-svc/cmd/main.go ./src/st-journal-svc/cmd/main.go

@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/gin-gonic/gin"
 	"google.golang.org/protobuf/types/known/timestamppb"
+	"google.golang.org/protobuf/types/known/wrapperspb"
 	"net/http"
 	"time"
 
@@ -35,17 +36,17 @@ func CreateTrade(ctx *gin.Context, c pb.TradeServiceClient) {
 	}
 
 	res, err := c.CreateTrade(context.Background(), &pb.CreateTradeRequest{
-		Comments:     b.Comments,
-		Direction:    b.Direction,
-		EntryPrice:   b.EntryPrice,
-		ExitPrice:    b.ExitPrice,
-		Instrument:   b.Instrument,
-		Market:       b.Market,
-		Outcome:      b.Outcome,
-		Quantity:     b.Quantity,
-		StopLoss:     b.StopLoss,
-		Strategy:     b.Strategy,
-		TakeProfit:   b.TakeProfit,
+		Comments:     wrapperspb.String(b.Comments),
+		Direction:    wrapperspb.String(b.Direction),
+		EntryPrice:   wrapperspb.Float(b.EntryPrice),
+		ExitPrice:    wrapperspb.Float(b.ExitPrice),
+		Instrument:   wrapperspb.String(b.Instrument),
+		Market:       wrapperspb.String(b.Market),
+		Outcome:      wrapperspb.String(b.Outcome),
+		Quantity:     wrapperspb.Float(b.Quantity),
+		StopLoss:     wrapperspb.Float(b.StopLoss),
+		Strategy:     wrapperspb.String(b.Strategy),
+		TakeProfit:   wrapperspb.Float(b.TakeProfit),
 		TimeClosed:   timestamppb.New(b.TimeClosed),
 		TimeExecuted: timestamppb.New(b.TimeExecuted),
 	})
