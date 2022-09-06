@@ -5,7 +5,6 @@ package trade;
 option go_package = "./pkg/pb";
 
 import "google/protobuf/timestamp.proto";
-import "google/protobuf/wrappers.proto";
 
 service TradeService {
   rpc CreateTrade(CreateTradeRequest) returns (CreateTradeResponse) {}
@@ -17,19 +16,20 @@ service TradeService {
 // CreateTrade
 
 message CreateTradeRequest {
-  google.protobuf.Timestamp time_executed = 2;
-  google.protobuf.StringValue market = 3;
-  google.protobuf.FloatValue stop_loss = 4;
-  google.protobuf.FloatValue entry_price = 5;
-  google.protobuf.FloatValue exit_price = 6;
-  google.protobuf.FloatValue quantity = 7;
-  google.protobuf.StringValue outcome = 8;
-  google.protobuf.StringValue direction = 9;
-  google.protobuf.StringValue instrument = 10;
-  google.protobuf.FloatValue take_profit = 11;
-  google.protobuf.StringValue comments = 12;
-  google.protobuf.StringValue strategy = 13;
-  google.protobuf.Timestamp time_closed = 14;
+  uint64 id = 1;
+  float entry_price = 2;
+  float exit_price = 3;
+  float quantity = 4;
+  float stop_loss = 5;
+  float take_profit = 6;
+  google.protobuf.Timestamp time_closed = 7;
+  google.protobuf.Timestamp time_executed = 8;
+  string comments = 9;
+  string direction = 10;
+  string instrument = 11;
+  string market = 12;
+  string outcome = 13;
+  string strategy = 14;
 }
 
 message CreateTradeResponse {
@@ -42,36 +42,36 @@ message CreateTradeResponse {
 
 message EditTradeData {
   uint64 id = 1;
-  google.protobuf.Timestamp time_executed = 2;
-  string market = 3;
-  float stop_loss = 4;
-  float entry_price = 5;
-  float exit_price = 6;
-  float quantity = 7;
-  string outcome = 8;
-  string direction = 9;
-  string instrument = 10;
-  float take_profit = 11;
-  string comments = 12;
-  string strategy = 13;
-  google.protobuf.Timestamp time_closed = 14;
+  float entry_price = 2;
+  float exit_price = 3;
+  float quantity = 4;
+  float stop_loss = 5;
+  float take_profit = 6;
+  google.protobuf.Timestamp time_closed = 7;
+  google.protobuf.Timestamp time_executed = 8;
+  string comments = 9;
+  string direction = 10;
+  string instrument = 11;
+  string market = 12;
+  string outcome = 13;
+  string strategy = 14;
 }
 
 message EditTradeRequest {
   uint64 id = 1;
-  google.protobuf.Timestamp time_executed = 2;
-  google.protobuf.StringValue market = 3;
-  google.protobuf.FloatValue stop_loss = 4;
-  google.protobuf.FloatValue entry_price = 5;
-  google.protobuf.FloatValue exit_price = 6;
-  google.protobuf.FloatValue quantity = 7;
-  google.protobuf.StringValue outcome = 8;
-  google.protobuf.StringValue direction = 9;
-  google.protobuf.StringValue instrument = 10;
-  google.protobuf.FloatValue take_profit = 11;
-  google.protobuf.StringValue comments = 12;
-  google.protobuf.StringValue strategy = 13;
-  google.protobuf.Timestamp time_closed = 14;
+  float entry_price = 2;
+  float exit_price = 3;
+  float quantity = 4;
+  float stop_loss = 5;
+  float take_profit = 6;
+  google.protobuf.Timestamp time_closed = 7;
+  google.protobuf.Timestamp time_executed = 8;
+  string comments = 9;
+  string direction = 10;
+  string instrument = 11;
+  string market = 12;
+  string outcome = 13;
+  string strategy = 14;
 }
 
 message EditTradeResponse {
@@ -84,19 +84,19 @@ message EditTradeResponse {
 
 message FindOneData {
   uint64 id = 1;
-  google.protobuf.Timestamp time_executed = 2;
-  string market = 3;
-  float stop_loss = 4;
-  float entry_price = 5;
-  float exit_price = 6;
-  float quantity = 7;
-  string outcome = 8;
-  string direction = 9;
-  string instrument = 10;
-  float take_profit = 11;
-  string comments = 12;
-  string strategy = 13;
-  google.protobuf.Timestamp time_closed = 14;
+  float entry_price = 2;
+  float exit_price = 3;
+  float quantity = 4;
+  float stop_loss = 5;
+  float take_profit = 6;
+  google.protobuf.Timestamp time_closed = 7;
+  google.protobuf.Timestamp time_executed = 8;
+  string comments = 9;
+  string direction = 10;
+  string instrument = 11;
+  string market = 12;
+  string outcome = 13;
+  string strategy = 14;
 }
 
 message FindOneRequest {
