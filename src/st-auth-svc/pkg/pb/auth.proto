@@ -6,8 +6,8 @@ option go_package = "./pkg/pb";
 import "google/protobuf/timestamp.proto";
 
 service AuthService {
-  rpc Register(RegisterRequest) returns (RegisterResponse) {}
   rpc Login(LoginRequest) returns (LoginResponse) {}
+  rpc Register(RegisterRequest) returns (RegisterResponse) {}
   rpc Validate(ValidateRequest) returns (ValidateResponse) {}
 }
 

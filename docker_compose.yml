@@ -1,0 +1,15 @@
+version: '3.3'
+services:
+  run:
+    container_name: strat-trader
+    environment:
+      - POSTGRES_DB=auth_svc
+      - POSTGRES_DB=journal_svc
+      - POSTGRES_USER=root
+      - POSTGRES_PASSWORD=StratTrad3r
+      - PGDATA=/var/lib/postgresql/data/pgdata
+    volumes:
+      - '/tmp:/var/lib/postgresql/data'
+    ports:
+      - '5432:5432'
+    image: run
