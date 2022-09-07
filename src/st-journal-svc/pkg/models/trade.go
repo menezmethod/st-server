@@ -5,7 +5,7 @@ import (
 )
 
 type Trade struct {
-	ID           uint64    `json:"id,omitempty" gorm:"primaryKey"`
+	ID           uint64    `json:"id,omitempty" bun:",pk,autoincrement"`
 	Comments     string    `json:"comments,omitempty"`
 	Direction    string    `json:"direction,omitempty,omitempty"`
 	EntryPrice   float32   `json:"entryPrice,omitempty"`

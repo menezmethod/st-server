@@ -2,6 +2,7 @@ package services
 
 import (
 	"context"
+	"github.com/uptrace/bun"
 	"google.golang.org/protobuf/types/known/timestamppb"
 	"net/http"
 	"st-journal-svc/pkg/db"
@@ -10,11 +11,11 @@ import (
 )
 
 type Server struct {
-	H db.Handler
+	H db.DB
 	pb.TradeServiceServer
 }
 
-func (s *Server) CreateTrade(_ context.Context, req *pb.CreateTradeRequest) (*pb.CreateTradeResponse, error) {
+func (s *Server) CreateTrade(ctx context.Context, req *pb.CreateTradeRequest) (*pb.CreateTradeResponse, error) {
 	var trade models.Trade
 	//TODO This needs validation
 	trade.Comments = req.GetComments().Value
@@ -31,10 +32,10 @@ func (s *Server) CreateTrade(_ context.Context, req *pb.CreateTradeRequest) (*pb
 	trade.TimeClosed = req.TimeClosed.AsTime()
 	trade.TimeExecuted = req.TimeExecuted.AsTime()
 
-	if result := s.H.DB.Create(&trade); result.Error != nil {
+	if _, err := s.H.DB.NewInsert().Model(&trade).Exec(ctx); err != nil {
 		return &pb.CreateTradeResponse{
 			Status: http.StatusConflict,
-			Error:  result.Error.Error(),
+			Error:  err.Error(),
 		}, nil
 	}
 
@@ -44,7 +45,8 @@ func (s *Server) CreateTrade(_ context.Context, req *pb.CreateTradeRequest) (*pb
 	}, nil
 }
 
-func (s *Server) EditTrade(_ context.Context, req *pb.EditTradeRequest) (*pb.EditTradeResponse, error) {
+func (s *Server) EditTrade(ctx context.Context, req *pb.EditTradeRequest) (*pb.EditTradeResponse, error) {
+	var dbRes models.Trade
 	var trade models.Trade
 
 	if req.GetComments().Value != "" {
@@ -89,19 +91,17 @@ func (s *Server) EditTrade(_ context.Context, req *pb.EditTradeRequest) (*pb.Edi
 
 	trade.ID = req.GetId()
 
-	if result := s.H.DB.Updates(&trade); result.Error != nil {
+	if _, err := s.H.DB.NewUpdate().Model(&trade).Where("ID = ?", trade.ID).Exec(ctx); err != nil {
 		return &pb.EditTradeResponse{
 			Status: http.StatusConflict,
-			Error:  result.Error.Error(),
+			Error:  err.Error(),
 		}, nil
 	}
 
-	var dbRes models.Trade
-
-	if result := s.H.DB.First(&trade, req.Id); result.Error != nil {
+	if err := s.H.DB.NewSelect().Model(&dbRes).Where("ID = ?", req.Id).Scan(ctx); err != nil {
 		return &pb.EditTradeResponse{
 			Status: http.StatusNotFound,
-			Error:  result.Error.Error(),
+			Error:  err.Error(),
 		}, nil
 	}
 
@@ -126,13 +126,13 @@ func (s *Server) EditTrade(_ context.Context, req *pb.EditTradeRequest) (*pb.Edi
 	}, nil
 }
 
-func (s *Server) FindOne(_ context.Context, req *pb.FindOneRequest) (*pb.FindOneResponse, error) {
+func (s *Server) FindOne(ctx context.Context, req *pb.FindOneRequest) (*pb.FindOneResponse, error) {
 	var trade models.Trade
 
-	if result := s.H.DB.First(&trade, req.Id); result.Error != nil {
+	if err := s.H.DB.NewSelect().Model(&trade).Where("ID = ?", req.Id).Scan(ctx); err != nil {
 		return &pb.FindOneResponse{
 			Status: http.StatusNotFound,
-			Error:  result.Error.Error(),
+			Error:  err.Error(),
 		}, nil
 	}
 
@@ -159,16 +159,13 @@ func (s *Server) FindOne(_ context.Context, req *pb.FindOneRequest) (*pb.FindOne
 	}, nil
 }
 
-func (s *Server) Delete(_ context.Context, req *pb.DeleteRequest) (*pb.DeleteResponse, error) {
-
-	if result := s.H.DB.First(&models.Trade{}, req.Id); result.Error != nil {
+func (s *Server) Delete(ctx context.Context, req *pb.DeleteRequest) (*pb.DeleteResponse, error) {
+	if _, err := s.H.DB.NewDelete().Model(&models.Trade{}).Where("ID IN (?)", bun.In(req.Id)).Exec(ctx); err != nil {
 		return &pb.DeleteResponse{
-			Status: http.StatusNotFound,
-			Error:  result.Error.Error(),
+			Status: http.StatusConflict,
+			Error:  err.Error(),
 		}, nil
 	}
-
-	s.H.DB.Where("ID IN (?)", req.Id).Delete(&models.Trade{})
 
 	return &pb.DeleteResponse{
 		Status: http.StatusOK,

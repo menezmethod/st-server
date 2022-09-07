@@ -2,6 +2,8 @@ package services
 
 import (
 	"context"
+	"github.com/uptrace/bun"
+	"log"
 	"net/http"
 	"time"
 
@@ -12,15 +14,19 @@ import (
 )
 
 type Server struct {
-	H   db.Handler
+	H   db.DB
 	Jwt utils.JwtWrapper
 	pb.UnimplementedAuthServiceServer
 }
 
-func (s *Server) Register(_ context.Context, req *pb.RegisterRequest) (*pb.RegisterResponse, error) {
+func (s *Server) Register(ctx context.Context, req *pb.RegisterRequest) (*pb.RegisterResponse, error) {
 	var user models.User
 
-	if result := s.H.DB.Where(&models.User{Email: req.Email.Value}).First(&user); result.Error == nil {
+	exists, err := s.H.DB.NewSelect().Model(&user).Where("email = ?", req.Email.Value).Exists(ctx)
+	if err != nil {
+		log.Fatalln(err)
+	}
+	if exists {
 		return &pb.RegisterResponse{
 			Status: http.StatusConflict,
 			Error:  "email already exists",
@@ -41,10 +47,10 @@ func (s *Server) Register(_ context.Context, req *pb.RegisterRequest) (*pb.Regis
 	}
 	user.TimeRegistered = time.Now()
 
-	if result := s.H.DB.Create(&user); result.Error != nil {
+	if _, err := s.H.DB.NewInsert().Model(&user).Exec(ctx); err != nil {
 		return &pb.RegisterResponse{
 			Status: http.StatusConflict,
-			Error:  result.Error.Error(),
+			Error:  err.Error(),
 		}, nil
 	}
 
@@ -59,10 +65,10 @@ func (s *Server) Register(_ context.Context, req *pb.RegisterRequest) (*pb.Regis
 	}, nil
 }
 
-func (s *Server) Login(_ context.Context, req *pb.LoginRequest) (*pb.LoginResponse, error) {
+func (s *Server) Login(ctx context.Context, req *pb.LoginRequest) (*pb.LoginResponse, error) {
 	var user models.User
 
-	if result := s.H.DB.Where("email = ?", req.Email.Value).First(&user); result.Error != nil {
+	if err := s.H.DB.NewSelect().Model(&user).Where("email = ?", req.Email.Value).Scan(ctx); err != nil {
 		return &pb.LoginResponse{
 			Status: http.StatusNotFound,
 			Error:  "user not found",
@@ -85,10 +91,14 @@ func (s *Server) Login(_ context.Context, req *pb.LoginRequest) (*pb.LoginRespon
 
 	token, _ := s.Jwt.GenerateToken(user)
 
-	if loginDb := s.H.DB.First(&user); loginDb.Error != nil {
+	exists, err := s.H.DB.NewSelect().Model(&user).Where("email LIKE ?", req.Email.Value).Exists(ctx)
+	if err != nil {
+		log.Fatalln(err)
+	}
+	if !exists {
 		return &pb.LoginResponse{
 			Status: http.StatusNotFound,
-			Error:  loginDb.Error.Error(),
+			Error:  err.Error(),
 		}, nil
 	}
 
@@ -100,7 +110,7 @@ func (s *Server) Login(_ context.Context, req *pb.LoginRequest) (*pb.LoginRespon
 	}, nil
 }
 
-func (s *Server) Validate(_ context.Context, req *pb.ValidateRequest) (*pb.ValidateResponse, error) {
+func (s *Server) Validate(ctx context.Context, req *pb.ValidateRequest) (*pb.ValidateResponse, error) {
 	var user models.User
 	claims, err := s.Jwt.ValidateToken(req.Token.Value)
 
@@ -111,7 +121,11 @@ func (s *Server) Validate(_ context.Context, req *pb.ValidateRequest) (*pb.Valid
 		}, nil
 	}
 
-	if result := s.H.DB.Where(&models.User{Email: claims.Email}).First(&user); result.Error != nil {
+	exists, err := s.H.DB.NewSelect().Model(&user).Where("email LIKE ?", claims.Email).Exists(ctx)
+	if err != nil {
+		log.Fatalln(err)
+	}
+	if !exists {
 		return &pb.ValidateResponse{
 			Status: http.StatusNotFound,
 			Error:  "user not found",
@@ -124,16 +138,18 @@ func (s *Server) Validate(_ context.Context, req *pb.ValidateRequest) (*pb.Valid
 	}, nil
 }
 
-func (s *Server) UpdateUser(_ context.Context, req *pb.UpdateUserRequest) (*pb.UpdateUserResponse, error) {
+func (s *Server) UpdateUser(ctx context.Context, req *pb.UpdateUserRequest) (*pb.UpdateUserResponse, error) {
 	var user models.User
 
-	if result := s.H.DB.Where(&models.User{Email: req.Email.Value}).First(&user); result.Error == nil {
-		if req.Id != user.Id {
-			return &pb.UpdateUserResponse{
-				Status: http.StatusConflict,
-				Error:  "email already exists",
-			}, nil
-		}
+	exists, err := s.H.DB.NewSelect().Model(&user).Where("email LIKE ?", req.Email.Value).Exists(ctx)
+	if err != nil {
+		log.Fatalln(err)
+	}
+	if req.Id != user.Id && exists {
+		return &pb.UpdateUserResponse{
+			Status: http.StatusConflict,
+			Error:  "email already exists",
+		}, nil
 	}
 
 	if req.GetEmail().Value != "" {
@@ -154,10 +170,10 @@ func (s *Server) UpdateUser(_ context.Context, req *pb.UpdateUserRequest) (*pb.U
 
 	user.Id = req.GetId()
 
-	if result := s.H.DB.Updates(&user); result.Error != nil {
+	if _, err := s.H.DB.NewUpdate().Model(&user).Where("ID = ?", user.Id).Exec(ctx); err != nil {
 		return &pb.UpdateUserResponse{
 			Status: http.StatusConflict,
-			Error:  result.Error.Error(),
+			Error:  err.Error(),
 		}, nil
 	}
 
@@ -172,12 +188,11 @@ func (s *Server) UpdateUser(_ context.Context, req *pb.UpdateUserRequest) (*pb.U
 	}, nil
 }
 
-func (s *Server) DeleteUser(_ context.Context, req *pb.DeleteUserRequest) (*pb.DeleteUserResponse, error) {
-
-	if result := s.H.DB.Where("ID IN (?)", req.Id).Delete(&models.User{}); result.Error != nil {
+func (s *Server) DeleteUser(ctx context.Context, req *pb.DeleteUserRequest) (*pb.DeleteUserResponse, error) {
+	if _, err := s.H.DB.NewDelete().Model(&models.User{}).Where("ID IN (?)", bun.In(req.Id)).Exec(ctx); err != nil {
 		return &pb.DeleteUserResponse{
 			Status: http.StatusConflict,
-			Error:  result.Error.Error(),
+			Error:  err.Error(),
 		}, nil
 	}
 
