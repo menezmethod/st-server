@@ -1,0 +1,7 @@
+- model: User
+  rows:
+    - email: luis@gimenez.com
+      password: $2a$05$lsxZcJwUBKAZ2Fc/N03DuuXQcb59SjXHO.2q7MW1EkXbcAv8NNVCy
+      full_name: Luis Gimenez
+      role: admin
+      time_registered: '{{ now }}'

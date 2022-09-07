@@ -1,25 +1,30 @@
 package db
 
 import (
+	"context"
+	"database/sql"
+	"github.com/uptrace/bun"
+	"github.com/uptrace/bun/dbfixture"
+	"github.com/uptrace/bun/dialect/pgdialect"
+	"github.com/uptrace/bun/driver/pgdriver"
 	"log"
-
-	"gorm.io/driver/postgres"
-	"gorm.io/gorm"
+	"os"
 	"st-journal-svc/pkg/models"
 )
 
-type Handler struct {
-	DB *gorm.DB
+type DB struct {
+	*bun.DB
 }
 
-func Init(url string) Handler {
-	db, err := gorm.Open(postgres.Open(url), &gorm.Config{})
+func Init(url string) DB {
+	db := bun.NewDB(sql.OpenDB(pgdriver.NewConnector(pgdriver.WithDSN(url))), pgdialect.New())
+	fixture := dbfixture.New(db, dbfixture.WithRecreateTables())
 
-	if err != nil {
+	db.RegisterModel(&models.Trade{})
+
+	if err := fixture.Load(context.Background(), os.DirFS("./pkg/db"), "trade.yml"); err != nil {
 		log.Fatalln(err)
 	}
 
-	db.AutoMigrate(&models.Trade{})
-
-	return Handler{db}
+	return DB{db}
 }
