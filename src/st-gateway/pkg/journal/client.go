@@ -1,4 +1,4 @@
-package trade
+package journal
 
 import (
 	"fmt"
@@ -6,19 +6,19 @@ import (
 
 	"google.golang.org/grpc"
 	"st-gateway/pkg/config"
-	"st-gateway/pkg/trade/pb"
+	"st-gateway/pkg/journal/pb"
 )
 
 type ServiceClient struct {
-	Client pb.TradeServiceClient
+	Client pb.JournalServiceClient
 }
 
-func InitServiceClient(c *config.Config) pb.TradeServiceClient {
+func InitServiceClient(c *config.Config) pb.JournalServiceClient {
 	cc, err := grpc.Dial(c.JournalSvcUrl, grpc.WithTransportCredentials(insecure.NewCredentials()))
 
 	if err != nil {
 		fmt.Println("Could not connect:", err)
 	}
 
-	return pb.NewTradeServiceClient(cc)
+	return pb.NewJournalServiceClient(cc)
 }

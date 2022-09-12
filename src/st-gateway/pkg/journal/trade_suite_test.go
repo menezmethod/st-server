@@ -1,4 +1,4 @@
-package trade_test
+package journal_test
 
 import (
 	"testing"
@@ -7,7 +7,7 @@ import (
 	. "github.com/onsi/gomega"
 )
 
-func TestTrade(t *testing.T) {
+func TestJournal(t *testing.T) {
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "Trade Suite")
+	RunSpecs(t, "Journal Suite")
 }
