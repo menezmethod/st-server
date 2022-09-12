@@ -76,7 +76,7 @@ message UpdateUserResponse {
 
 // Validate
 
-message ValidateRequest { google.protobuf.StringValue token = 1; }
+message ValidateRequest {google.protobuf.StringValue token = 1;}
 
 message ValidateResponse {
   uint64 status = 1;

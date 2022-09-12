@@ -16,7 +16,7 @@ func RegisterRoutes(r *gin.Engine, c *config.Config) *ServiceClient {
 	routerGroup := r.Group(fmt.Sprintf("v%v/", c.ApiVersion))
 	routerGroup.POST("/auth/register", svc.Register)
 	routerGroup.POST("/auth/login", svc.Login)
-	//routerGroup.GET("/trader/:id", svc.Login)
+	//routerGroup.GET("/user/:id", svc.)
 	routerGroup.PATCH("/trader/:id", svc.UpdateUser)
 	routerGroup.DELETE("/trader/:id", svc.DeleteUser)
 

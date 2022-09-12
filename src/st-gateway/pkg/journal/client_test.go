@@ -1,4 +1,4 @@
-package trade_test
+package journal_test
 
 import (
 	"context"
@@ -8,8 +8,8 @@ import (
 	. "github.com/onsi/gomega"
 
 	"st-gateway/pkg/config"
-	"st-gateway/pkg/trade"
-	"st-gateway/pkg/trade/pb"
+	"st-gateway/pkg/journal"
+	"st-gateway/pkg/journal/pb"
 )
 
 var _ = Describe("Client: Journal Service", func() {
@@ -22,12 +22,12 @@ var _ = Describe("Client: Journal Service", func() {
 	Describe("Function InitServiceClient()", func() {
 		Context("Throwing a random find-one request to the journal service to check connection", func() {
 			It("Should not return an error", func() {
-				res, err := trade.InitServiceClient(&config.Config{
+				res, err := journal.InitServiceClient(&config.Config{
 					Port:          c.Port,
 					AuthSvcUrl:    c.AuthSvcUrl,
 					JournalSvcUrl: c.JournalSvcUrl,
 					ApiVersion:    c.ApiVersion,
-				}).FindOne(context.Background(), &pb.FindOneRequest{})
+				}).FindOneTrade(context.Background(), &pb.FindOneTradeRequest{})
 				Expect(err).To(BeNil())
 				Expect(res).ToNot(BeNil())
 			})
