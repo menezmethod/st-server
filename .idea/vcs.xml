@@ -3,5 +3,14 @@
   <component name="VcsDirectoryMappings">
     <mapping directory="$PROJECT_DIR$" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/2" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/src/github.com/gogo/protobuf" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/src/github.com/golang/glog" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/src/github.com/grpc-ecosystem/grpc-gateway" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/src/github.com/mwitkow/go-proto-validators" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/src/github.com/rakyll/statik" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/src/golang.org/x/text" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/src/google.golang.org/genproto" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/src/google.golang.org/protobuf" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/src/gopkg.in/yaml.v3" vcs="Git" />
   </component>
 </project>

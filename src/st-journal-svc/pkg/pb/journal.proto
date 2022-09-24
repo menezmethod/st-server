@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package journal;
 
-option go_package = "./pkg/journal/pb";
+option go_package = "/pkg/pb";
 import "google/protobuf/timestamp.proto";
 import "google/protobuf/wrappers.proto";
 
@@ -33,7 +33,8 @@ message CreateJournalRequest {
 message CreateJournalResponse {
   uint64 status = 1;
   string error = 2;
-  uint64 id = 3;}
+  JournalData data = 3;
+}
 
 // EditJournal
 
@@ -115,12 +116,14 @@ message CreateTradeRequest {
   google.protobuf.StringValue comments = 14;
   google.protobuf.StringValue strategy = 15;
   google.protobuf.Timestamp time_closed = 16;
+  google.protobuf.Timestamp created_at = 17;
 }
 
 message CreateTradeResponse {
   uint64 status = 1;
   string error = 2;
-  uint64 id = 3;}
+  TradeData data = 3;
+}
 
 // EditTrade
 
@@ -141,6 +144,7 @@ message TradeData {
   string comments = 14;
   string strategy = 15;
   google.protobuf.Timestamp time_closed = 16;
+  google.protobuf.Timestamp created_at = 17;
 }
 
 message EditTradeRequest {
@@ -160,6 +164,7 @@ message EditTradeRequest {
   google.protobuf.StringValue comments = 14;
   google.protobuf.StringValue strategy = 15;
   google.protobuf.Timestamp time_closed = 16;
+  google.protobuf.Timestamp created_at = 17;
 }
 
 message EditTradeResponse {

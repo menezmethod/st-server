@@ -17,7 +17,7 @@ func InitServiceClient(c *config.Config) pb.AuthServiceClient {
 	cc, err := grpc.Dial(c.AuthSvcUrl, grpc.WithTransportCredentials(insecure.NewCredentials()))
 
 	if err != nil {
-		fmt.Println("No  connection:", err)
+		fmt.Println("No connection:", err)
 	}
 
 	return pb.NewAuthServiceClient(cc)

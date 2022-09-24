@@ -10,10 +10,11 @@ import (
 )
 
 type RegisterRequestBody struct {
-	Email    string `json:"email"`
-	Password string `json:"password"`
-	FullName string `json:"fullName"`
-	Role     string `json:"role"`
+	Email     string `json:"email"`
+	Password  string `json:"password"`
+	FirstName string `json:"firstName"`
+	LastName  string `json:"lastName"`
+	Role      string `json:"role"`
 }
 
 func Register(ctx *gin.Context, c pb.AuthServiceClient) {
@@ -25,10 +26,11 @@ func Register(ctx *gin.Context, c pb.AuthServiceClient) {
 	}
 
 	res, err := c.Register(context.Background(), &pb.RegisterRequest{
-		Email:    wrapperspb.String(b.Email),
-		Password: wrapperspb.String(b.Password),
-		FullName: wrapperspb.String(b.FullName),
-		Role:     wrapperspb.String(b.Role),
+		Email:     wrapperspb.String(b.Email),
+		Password:  wrapperspb.String(b.Password),
+		FirstName: wrapperspb.String(b.FirstName),
+		LastName:  wrapperspb.String(b.LastName),
+		Role:      wrapperspb.String(b.Role),
 	})
 
 	if err != nil {

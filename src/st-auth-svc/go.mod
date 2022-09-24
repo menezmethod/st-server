@@ -3,6 +3,7 @@ module st-auth-svc
 go 1.19
 
 require (
+	github.com/gogo/protobuf v1.3.2
 	github.com/golang-jwt/jwt v3.2.2+incompatible
 	github.com/spf13/viper v1.12.0
 	github.com/uptrace/bun v1.1.8
@@ -38,7 +39,7 @@ require (
 )
 
 require (
-	github.com/golang/protobuf v1.5.2 // indirect
+	github.com/golang/protobuf v1.5.2
 	golang.org/x/net v0.0.0-20220722155237-a158d28d115b // indirect
 	golang.org/x/sys v0.0.0-20220825204002-c680a09ffe64 // indirect
 	golang.org/x/text v0.3.7 // indirect

@@ -7,6 +7,7 @@ type Config struct {
 	AuthSvcUrl    string `mapstructure:"AUTH_SVC_URL"`
 	JournalSvcUrl string `mapstructure:"JOURNAL_SVC_URL"`
 	ApiVersion    string `mapstructure:"API_VERSION"`
+	JWTSecretKey  string `mapstructure:"JWT_SECRET_KEY"`
 }
 
 func LoadConfig() (c Config, err error) {
