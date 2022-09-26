@@ -30,9 +30,7 @@ func Login(ctx *gin.Context, c pb.AuthServiceClient) {
 	if err != nil {
 		ctx.AbortWithError(http.StatusBadGateway, err)
 		return
-	}
-
-	if res.Status == 404 {
+	} else if res.Status == 404 {
 		ctx.AbortWithError(http.StatusNotFound, err)
 	}
 
