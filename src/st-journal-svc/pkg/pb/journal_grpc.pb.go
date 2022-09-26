@@ -27,9 +27,9 @@ type JournalServiceClient interface {
 	EditJournal(ctx context.Context, in *EditJournalRequest, opts ...grpc.CallOption) (*EditJournalResponse, error)
 	FindOneJournal(ctx context.Context, in *FindOneJournalRequest, opts ...grpc.CallOption) (*FindOneJournalResponse, error)
 	CreateTrade(ctx context.Context, in *CreateTradeRequest, opts ...grpc.CallOption) (*CreateTradeResponse, error)
-	DeleteTrade(ctx context.Context, in *DeleteTradeRequest, opts ...grpc.CallOption) (*DeleteTradeResponse, error)
 	EditTrade(ctx context.Context, in *EditTradeRequest, opts ...grpc.CallOption) (*EditTradeResponse, error)
 	FindOneTrade(ctx context.Context, in *FindOneTradeRequest, opts ...grpc.CallOption) (*FindOneTradeResponse, error)
+	DeleteTrade(ctx context.Context, in *DeleteTradeRequest, opts ...grpc.CallOption) (*DeleteTradeResponse, error)
 }
 
 type journalServiceClient struct {
@@ -85,15 +85,6 @@ func (c *journalServiceClient) CreateTrade(ctx context.Context, in *CreateTradeR
 	return out, nil
 }
 
-func (c *journalServiceClient) DeleteTrade(ctx context.Context, in *DeleteTradeRequest, opts ...grpc.CallOption) (*DeleteTradeResponse, error) {
-	out := new(DeleteTradeResponse)
-	err := c.cc.Invoke(ctx, "/journal.JournalService/DeleteTrade", in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
 func (c *journalServiceClient) EditTrade(ctx context.Context, in *EditTradeRequest, opts ...grpc.CallOption) (*EditTradeResponse, error) {
 	out := new(EditTradeResponse)
 	err := c.cc.Invoke(ctx, "/journal.JournalService/EditTrade", in, out, opts...)
@@ -112,6 +103,15 @@ func (c *journalServiceClient) FindOneTrade(ctx context.Context, in *FindOneTrad
 	return out, nil
 }
 
+func (c *journalServiceClient) DeleteTrade(ctx context.Context, in *DeleteTradeRequest, opts ...grpc.CallOption) (*DeleteTradeResponse, error) {
+	out := new(DeleteTradeResponse)
+	err := c.cc.Invoke(ctx, "/journal.JournalService/DeleteTrade", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // JournalServiceServer is the server API for JournalService service.
 // All implementations must embed UnimplementedJournalServiceServer
 // for forward compatibility
@@ -121,9 +121,9 @@ type JournalServiceServer interface {
 	EditJournal(context.Context, *EditJournalRequest) (*EditJournalResponse, error)
 	FindOneJournal(context.Context, *FindOneJournalRequest) (*FindOneJournalResponse, error)
 	CreateTrade(context.Context, *CreateTradeRequest) (*CreateTradeResponse, error)
-	DeleteTrade(context.Context, *DeleteTradeRequest) (*DeleteTradeResponse, error)
 	EditTrade(context.Context, *EditTradeRequest) (*EditTradeResponse, error)
 	FindOneTrade(context.Context, *FindOneTradeRequest) (*FindOneTradeResponse, error)
+	DeleteTrade(context.Context, *DeleteTradeRequest) (*DeleteTradeResponse, error)
 	mustEmbedUnimplementedJournalServiceServer()
 }
 
@@ -146,14 +146,14 @@ func (UnimplementedJournalServiceServer) FindOneJournal(context.Context, *FindOn
 func (UnimplementedJournalServiceServer) CreateTrade(context.Context, *CreateTradeRequest) (*CreateTradeResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateTrade not implemented")
 }
-func (UnimplementedJournalServiceServer) DeleteTrade(context.Context, *DeleteTradeRequest) (*DeleteTradeResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method DeleteTrade not implemented")
-}
 func (UnimplementedJournalServiceServer) EditTrade(context.Context, *EditTradeRequest) (*EditTradeResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method EditTrade not implemented")
 }
 func (UnimplementedJournalServiceServer) FindOneTrade(context.Context, *FindOneTradeRequest) (*FindOneTradeResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method FindOneTrade not implemented")
+}
+func (UnimplementedJournalServiceServer) DeleteTrade(context.Context, *DeleteTradeRequest) (*DeleteTradeResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeleteTrade not implemented")
 }
 func (UnimplementedJournalServiceServer) mustEmbedUnimplementedJournalServiceServer() {}
 
@@ -258,24 +258,6 @@ func _JournalService_CreateTrade_Handler(srv interface{}, ctx context.Context, d
 	return interceptor(ctx, in, info, handler)
 }
 
-func _JournalService_DeleteTrade_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(DeleteTradeRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(JournalServiceServer).DeleteTrade(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/journal.JournalService/DeleteTrade",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(JournalServiceServer).DeleteTrade(ctx, req.(*DeleteTradeRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
 func _JournalService_EditTrade_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(EditTradeRequest)
 	if err := dec(in); err != nil {
@@ -312,6 +294,24 @@ func _JournalService_FindOneTrade_Handler(srv interface{}, ctx context.Context, 
 	return interceptor(ctx, in, info, handler)
 }
 
+func _JournalService_DeleteTrade_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DeleteTradeRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(JournalServiceServer).DeleteTrade(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/journal.JournalService/DeleteTrade",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(JournalServiceServer).DeleteTrade(ctx, req.(*DeleteTradeRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // JournalService_ServiceDesc is the grpc.ServiceDesc for JournalService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -340,16 +340,16 @@ var JournalService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _JournalService_CreateTrade_Handler,
 		},
 		{
-			MethodName: "DeleteTrade",
-			Handler:    _JournalService_DeleteTrade_Handler,
-		},
-		{
 			MethodName: "EditTrade",
 			Handler:    _JournalService_EditTrade_Handler,
 		},
 		{
 			MethodName: "FindOneTrade",
 			Handler:    _JournalService_FindOneTrade_Handler,
+		},
+		{
+			MethodName: "DeleteTrade",
+			Handler:    _JournalService_DeleteTrade_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

@@ -14,7 +14,7 @@ import (
 )
 
 type Server struct {
-	H   db.DB
+	H   db.Handler
 	Jwt utils.JwtWrapper
 	pb.UnimplementedAuthServiceServer
 }
@@ -39,13 +39,17 @@ func (s *Server) Register(ctx context.Context, req *pb.RegisterRequest) (*pb.Reg
 	if v := req.GetPassword(); v != nil {
 		user.Password = utils.HashPassword(v.Value)
 	}
-	if v := req.GetFullName(); v != nil {
-		user.FullName = v.Value
+	if v := req.GetFirstName(); v != nil {
+		user.FirstName = v.Value
+	}
+	if v := req.GetLastName(); v != nil {
+		user.LastName = v.Value
 	}
 	if v := req.GetRole(); v != nil {
-		user.Role = v.Value
+		user.Role = "USER"
 	}
-	user.TimeRegistered = time.Now()
+
+	user.CreatedAt = time.Now()
 
 	if _, err := s.H.DB.NewInsert().Model(&user).Exec(ctx); err != nil {
 		return &pb.RegisterResponse{
@@ -54,13 +58,18 @@ func (s *Server) Register(ctx context.Context, req *pb.RegisterRequest) (*pb.Reg
 		}, nil
 	}
 
+	token, _ := s.Jwt.GenerateToken(user)
+
 	return &pb.RegisterResponse{
 		Status: http.StatusCreated,
 		Data: &pb.User{
-			Id:       user.Id,
-			Email:    user.Email,
-			FullName: user.FullName,
-			Role:     user.Role,
+			Id:        user.Id,
+			Email:     user.Email,
+			FirstName: user.FirstName,
+			LastName:  user.LastName,
+			Role:      user.Role,
+			CreatedAt: user.CreatedAt.String(),
+			Token:     token,
 		},
 	}, nil
 }
@@ -104,9 +113,11 @@ func (s *Server) Login(ctx context.Context, req *pb.LoginRequest) (*pb.LoginResp
 
 	return &pb.LoginResponse{
 		Status: http.StatusOK,
-		Token:  token,
-		Role:   user.Role,
-		Id:     user.Id,
+		Data: &pb.LoginData{
+			Token: token,
+			Role:  user.Role,
+			Id:    user.Id,
+		},
 	}, nil
 }
 
@@ -138,6 +149,52 @@ func (s *Server) Validate(ctx context.Context, req *pb.ValidateRequest) (*pb.Val
 	}, nil
 }
 
+func (s *Server) FindOneUser(ctx context.Context, req *pb.FindOneUserRequest) (*pb.FindOneUserResponse, error) {
+	var user models.User
+
+	if err := s.H.DB.NewSelect().Model(&user).Where("ID = ?", req.Id).Scan(ctx); err != nil {
+		return &pb.FindOneUserResponse{
+			Status: http.StatusNotFound,
+			Error:  err.Error(),
+		}, nil
+	}
+
+	return &pb.FindOneUserResponse{
+		Status: http.StatusOK,
+		Data: &pb.User{
+			Id:        user.Id,
+			Email:     user.Email,
+			FirstName: user.FirstName,
+			LastName:  user.LastName,
+			Role:      user.Role,
+			CreatedAt: user.CreatedAt.String(),
+		},
+	}, nil
+}
+
+func (s *Server) FindMe(ctx context.Context, req *pb.FindOneUserRequest) (*pb.FindOneUserResponse, error) {
+	var user models.User
+
+	if err := s.H.DB.NewSelect().Model(&user).Where("ID = ?", req.Id).Scan(ctx); err != nil {
+		return &pb.FindOneUserResponse{
+			Status: http.StatusNotFound,
+			Error:  err.Error(),
+		}, nil
+	}
+
+	return &pb.FindOneUserResponse{
+		Status: http.StatusOK,
+		Data: &pb.User{
+			Id:        user.Id,
+			Email:     user.Email,
+			FirstName: user.FirstName,
+			LastName:  user.LastName,
+			Role:      user.Role,
+			CreatedAt: user.CreatedAt.String(),
+		},
+	}, nil
+}
+
 func (s *Server) UpdateUser(ctx context.Context, req *pb.UpdateUserRequest) (*pb.UpdateUserResponse, error) {
 	var user models.User
 
@@ -155,15 +212,15 @@ func (s *Server) UpdateUser(ctx context.Context, req *pb.UpdateUserRequest) (*pb
 	if req.GetEmail().Value != "" {
 		user.Email = req.GetEmail().Value
 	}
-
 	if req.GetPassword().Value != "" {
 		user.Password = utils.HashPassword(req.GetPassword().Value)
 	}
-
-	if req.GetFullName().Value != "" {
-		user.FullName = req.GetFullName().Value
+	if req.GetFirstName().Value != "" {
+		user.FirstName = req.GetFirstName().Value
 	}
-
+	if req.GetLastName().Value != "" {
+		user.LastName = req.GetLastName().Value
+	}
 	if req.GetRole().Value != "" {
 		user.Role = req.GetRole().Value
 	}
@@ -180,10 +237,11 @@ func (s *Server) UpdateUser(ctx context.Context, req *pb.UpdateUserRequest) (*pb
 	return &pb.UpdateUserResponse{
 		Status: http.StatusCreated,
 		Data: &pb.User{
-			Id:       user.Id,
-			Email:    user.Email,
-			FullName: user.FullName,
-			Role:     user.Role,
+			Id:        user.Id,
+			Email:     user.Email,
+			FirstName: user.FirstName,
+			LastName:  user.LastName,
+			Role:      user.Role,
 		},
 	}, nil
 }

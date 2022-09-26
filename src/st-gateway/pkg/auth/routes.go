@@ -2,6 +2,7 @@ package auth
 
 import (
 	"fmt"
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"st-gateway/pkg/auth/routes"
 
@@ -12,14 +13,14 @@ func RegisterRoutes(r *gin.Engine, c *config.Config) *ServiceClient {
 	svc := &ServiceClient{
 		Client: InitServiceClient(c),
 	}
-
 	routerGroup := r.Group(fmt.Sprintf("v%v/", c.ApiVersion))
+	routerGroup.Use(cors.Default())
 	routerGroup.POST("/auth/register", svc.Register)
 	routerGroup.POST("/auth/login", svc.Login)
-	//routerGroup.GET("/user/:id", svc.)
+	routerGroup.GET("/auth/me", svc.FindMe)
+	routerGroup.GET("/user/:id", svc.FindOneUser)
 	routerGroup.PATCH("/trader/:id", svc.UpdateUser)
 	routerGroup.DELETE("/trader/:id", svc.DeleteUser)
-
 	return svc
 }
 
@@ -33,6 +34,14 @@ func (svc *ServiceClient) Login(ctx *gin.Context) {
 
 func (svc *ServiceClient) Register(ctx *gin.Context) {
 	routes.Register(ctx, svc.Client)
+}
+
+func (svc *ServiceClient) FindOneUser(ctx *gin.Context) {
+	routes.FineOneUser(ctx, svc.Client)
+}
+
+func (svc *ServiceClient) FindMe(ctx *gin.Context) {
+	routes.Me(ctx, svc.Client)
 }
 
 func (svc *ServiceClient) UpdateUser(ctx *gin.Context) {

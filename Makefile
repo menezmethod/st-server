@@ -1,11 +1,15 @@
+protoc pkg/**/pb/*.proto --go_out=. --go-grpc_out=.
+	protoc pkg/**/pb/*.proto -I=$GOPATH/src/ --gofast_out=plugins=grpc:. --proto_path=.
+
+
 proto gateway:
-	protoc pkg/**/pb/*.proto --go_out=. --go-grpc_out=.
+	protoc pkg/**/pb/*.proto -I=$GOPATH/src/ --gofast_out=plugins=grpc:. --proto_path=.
 
 proto auth:
-	protoc pkg/pb/*.proto --go_out=. --go-grpc_out=.
+	protoc pkg/pb/*.proto -I=$GOPATH/src/ --gofast_out=plugins=grpc:. --proto_path=.
 
 proto journal:
-	protoc pkg/pb/*.proto --go_out=. --go-grpc_out=.
+	protoc pkg/pb/*.proto -I=$GOPATH/src/ --gofast_out=plugins=grpc:. --proto_path=.
 
 gateway server:
 	go build ./src/st-gateway/cmd/main.go

@@ -8,6 +8,7 @@ import (
 	"st-journal-svc/pkg/db"
 	"st-journal-svc/pkg/models"
 	"st-journal-svc/pkg/pb"
+	"time"
 )
 
 type Server struct {
@@ -20,7 +21,7 @@ func (s *Server) CreateJournal(ctx context.Context, req *pb.CreateJournalRequest
 	//TODO This needs validation
 	journal.Name = req.GetName().Value
 	journal.Description = req.GetDescription().Value
-	journal.CreatedAt = timestamppb.Now().AsTime()
+	journal.CreatedAt = time.Now()
 	journal.StartDate = req.StartDate.AsTime()
 	journal.EndDate = req.EndDate.AsTime()
 	journal.CreatedBy = req.GetCreatedBy().Value
@@ -35,7 +36,16 @@ func (s *Server) CreateJournal(ctx context.Context, req *pb.CreateJournalRequest
 
 	return &pb.CreateJournalResponse{
 		Status: http.StatusCreated,
-		Id:     journal.ID,
+		Data: &pb.JournalData{
+			Id:              journal.ID,
+			Name:            journal.Name,
+			Description:     journal.Description,
+			StartDate:       timestamppb.New(journal.StartDate),
+			EndDate:         timestamppb.New(journal.EndDate),
+			CreatedAt:       timestamppb.New(journal.CreatedAt),
+			CreatedBy:       journal.CreatedBy,
+			UsersSubscribed: journal.UsersSubscribed,
+		},
 	}, nil
 }
 

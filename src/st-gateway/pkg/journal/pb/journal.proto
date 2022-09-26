@@ -115,6 +115,7 @@ message CreateTradeRequest {
   google.protobuf.StringValue comments = 14;
   google.protobuf.StringValue strategy = 15;
   google.protobuf.Timestamp time_closed = 16;
+  google.protobuf.Timestamp created_at = 17;
 }
 
 message CreateTradeResponse {
@@ -141,6 +142,7 @@ message TradeData {
   string comments = 14;
   string strategy = 15;
   google.protobuf.Timestamp time_closed = 16;
+  google.protobuf.Timestamp created_at = 17;
 }
 
 message EditTradeRequest {
@@ -160,6 +162,7 @@ message EditTradeRequest {
   google.protobuf.StringValue comments = 14;
   google.protobuf.StringValue strategy = 15;
   google.protobuf.Timestamp time_closed = 16;
+  google.protobuf.Timestamp created_at = 17;
 }
 
 message EditTradeResponse {

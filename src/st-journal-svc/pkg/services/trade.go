@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"st-journal-svc/pkg/models"
 	"st-journal-svc/pkg/pb"
+	"time"
 )
 
 func (s *Server) CreateTrade(ctx context.Context, req *pb.CreateTradeRequest) (*pb.CreateTradeResponse, error) {
@@ -27,6 +28,7 @@ func (s *Server) CreateTrade(ctx context.Context, req *pb.CreateTradeRequest) (*
 	trade.TakeProfit = req.GetTakeProfit().Value
 	trade.TimeClosed = req.TimeClosed.AsTime()
 	trade.TimeExecuted = req.TimeExecuted.AsTime()
+	trade.CreatedAt = time.Now()
 
 	if _, err := s.H.DB.NewInsert().Model(&trade).Exec(ctx); err != nil {
 		return &pb.CreateTradeResponse{
@@ -37,8 +39,24 @@ func (s *Server) CreateTrade(ctx context.Context, req *pb.CreateTradeRequest) (*
 
 	return &pb.CreateTradeResponse{
 		Status: http.StatusCreated,
-		Id:     trade.ID,
-	}, nil
+		Data: &pb.TradeData{
+			Id:              trade.ID,
+			Comments:        trade.Comments,
+			Direction:       trade.Direction,
+			EntryPrice:      trade.EntryPrice,
+			ExitPrice:       trade.ExitPrice,
+			Journal:         trade.Journal,
+			BaseInstrument:  trade.BaseInstrument,
+			QuoteInstrument: trade.QuoteInstrument,
+			Market:          trade.Market,
+			Outcome:         trade.Outcome,
+			Quantity:        trade.Quantity,
+			StopLoss:        trade.StopLoss,
+			Strategy:        trade.Strategy,
+			TakeProfit:      trade.TakeProfit,
+			TimeClosed:      timestamppb.New(trade.TimeClosed),
+			TimeExecuted:    timestamppb.New(trade.TimeExecuted),
+		}}, nil
 }
 
 func (s *Server) EditTrade(ctx context.Context, req *pb.EditTradeRequest) (*pb.EditTradeResponse, error) {
@@ -109,7 +127,7 @@ func (s *Server) EditTrade(ctx context.Context, req *pb.EditTradeRequest) (*pb.E
 
 	return &pb.EditTradeResponse{
 		Status: http.StatusCreated,
-		Data: &pb.EditTradeData{
+		Data: &pb.TradeData{
 			Id:              req.Id,
 			Comments:        dbRes.Comments,
 			Direction:       dbRes.Direction,
@@ -140,7 +158,7 @@ func (s *Server) FindOneTrade(ctx context.Context, req *pb.FindOneTradeRequest) 
 		}, nil
 	}
 
-	data := &pb.FindOneData{
+	data := &pb.TradeData{
 		Id:              trade.ID,
 		Comments:        trade.Comments,
 		Direction:       trade.Direction,
