@@ -91,10 +91,12 @@ func (s *Server) Login(ctx context.Context, req *pb.LoginRequest) (*pb.LoginResp
 		user.Password = utils.HashPassword(v.Value)
 	}
 
-	if !utils.CheckPasswordHash(req.Password.Value, user.Password) {
+	match := utils.CheckPasswordHash(req.GetPassword().Value, user.Password)
+
+	if !match {
 		return &pb.LoginResponse{
 			Status: http.StatusNotFound,
-			Error:  "user not found",
+			Error:  "User not found",
 		}, nil
 	}
 
