@@ -84,41 +84,21 @@ func (s *Server) Login(ctx context.Context, req *pb.LoginRequest) (*pb.LoginResp
 		}, nil
 	}
 
-	if v := req.GetEmail(); v != nil {
-		user.Email = v.Value
-	}
-	if v := req.GetPassword(); v != nil {
-		user.Password = utils.HashPassword(v.Value)
-	}
-
 	match := utils.CheckPasswordHash(req.GetPassword().Value, user.Password)
 
 	if !match {
 		return &pb.LoginResponse{
 			Status: http.StatusNotFound,
-			Error:  "User not found",
+			Error:  "user not found",
 		}, nil
 	}
 
 	token, _ := s.Jwt.GenerateToken(user)
 
-	exists, err := s.H.DB.NewSelect().Model(&user).Where("email LIKE ?", req.Email.Value).Exists(ctx)
-	if err != nil {
-		log.Fatalln(err)
-	}
-	if !exists {
-		return &pb.LoginResponse{
-			Status: http.StatusNotFound,
-			Error:  err.Error(),
-		}, nil
-	}
-
 	return &pb.LoginResponse{
 		Status: http.StatusOK,
 		Data: &pb.LoginData{
 			Token: token,
-			Role:  user.Role,
-			Id:    user.Id,
 		},
 	}, nil
 }
