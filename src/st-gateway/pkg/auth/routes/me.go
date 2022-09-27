@@ -41,5 +41,6 @@ func Me(ctx *gin.Context, client pb.AuthServiceClient) {
 	})
 
 	log.Println(token.Claims)
+
 	ctx.JSON(http.StatusCreated, &res)
 }

@@ -167,6 +167,7 @@ func (s *Server) FindOneUser(ctx context.Context, req *pb.FindOneUserRequest) (*
 			Email:     user.Email,
 			FirstName: user.FirstName,
 			LastName:  user.LastName,
+			Bio:       user.Bio,
 			Role:      user.Role,
 			CreatedAt: user.CreatedAt.String(),
 		},
@@ -190,6 +191,7 @@ func (s *Server) FindMe(ctx context.Context, req *pb.FindOneUserRequest) (*pb.Fi
 			Email:     user.Email,
 			FirstName: user.FirstName,
 			LastName:  user.LastName,
+			Bio:       user.Bio,
 			Role:      user.Role,
 			CreatedAt: user.CreatedAt.String(),
 		},
@@ -198,34 +200,38 @@ func (s *Server) FindMe(ctx context.Context, req *pb.FindOneUserRequest) (*pb.Fi
 
 func (s *Server) UpdateUser(ctx context.Context, req *pb.UpdateUserRequest) (*pb.UpdateUserResponse, error) {
 	var user models.User
+	var dbRes models.User
 
-	exists, err := s.H.DB.NewSelect().Model(&user).Where("email LIKE ?", req.Email.Value).Exists(ctx)
-	if err != nil {
-		log.Fatalln(err)
-	}
-	if req.Id != user.Id && exists {
-		return &pb.UpdateUserResponse{
-			Status: http.StatusConflict,
-			Error:  "email already exists",
-		}, nil
-	}
+	//exists, err := s.H.DB.NewSelect().Model(&user).Where("email LIKE ?", req.Email.Value).Exists(ctx)
+	//if err != nil {
+	//	log.Fatalln(err)
+	//}
+	//// need the token instead to check email
+	//if req.Id != user.Id && exists {
+	//	return &pb.UpdateUserResponse{
+	//		Status: http.StatusConflict,
+	//		Error:  "email already exists",
+	//	}, nil
+	//}
 
-	if req.GetEmail().Value != "" {
+	if req.GetEmail() != nil {
 		user.Email = req.GetEmail().Value
 	}
-	if req.GetPassword().Value != "" {
+	if req.GetPassword() != nil {
 		user.Password = utils.HashPassword(req.GetPassword().Value)
 	}
-	if req.GetFirstName().Value != "" {
+	if req.GetFirstName() != nil {
 		user.FirstName = req.GetFirstName().Value
 	}
-	if req.GetLastName().Value != "" {
+	if req.GetLastName() != nil {
 		user.LastName = req.GetLastName().Value
 	}
-	if req.GetRole().Value != "" {
+	if req.GetBio() != nil {
+		user.Bio = req.GetBio().Value
+	}
+	if req.GetRole() != nil {
 		user.Role = req.GetRole().Value
 	}
-
 	user.Id = req.GetId()
 
 	if _, err := s.H.DB.NewUpdate().Model(&user).Where("ID = ?", user.Id).Exec(ctx); err != nil {
@@ -234,15 +240,23 @@ func (s *Server) UpdateUser(ctx context.Context, req *pb.UpdateUserRequest) (*pb
 			Error:  err.Error(),
 		}, nil
 	}
+	if err := s.H.DB.NewSelect().Model(&dbRes).Where("ID = ?", req.Id).Scan(ctx); err != nil {
+		return &pb.UpdateUserResponse{
+			Status: http.StatusNotFound,
+			Error:  err.Error(),
+		}, nil
+	}
 
 	return &pb.UpdateUserResponse{
 		Status: http.StatusCreated,
 		Data: &pb.User{
-			Id:        user.Id,
-			Email:     user.Email,
-			FirstName: user.FirstName,
-			LastName:  user.LastName,
-			Role:      user.Role,
+			Id:        dbRes.Id,
+			Email:     dbRes.Email,
+			FirstName: dbRes.FirstName,
+			LastName:  dbRes.LastName,
+			Bio:       dbRes.Bio,
+			Role:      dbRes.Role,
+			CreatedAt: dbRes.CreatedAt.String(),
 		},
 	}, nil
 }
