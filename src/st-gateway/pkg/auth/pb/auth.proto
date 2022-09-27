@@ -14,8 +14,9 @@ option (gogoproto.messagename_all) = false;
 
 service AuthService {
   rpc DeleteUser(DeleteUserRequest) returns (DeleteUserResponse) {}
-  rpc FindOneUser(FindOneUserRequest) returns (FindOneUserResponse) {}
+  rpc FindAllUsers(FindAllUsersRequest) returns (FindAllUsersResponse) {}
   rpc FindMe(FindOneUserRequest) returns (FindOneUserResponse) {}
+  rpc FindOneUser(FindOneUserRequest) returns (FindOneUserResponse) {}
   rpc Login(LoginRequest) returns (LoginResponse) {}
   rpc Register(RegisterRequest) returns (RegisterResponse) {}
   rpc UpdateUser(UpdateUserRequest) returns (UpdateUserResponse) {}
@@ -79,6 +80,15 @@ message FindOneUserResponse {
   uint64 status = 1;
   string error = 2;
   User data = 3;
+}
+
+// Find All Users
+message FindAllUsersRequest {}
+
+message FindAllUsersResponse {
+  uint64 status = 1;
+  string error = 2;
+  repeated User data = 3;
 }
 
 // Update

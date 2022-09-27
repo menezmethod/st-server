@@ -131,6 +131,25 @@ func (s *Server) Validate(ctx context.Context, req *pb.ValidateRequest) (*pb.Val
 	}, nil
 }
 
+func (s *Server) FindAllUsers(ctx context.Context, req *pb.FindAllUsersRequest) (*pb.FindAllUsersResponse, error) {
+	users := make([]*pb.User, 0)
+
+	if err := s.H.DB.NewSelect().Model(&users).Column("id", "email", "first_name", "last_name", "role", "created_at").Scan(ctx); err != nil {
+		return &pb.FindAllUsersResponse{
+			Status: http.StatusNotFound,
+			Error:  err.Error(),
+		}, nil
+	}
+
+	res := new(pb.FindAllUsersResponse)
+
+	for _, r := range users {
+		res.Data = append(res.Data, r)
+	}
+
+	return res, nil
+}
+
 func (s *Server) FindOneUser(ctx context.Context, req *pb.FindOneUserRequest) (*pb.FindOneUserResponse, error) {
 	var user models.User
 

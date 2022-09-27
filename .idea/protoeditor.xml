@@ -8,7 +8,7 @@
           <option name="location" value="file://$USER_HOME$/Library/Caches/JetBrains/GoLand2022.2/protoeditor" />
         </ImportPathEntry>
         <ImportPathEntry>
-          <option name="location" value="file://$PROJECT_DIR$/src" />
+          <option name="location" value="file://$PROJECT_DIR$/src/st-auth-svc/vendor" />
         </ImportPathEntry>
       </list>
     </option>
