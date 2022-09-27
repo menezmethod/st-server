@@ -15,6 +15,7 @@ type UpdateRequestBody struct {
 	Password  string `json:"password"`
 	FirstName string `json:"firstName"`
 	LastName  string `json:"lastName"`
+	Bio       string `json:"bio"`
 	Role      string `json:"role"`
 }
 
@@ -33,12 +34,15 @@ func UpdateUser(ctx *gin.Context, c pb.AuthServiceClient) {
 		Password:  wrapperspb.String(b.Password),
 		FirstName: wrapperspb.String(b.FirstName),
 		LastName:  wrapperspb.String(b.LastName),
+		Bio:       wrapperspb.String(b.Bio),
 		Role:      wrapperspb.String(b.Role),
 	})
 
 	if err != nil {
 		ctx.AbortWithError(http.StatusBadGateway, err)
 		return
+	} else if res.Status == 409 {
+		ctx.AbortWithError(http.StatusConflict, err)
 	}
 
 	ctx.JSON(http.StatusCreated, &res)
