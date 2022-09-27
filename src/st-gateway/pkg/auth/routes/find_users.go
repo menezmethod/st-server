@@ -9,7 +9,7 @@ import (
 	"st-gateway/pkg/auth/pb"
 )
 
-func FineOneUser(ctx *gin.Context, c pb.AuthServiceClient) {
+func FindOneUser(ctx *gin.Context, c pb.AuthServiceClient) {
 	id, err := strconv.ParseInt(ctx.Param("id"), 10, 32)
 
 	if err != nil {

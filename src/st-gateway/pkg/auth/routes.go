@@ -18,9 +18,10 @@ func RegisterRoutes(r *gin.Engine, c *config.Config) *ServiceClient {
 	routerGroup.POST("/auth/register", svc.Register)
 	routerGroup.POST("/auth/login", svc.Login)
 	routerGroup.GET("/auth/me", svc.FindMe)
-	routerGroup.GET("/user/:id", svc.FindOneUser)
-	routerGroup.PATCH("/trader/:id", svc.UpdateUser)
-	routerGroup.DELETE("/trader/:id", svc.DeleteUser)
+	routerGroup.GET("/users", svc.FindAllUsers)
+	routerGroup.GET("/users/:id", svc.FindOneUser)
+	routerGroup.PATCH("/users/:id", svc.UpdateUser)
+	routerGroup.DELETE("/users/:id", svc.DeleteUser)
 	return svc
 }
 
@@ -36,8 +37,12 @@ func (svc *ServiceClient) Register(ctx *gin.Context) {
 	routes.Register(ctx, svc.Client)
 }
 
+func (svc *ServiceClient) FindAllUsers(ctx *gin.Context) {
+	routes.FindAllUsers(ctx, svc.Client)
+}
+
 func (svc *ServiceClient) FindOneUser(ctx *gin.Context) {
-	routes.FineOneUser(ctx, svc.Client)
+	routes.FindOneUser(ctx, svc.Client)
 }
 
 func (svc *ServiceClient) FindMe(ctx *gin.Context) {
