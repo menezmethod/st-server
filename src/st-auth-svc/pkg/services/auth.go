@@ -202,47 +202,62 @@ func (s *Server) UpdateUser(ctx context.Context, req *pb.UpdateUserRequest) (*pb
 	var user models.User
 	var dbRes models.User
 
-	//exists, err := s.H.DB.NewSelect().Model(&user).Where("email LIKE ?", req.Email.Value).Exists(ctx)
-	//if err != nil {
-	//	log.Fatalln(err)
-	//}
-	//// need the token instead to check email
-	//if req.Id != user.Id && exists {
-	//	return &pb.UpdateUserResponse{
-	//		Status: http.StatusConflict,
-	//		Error:  "email already exists",
-	//	}, nil
-	//}
+	if err := s.H.DB.NewSelect().Model(&dbRes).Where("ID = ?", req.Id).Scan(ctx); err != nil {
+		return &pb.UpdateUserResponse{
+			Status: http.StatusNotFound,
+			Error:  err.Error(),
+		}, nil
+	}
 
-	if req.GetEmail() != nil {
+	if req.GetEmail().Value != dbRes.Email {
+		exists, err := s.H.DB.NewSelect().Model(&user).Where("email LIKE ?", req.Email.Value).Exists(ctx)
+		if err != nil {
+			log.Fatalln(err)
+		}
+
+		if exists {
+			return &pb.UpdateUserResponse{
+				Status: http.StatusConflict,
+				Error:  "email already exists",
+			}, nil
+		}
+	}
+
+	if req.GetEmail().String() == "" {
+		user.Email = dbRes.Email
+	} else {
 		user.Email = req.GetEmail().Value
 	}
-	if req.GetPassword() != nil {
+	if req.GetPassword().String() == "" {
+		user.Password = dbRes.Password
+	} else {
 		user.Password = utils.HashPassword(req.GetPassword().Value)
 	}
-	if req.GetFirstName() != nil {
+	if req.GetFirstName().String() == "" {
+		user.FirstName = dbRes.FirstName
+	} else {
 		user.FirstName = req.GetFirstName().Value
 	}
-	if req.GetLastName() != nil {
+	if req.GetLastName().String() == "" {
+		user.LastName = dbRes.LastName
+	} else {
 		user.LastName = req.GetLastName().Value
 	}
-	if req.GetBio() != nil {
+	if req.GetBio().String() == "" {
+		user.Bio = dbRes.Bio
+	} else {
 		user.Bio = req.GetBio().Value
 	}
-	if req.GetRole() != nil {
+	if req.GetRole().String() == "" {
+		user.Role = dbRes.Role
+	} else {
 		user.Role = req.GetRole().Value
 	}
 	user.Id = req.GetId()
 
-	if _, err := s.H.DB.NewUpdate().Model(&user).Where("ID = ?", user.Id).Exec(ctx); err != nil {
+	if _, err := s.H.DB.NewUpdate().Model(&user).ExcludeColumn("created_at").Where("ID = ?", user.Id).Exec(ctx); err != nil {
 		return &pb.UpdateUserResponse{
 			Status: http.StatusConflict,
-			Error:  err.Error(),
-		}, nil
-	}
-	if err := s.H.DB.NewSelect().Model(&dbRes).Where("ID = ?", req.Id).Scan(ctx); err != nil {
-		return &pb.UpdateUserResponse{
-			Status: http.StatusNotFound,
 			Error:  err.Error(),
 		}, nil
 	}
