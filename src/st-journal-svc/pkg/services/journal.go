@@ -36,13 +36,13 @@ func (s *Server) CreateJournal(ctx context.Context, req *pb.CreateJournalRequest
 
 	return &pb.CreateJournalResponse{
 		Status: http.StatusCreated,
-		Data: &pb.JournalData{
+		Data: &pb.Journal{
 			Id:              journal.ID,
 			Name:            journal.Name,
 			Description:     journal.Description,
-			StartDate:       timestamppb.New(journal.StartDate),
-			EndDate:         timestamppb.New(journal.EndDate),
-			CreatedAt:       timestamppb.New(journal.CreatedAt),
+			StartDate:       journal.StartDate.String(),
+			EndDate:         journal.EndDate.String(),
+			CreatedAt:       journal.CreatedAt.String(),
 			CreatedBy:       journal.CreatedBy,
 			UsersSubscribed: journal.UsersSubscribed,
 		},
@@ -102,6 +102,25 @@ func (s *Server) EditJournal(ctx context.Context, req *pb.EditJournalRequest) (*
 	}, nil
 }
 
+func (s *Server) FindAllJournals(ctx context.Context, _ *pb.FindAllJournalsRequest) (*pb.FindAllJournalsResponse, error) {
+	journals := make([]*pb.Journal, 0)
+
+	if err := s.H.DB.NewSelect().Model(&journals).Column("id", "description", "created_at", "start_date", "end_date", "created_by", "users_subscribed").Scan(ctx); err != nil {
+		return &pb.FindAllJournalsResponse{
+			Status: http.StatusNotFound,
+			Error:  err.Error(),
+		}, nil
+	}
+
+	res := new(pb.FindAllJournalsResponse)
+
+	for _, r := range journals {
+		res.Data = append(res.Data, r)
+	}
+
+	return res, nil
+}
+
 func (s *Server) FindOneJournal(ctx context.Context, req *pb.FindOneJournalRequest) (*pb.FindOneJournalResponse, error) {
 	var journal models.Journal
 
@@ -112,12 +131,12 @@ func (s *Server) FindOneJournal(ctx context.Context, req *pb.FindOneJournalReque
 		}, nil
 	}
 
-	data := &pb.JournalData{
+	data := &pb.Journal{
 		Id:              journal.ID,
 		Name:            journal.Name,
 		Description:     journal.Description,
-		StartDate:       timestamppb.New(journal.StartDate),
-		EndDate:         timestamppb.New(journal.EndDate),
+		StartDate:       journal.StartDate.String(),
+		EndDate:         journal.EndDate.String(),
 		CreatedBy:       journal.CreatedBy,
 		UsersSubscribed: journal.UsersSubscribed,
 	}

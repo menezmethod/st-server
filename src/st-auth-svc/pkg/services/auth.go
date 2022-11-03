@@ -131,7 +131,7 @@ func (s *Server) Validate(ctx context.Context, req *pb.ValidateRequest) (*pb.Val
 	}, nil
 }
 
-func (s *Server) FindAllUsers(ctx context.Context, req *pb.FindAllUsersRequest) (*pb.FindAllUsersResponse, error) {
+func (s *Server) FindAllUsers(ctx context.Context, _ *pb.FindAllUsersRequest) (*pb.FindAllUsersResponse, error) {
 	users := make([]*pb.User, 0)
 
 	if err := s.H.DB.NewSelect().Model(&users).Column("id", "email", "first_name", "last_name", "role", "created_at").Scan(ctx); err != nil {
@@ -203,19 +203,14 @@ func (s *Server) UpdateUser(ctx context.Context, req *pb.UpdateUserRequest) (*pb
 	var dbRes models.User
 
 	if err := s.H.DB.NewSelect().Model(&dbRes).Where("ID = ?", req.Id).Scan(ctx); err != nil {
-		return &pb.UpdateUserResponse{
-			Status: http.StatusNotFound,
-			Error:  err.Error(),
-		}, nil
+		log.Fatalln(err)
 	}
 
 	if req.GetEmail().Value != dbRes.Email {
 		exists, err := s.H.DB.NewSelect().Model(&user).Where("email LIKE ?", req.Email.Value).Exists(ctx)
 		if err != nil {
 			log.Fatalln(err)
-		}
-
-		if exists {
+		} else if exists {
 			return &pb.UpdateUserResponse{
 				Status: http.StatusConflict,
 				Error:  "email already exists",
@@ -223,32 +218,32 @@ func (s *Server) UpdateUser(ctx context.Context, req *pb.UpdateUserRequest) (*pb
 		}
 	}
 
-	if req.GetEmail().String() == "" {
+	if req.GetEmail() == nil || req.GetEmail().String() == "" {
 		user.Email = dbRes.Email
 	} else {
 		user.Email = req.GetEmail().Value
 	}
-	if req.GetPassword().String() == "" {
+	if req.GetPassword() == nil || req.GetPassword().String() == "" {
 		user.Password = dbRes.Password
 	} else {
 		user.Password = utils.HashPassword(req.GetPassword().Value)
 	}
-	if req.GetFirstName().String() == "" {
+	if req.GetFirstName() == nil || req.GetFirstName().String() == "" {
 		user.FirstName = dbRes.FirstName
 	} else {
 		user.FirstName = req.GetFirstName().Value
 	}
-	if req.GetLastName().String() == "" {
+	if req.GetLastName() == nil || req.GetLastName().String() == "" {
 		user.LastName = dbRes.LastName
 	} else {
 		user.LastName = req.GetLastName().Value
 	}
-	if req.GetBio().String() == "" {
+	if req.GetBio() == nil || req.GetBio().String() == "" && req.Email.String() == "" {
 		user.Bio = dbRes.Bio
 	} else {
 		user.Bio = req.GetBio().Value
 	}
-	if req.GetRole().String() == "" {
+	if req.GetRole() == nil || req.GetRole().String() == "" {
 		user.Role = dbRes.Role
 	} else {
 		user.Role = req.GetRole().Value
@@ -260,6 +255,10 @@ func (s *Server) UpdateUser(ctx context.Context, req *pb.UpdateUserRequest) (*pb
 			Status: http.StatusConflict,
 			Error:  err.Error(),
 		}, nil
+	}
+
+	if err := s.H.DB.NewSelect().Model(&dbRes).Where("ID = ?", req.Id).Scan(ctx); err != nil {
+		log.Fatalln(err)
 	}
 
 	return &pb.UpdateUserResponse{

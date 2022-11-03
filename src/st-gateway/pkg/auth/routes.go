@@ -2,19 +2,17 @@ package auth
 
 import (
 	"fmt"
-	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"st-gateway/pkg/auth/routes"
 
 	"st-gateway/pkg/config"
 )
 
-func RegisterRoutes(r *gin.Engine, c *config.Config) *ServiceClient {
+func RegisterAuthRoutes(r *gin.Engine, c *config.Config) *ServiceClient {
 	svc := &ServiceClient{
 		Client: InitServiceClient(c),
 	}
 	routerGroup := r.Group(fmt.Sprintf("v%v/", c.ApiVersion))
-	routerGroup.Use(cors.Default())
 	routerGroup.POST("/auth/register", svc.Register)
 	routerGroup.POST("/auth/login", svc.Login)
 	routerGroup.GET("/auth/me", svc.FindMe)
