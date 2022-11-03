@@ -2,35 +2,37 @@ package journal
 
 import (
 	"fmt"
-	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"st-gateway/pkg/auth"
 	"st-gateway/pkg/config"
 	"st-gateway/pkg/journal/routes"
 )
 
-func RegisterRoutes(r *gin.Engine, c *config.Config, authSvc *auth.ServiceClient) {
+func RegisterJournalRoutes(r *gin.Engine, c *config.Config, authSvc *auth.ServiceClient) *ServiceClient {
 	a := auth.InitAuthMiddleware(authSvc)
 
 	svc := &ServiceClient{
 		Client: InitServiceClient(c),
 	}
 
-	routerGroup := r.Group(fmt.Sprintf("v%v", c.ApiVersion))
-	routerGroup.Use(cors.Default())
-	routerGroup.Use(a.AuthRequired)
-	//routerGroup.GET("/journals/", svc.AllJournals)
-	routerGroup.POST("/journal/", svc.CreateJournal)
-	routerGroup.PATCH("/journal/:id", svc.EditJournal)
-	routerGroup.GET("/journal/:id", svc.FindOneJournal)
-	routerGroup.DELETE("/journal/:id", svc.DeleteJournal)
-	//routerGroup.GET("/trades/", svc.AllTrades)
-	routerGroup.POST("/trade/", svc.CreateTrade)
-	routerGroup.PATCH("/trade/:id", svc.EditTrade)
-	routerGroup.GET("/trade/:id", svc.FindOneTrade)
-	routerGroup.DELETE("/trade/:id", svc.DeleteTrade)
+	routerJournal := r.Group(fmt.Sprintf("v%v", c.ApiVersion))
+	routerJournal.Use(a.AuthRequired)
+	routerJournal.GET("/journals", svc.FindAllJournals)
+	routerJournal.POST("/journal/", svc.CreateJournal)
+	routerJournal.PATCH("/journal/:id", svc.EditJournal)
+	routerJournal.GET("/journal/:id", svc.FindOneJournal)
+	routerJournal.DELETE("/journal/:id", svc.DeleteJournal)
+	//routerJournal.GET("/trades/", svc.AllTrades)
+	routerJournal.POST("/trade/", svc.CreateTrade)
+	routerJournal.PATCH("/trade/:id", svc.EditTrade)
+	routerJournal.GET("/trade/:id", svc.FindOneTrade)
+	routerJournal.DELETE("/trade/:id", svc.DeleteTrade)
+	return svc
 }
 
+func (svc *ServiceClient) FindAllJournals(ctx *gin.Context) {
+	routes.FindAllJournals(ctx, svc.Client)
+}
 func (svc *ServiceClient) FindOneJournal(ctx *gin.Context) {
 	routes.FineOneJournal(ctx, svc.Client)
 }
