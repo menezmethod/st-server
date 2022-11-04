@@ -5,15 +5,10 @@ import (
 	"github.com/uptrace/bun"
 	"google.golang.org/protobuf/types/known/timestamppb"
 	"net/http"
-	"st-journal-svc/pkg/db"
 	"st-journal-svc/pkg/models"
 	"st-journal-svc/pkg/pb"
+	"time"
 )
-
-type Server struct {
-	H db.DB
-	pb.TradeServiceServer
-}
 
 func (s *Server) CreateTrade(ctx context.Context, req *pb.CreateTradeRequest) (*pb.CreateTradeResponse, error) {
 	var trade models.Trade
@@ -22,7 +17,9 @@ func (s *Server) CreateTrade(ctx context.Context, req *pb.CreateTradeRequest) (*
 	trade.Direction = req.GetDirection().Value
 	trade.EntryPrice = req.GetEntryPrice().Value
 	trade.ExitPrice = req.GetExitPrice().Value
-	trade.Instrument = req.GetInstrument().Value
+	trade.Journal = req.GetJournal()
+	trade.BaseInstrument = req.GetBaseInstrument().Value
+	trade.QuoteInstrument = req.GetQuoteInstrument().Value
 	trade.Market = req.GetMarket().Value
 	trade.Outcome = req.GetOutcome().Value
 	trade.Quantity = req.GetQuantity().Value
@@ -31,6 +28,7 @@ func (s *Server) CreateTrade(ctx context.Context, req *pb.CreateTradeRequest) (*
 	trade.TakeProfit = req.GetTakeProfit().Value
 	trade.TimeClosed = req.TimeClosed.AsTime()
 	trade.TimeExecuted = req.TimeExecuted.AsTime()
+	trade.CreatedAt = time.Now()
 
 	if _, err := s.H.DB.NewInsert().Model(&trade).Exec(ctx); err != nil {
 		return &pb.CreateTradeResponse{
@@ -41,8 +39,24 @@ func (s *Server) CreateTrade(ctx context.Context, req *pb.CreateTradeRequest) (*
 
 	return &pb.CreateTradeResponse{
 		Status: http.StatusCreated,
-		Id:     trade.ID,
-	}, nil
+		Data: &pb.TradeData{
+			Id:              trade.ID,
+			Comments:        trade.Comments,
+			Direction:       trade.Direction,
+			EntryPrice:      trade.EntryPrice,
+			ExitPrice:       trade.ExitPrice,
+			Journal:         trade.Journal,
+			BaseInstrument:  trade.BaseInstrument,
+			QuoteInstrument: trade.QuoteInstrument,
+			Market:          trade.Market,
+			Outcome:         trade.Outcome,
+			Quantity:        trade.Quantity,
+			StopLoss:        trade.StopLoss,
+			Strategy:        trade.Strategy,
+			TakeProfit:      trade.TakeProfit,
+			TimeClosed:      timestamppb.New(trade.TimeClosed),
+			TimeExecuted:    timestamppb.New(trade.TimeExecuted),
+		}}, nil
 }
 
 func (s *Server) EditTrade(ctx context.Context, req *pb.EditTradeRequest) (*pb.EditTradeResponse, error) {
@@ -61,8 +75,14 @@ func (s *Server) EditTrade(ctx context.Context, req *pb.EditTradeRequest) (*pb.E
 	if req.GetExitPrice().Value != 0 {
 		trade.ExitPrice = req.GetExitPrice().Value
 	}
-	if req.GetInstrument().Value != "" {
-		trade.Instrument = req.GetInstrument().Value
+	if req.GetJournal() != 0 {
+		trade.Journal = req.GetJournal()
+	}
+	if req.GetBaseInstrument().Value != "" {
+		trade.BaseInstrument = req.GetBaseInstrument().Value
+	}
+	if req.GetQuoteInstrument().Value != "" {
+		trade.QuoteInstrument = req.GetQuoteInstrument().Value
 	}
 	if req.GetMarket().Value != "" {
 		trade.Market = req.GetMarket().Value
@@ -107,67 +127,71 @@ func (s *Server) EditTrade(ctx context.Context, req *pb.EditTradeRequest) (*pb.E
 
 	return &pb.EditTradeResponse{
 		Status: http.StatusCreated,
-		Data: &pb.EditTradeData{
-			Id:           req.Id,
-			Comments:     dbRes.Comments,
-			Direction:    dbRes.Direction,
-			EntryPrice:   dbRes.EntryPrice,
-			ExitPrice:    dbRes.ExitPrice,
-			Instrument:   dbRes.Instrument,
-			Market:       dbRes.Market,
-			Outcome:      dbRes.Outcome,
-			Quantity:     dbRes.Quantity,
-			StopLoss:     dbRes.StopLoss,
-			Strategy:     dbRes.Strategy,
-			TakeProfit:   dbRes.TakeProfit,
-			TimeClosed:   timestamppb.New(dbRes.TimeClosed),
-			TimeExecuted: timestamppb.New(dbRes.TimeExecuted),
+		Data: &pb.TradeData{
+			Id:              req.Id,
+			Comments:        dbRes.Comments,
+			Direction:       dbRes.Direction,
+			EntryPrice:      dbRes.EntryPrice,
+			ExitPrice:       dbRes.ExitPrice,
+			Journal:         dbRes.Journal,
+			BaseInstrument:  dbRes.BaseInstrument,
+			QuoteInstrument: dbRes.QuoteInstrument,
+			Market:          dbRes.Market,
+			Outcome:         dbRes.Outcome,
+			Quantity:        dbRes.Quantity,
+			StopLoss:        dbRes.StopLoss,
+			Strategy:        dbRes.Strategy,
+			TakeProfit:      dbRes.TakeProfit,
+			TimeClosed:      timestamppb.New(dbRes.TimeClosed),
+			TimeExecuted:    timestamppb.New(dbRes.TimeExecuted),
 		},
 	}, nil
 }
 
-func (s *Server) FindOne(ctx context.Context, req *pb.FindOneRequest) (*pb.FindOneResponse, error) {
+func (s *Server) FindOneTrade(ctx context.Context, req *pb.FindOneTradeRequest) (*pb.FindOneTradeResponse, error) {
 	var trade models.Trade
 
 	if err := s.H.DB.NewSelect().Model(&trade).Where("ID = ?", req.Id).Scan(ctx); err != nil {
-		return &pb.FindOneResponse{
+		return &pb.FindOneTradeResponse{
 			Status: http.StatusNotFound,
 			Error:  err.Error(),
 		}, nil
 	}
 
-	data := &pb.FindOneData{
-		Id:           trade.ID,
-		Comments:     trade.Comments,
-		Direction:    trade.Direction,
-		EntryPrice:   trade.EntryPrice,
-		ExitPrice:    trade.ExitPrice,
-		Instrument:   trade.Instrument,
-		Market:       trade.Market,
-		Outcome:      trade.Outcome,
-		Quantity:     trade.Quantity,
-		StopLoss:     trade.StopLoss,
-		Strategy:     trade.Strategy,
-		TakeProfit:   trade.TakeProfit,
-		TimeClosed:   timestamppb.New(trade.TimeClosed),
-		TimeExecuted: timestamppb.New(trade.TimeExecuted),
+	data := &pb.TradeData{
+		Id:              trade.ID,
+		Comments:        trade.Comments,
+		Direction:       trade.Direction,
+		EntryPrice:      trade.EntryPrice,
+		ExitPrice:       trade.ExitPrice,
+		Journal:         trade.Journal,
+		BaseInstrument:  trade.BaseInstrument,
+		QuoteInstrument: trade.QuoteInstrument,
+		Market:          trade.Market,
+		Outcome:         trade.Outcome,
+		Quantity:        trade.Quantity,
+		StopLoss:        trade.StopLoss,
+		Strategy:        trade.Strategy,
+		TakeProfit:      trade.TakeProfit,
+		TimeClosed:      timestamppb.New(trade.TimeClosed),
+		TimeExecuted:    timestamppb.New(trade.TimeExecuted),
 	}
 
-	return &pb.FindOneResponse{
+	return &pb.FindOneTradeResponse{
 		Status: http.StatusOK,
 		Data:   data,
 	}, nil
 }
 
-func (s *Server) Delete(ctx context.Context, req *pb.DeleteRequest) (*pb.DeleteResponse, error) {
+func (s *Server) Delete(ctx context.Context, req *pb.DeleteTradeRequest) (*pb.DeleteTradeResponse, error) {
 	if _, err := s.H.DB.NewDelete().Model(&models.Trade{}).Where("ID IN (?)", bun.In(req.Id)).Exec(ctx); err != nil {
-		return &pb.DeleteResponse{
+		return &pb.DeleteTradeResponse{
 			Status: http.StatusConflict,
 			Error:  err.Error(),
 		}, nil
 	}
 
-	return &pb.DeleteResponse{
+	return &pb.DeleteTradeResponse{
 		Status: http.StatusOK,
 	}, nil
 }

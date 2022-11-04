@@ -8,18 +8,18 @@ import (
 	"st-gateway/pkg/config"
 )
 
-func RegisterRoutes(r *gin.Engine, c *config.Config) *ServiceClient {
+func RegisterAuthRoutes(r *gin.Engine, c *config.Config) *ServiceClient {
 	svc := &ServiceClient{
 		Client: InitServiceClient(c),
 	}
-
 	routerGroup := r.Group(fmt.Sprintf("v%v/", c.ApiVersion))
 	routerGroup.POST("/auth/register", svc.Register)
 	routerGroup.POST("/auth/login", svc.Login)
-	//routerGroup.GET("/trader/:id", svc.Login)
-	routerGroup.PATCH("/trader/:id", svc.UpdateUser)
-	routerGroup.DELETE("/trader/:id", svc.DeleteUser)
-
+	routerGroup.GET("/auth/me", svc.FindMe)
+	routerGroup.GET("/users", svc.FindAllUsers)
+	routerGroup.GET("/users/:id", svc.FindOneUser)
+	routerGroup.PATCH("/users/:id", svc.UpdateUser)
+	routerGroup.DELETE("/users/:id", svc.DeleteUser)
 	return svc
 }
 
@@ -33,6 +33,18 @@ func (svc *ServiceClient) Login(ctx *gin.Context) {
 
 func (svc *ServiceClient) Register(ctx *gin.Context) {
 	routes.Register(ctx, svc.Client)
+}
+
+func (svc *ServiceClient) FindAllUsers(ctx *gin.Context) {
+	routes.FindAllUsers(ctx, svc.Client)
+}
+
+func (svc *ServiceClient) FindOneUser(ctx *gin.Context) {
+	routes.FindOneUser(ctx, svc.Client)
+}
+
+func (svc *ServiceClient) FindMe(ctx *gin.Context) {
+	routes.Me(ctx, svc.Client)
 }
 
 func (svc *ServiceClient) UpdateUser(ctx *gin.Context) {

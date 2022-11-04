@@ -12,11 +12,11 @@ import (
 	"st-auth-svc/pkg/models"
 )
 
-type DB struct {
+type Handler struct {
 	*bun.DB
 }
 
-func Init(url string) DB {
+func Init(url string) Handler {
 	db := bun.NewDB(sql.OpenDB(pgdriver.NewConnector(pgdriver.WithDSN(url))), pgdialect.New())
 	fixture := dbfixture.New(db, dbfixture.WithRecreateTables())
 
@@ -26,5 +26,5 @@ func Init(url string) DB {
 		log.Fatalln(err)
 	}
 
-	return DB{db}
+	return Handler{db}
 }

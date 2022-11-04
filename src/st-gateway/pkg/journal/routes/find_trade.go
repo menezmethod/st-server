@@ -4,12 +4,11 @@ import (
 	"context"
 	"github.com/gin-gonic/gin"
 	"net/http"
+	"st-gateway/pkg/journal/pb"
 	"strconv"
-
-	"st-gateway/pkg/trade/pb"
 )
 
-func FineOne(ctx *gin.Context, c pb.TradeServiceClient) {
+func FineOneTrade(ctx *gin.Context, c pb.JournalServiceClient) {
 	id, err := strconv.ParseInt(ctx.Param("id"), 10, 32)
 
 	if err != nil {
@@ -17,7 +16,7 @@ func FineOne(ctx *gin.Context, c pb.TradeServiceClient) {
 		return
 	}
 
-	res, err := c.FindOne(context.Background(), &pb.FindOneRequest{
+	res, err := c.FindOneTrade(context.Background(), &pb.FindOneTradeRequest{
 		Id: uint64(id),
 	})
 

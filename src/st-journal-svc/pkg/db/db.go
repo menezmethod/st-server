@@ -21,8 +21,9 @@ func Init(url string) DB {
 	fixture := dbfixture.New(db, dbfixture.WithRecreateTables())
 
 	db.RegisterModel(&models.Trade{})
+	db.RegisterModel(&models.Journal{})
 
-	if err := fixture.Load(context.Background(), os.DirFS("./pkg/db"), "trade.yml"); err != nil {
+	if err := fixture.Load(context.Background(), os.DirFS("./pkg/db"), "journal.yml"); err != nil {
 		log.Fatalln(err)
 	}
 

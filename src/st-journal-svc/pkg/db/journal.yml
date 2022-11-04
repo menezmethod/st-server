@@ -1,0 +1,27 @@
+- model: Trade
+  rows:
+    - base_instrument: USD
+      quote_instrument: MNMD
+      comments: We screwed up
+      direction: Short
+      entry_price: 122
+      exit_price: 92
+      journal: 1
+      market: Stock
+      outcome: Loss
+      quantity: 123
+      stop_loss: 9
+      strategy: RSI
+      take_profit: 15
+      time_executed: 2020-02-06T08:18:12.500Z
+      time_closed: 2022-08-06T08:17:12.500Z
+      created_at: 2022-04-06T08:17:12.500Z
+
+- model: Journal
+  rows:
+    - name: Crypto Spring
+      created_at: 2022-08-06T08:17:12.500Z
+      created_by: Somebody
+      description: Hopefully a winning journal
+      start_date: 2020-02-06T08:18:12.500Z
+      end_date: 2022-08-06T08:17:12.500Z

@@ -1,0 +1,209 @@
+syntax = "proto3";
+
+package journal;
+
+option go_package = "/pkg/pb";
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/wrappers.proto";
+
+import "github.com/gogo/protobuf/gogoproto/gogo.proto";
+
+option (gogoproto.marshaler_all) = false;
+option (gogoproto.unmarshaler_all) = false;
+option (gogoproto.sizer_all) = false;
+option (gogoproto.messagename_all) = false;
+
+service JournalService {
+  rpc CreateJournal(CreateJournalRequest) returns (CreateJournalResponse) {}
+  rpc DeleteJournal(DeleteJournalRequest) returns (DeleteJournalResponse) {}
+  rpc EditJournal(EditJournalRequest) returns (EditJournalResponse) {}
+  rpc FindAllJournals(FindAllJournalsRequest) returns (FindAllJournalsResponse) {}
+  rpc FindOneJournal(FindOneJournalRequest) returns (FindOneJournalResponse) {}
+  rpc CreateTrade(CreateTradeRequest) returns (CreateTradeResponse) {}
+  rpc EditTrade(EditTradeRequest) returns (EditTradeResponse) {}
+  rpc FindOneTrade(FindOneTradeRequest) returns (FindOneTradeResponse) {}
+  rpc DeleteTrade(DeleteTradeRequest) returns (DeleteTradeResponse) {}
+}
+
+// CreateJournal
+
+message CreateJournalRequest {
+  uint64 id = 1;
+  google.protobuf.StringValue created_by = 2;
+  google.protobuf.Timestamp created_at = 3;
+  google.protobuf.Timestamp start_date = 4;
+  google.protobuf.Timestamp end_date = 5;
+  google.protobuf.StringValue name = 6;
+  google.protobuf.StringValue description = 7;
+  repeated uint64 users_subscribed = 8;
+}
+
+message CreateJournalResponse {
+  uint64 status = 1;
+  string error = 2;
+  Journal data = 3;
+}
+
+// EditJournal
+
+message EditJournalData {
+  uint64 id = 1;
+  string created_by = 2;
+  google.protobuf.Timestamp created_at = 3;
+  google.protobuf.Timestamp start_date = 4;
+  google.protobuf.Timestamp end_date = 5;
+  string name = 6;
+  string description = 7;
+  repeated uint64 users_subscribed = 8;
+}
+
+message EditJournalRequest {
+  uint64 id = 1;
+  google.protobuf.StringValue created_by = 2;
+  google.protobuf.Timestamp created_at = 3;
+  google.protobuf.Timestamp start_date = 4;
+  google.protobuf.Timestamp end_date = 5;
+  google.protobuf.StringValue name = 6;
+  google.protobuf.StringValue description = 7;
+  repeated uint64 users_subscribed = 8;
+}
+
+message EditJournalResponse {
+  uint64 status = 1;
+  string error = 2;
+  EditJournalData data = 3;
+}
+
+// FindOne
+
+message Journal {
+  uint64 id = 1;
+  string created_by = 2 [(gogoproto.jsontag)="createdBy"];
+  string created_at = 3 [(gogoproto.jsontag)="createdAt"];
+  string start_date = 4 [(gogoproto.jsontag)="startDate"];
+  string end_date = 5 [(gogoproto.jsontag)="endDate"];
+  string name = 6;
+  string description = 7;
+  repeated uint64 users_subscribed = 8 [(gogoproto.jsontag)="usersSubscribed"];
+}
+
+message FindAllJournalsRequest {}
+
+message FindAllJournalsResponse {
+  uint64 status = 1;
+  string error = 2;
+  repeated Journal data = 3;
+}
+
+message FindOneJournalRequest {
+  uint64 id = 1;
+}
+
+message FindOneJournalResponse {
+  uint64 status = 1;
+  string error = 2;
+  Journal data = 3;
+}
+
+message DeleteJournalRequest {
+  repeated string id = 1;
+}
+
+message DeleteJournalResponse {
+  uint64 status = 1;
+  string error = 2;
+}
+
+// CreateTrade
+
+message CreateTradeRequest {
+  google.protobuf.Timestamp time_executed = 2;
+  google.protobuf.StringValue market = 3;
+  google.protobuf.FloatValue stop_loss = 4;
+  google.protobuf.FloatValue entry_price = 5;
+  google.protobuf.FloatValue exit_price = 6;
+  uint64 journal = 7;
+  google.protobuf.FloatValue quantity = 8;
+  google.protobuf.StringValue outcome = 9;
+  google.protobuf.StringValue direction = 10;
+  google.protobuf.StringValue base_instrument = 11;
+  google.protobuf.StringValue quote_instrument = 12;
+  google.protobuf.FloatValue take_profit = 13;
+  google.protobuf.StringValue comments = 14;
+  google.protobuf.StringValue strategy = 15;
+  google.protobuf.Timestamp time_closed = 16;
+  google.protobuf.Timestamp created_at = 17;
+}
+
+message CreateTradeResponse {
+  uint64 status = 1;
+  string error = 2;
+  TradeData data = 3;
+}
+
+// EditTrade
+
+message TradeData {
+  uint64 id = 1;
+  google.protobuf.Timestamp time_executed = 2;
+  string market = 3;
+  float stop_loss = 4;
+  float entry_price = 5;
+  float exit_price = 6;
+  uint64 journal = 7;
+  float quantity = 8;
+  string outcome = 9;
+  string direction = 10;
+  string base_instrument = 11;
+  string quote_instrument = 12;
+  float take_profit = 13;
+  string comments = 14;
+  string strategy = 15;
+  google.protobuf.Timestamp time_closed = 16;
+  google.protobuf.Timestamp created_at = 17;
+}
+
+message EditTradeRequest {
+  uint64 id = 1;
+  google.protobuf.Timestamp time_executed = 2;
+  google.protobuf.StringValue market = 3;
+  google.protobuf.FloatValue stop_loss = 4;
+  google.protobuf.FloatValue entry_price = 5;
+  google.protobuf.FloatValue exit_price = 6;
+  uint64 journal = 7;
+  google.protobuf.FloatValue quantity = 8;
+  google.protobuf.StringValue outcome = 9;
+  google.protobuf.StringValue direction = 10;
+  google.protobuf.StringValue base_instrument = 11;
+  google.protobuf.StringValue quote_instrument = 12;
+  google.protobuf.FloatValue take_profit = 13;
+  google.protobuf.StringValue comments = 14;
+  google.protobuf.StringValue strategy = 15;
+  google.protobuf.Timestamp time_closed = 16;
+  google.protobuf.Timestamp created_at = 17;
+}
+
+message EditTradeResponse {
+  uint64 status = 1;
+  string error = 2;
+  TradeData data = 3;
+}
+
+message FindOneTradeRequest {
+  uint64 id = 1;
+}
+
+message FindOneTradeResponse {
+  uint64 status = 1;
+  string error = 2;
+  TradeData data = 3;
+}
+
+message DeleteTradeRequest {
+  repeated string id = 1;
+}
+
+message DeleteTradeResponse {
+  uint64 status = 1;
+  string error = 2;
+}

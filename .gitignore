@@ -18,3 +18,7 @@
 /src/st-auth-svc/vendor/
 /src/st-gateway/vendor/
 /src/st-journal-svc/vendor/
+/src/github.com/
+/src/golang.org/
+/src/google.golang.org/
+/src/gopkg.in/

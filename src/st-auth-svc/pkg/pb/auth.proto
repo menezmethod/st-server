@@ -5,9 +5,18 @@ package auth;
 option go_package = "./pkg/pb";
 import "google/protobuf/timestamp.proto";
 import "google/protobuf/wrappers.proto";
+import "github.com/gogo/protobuf/gogoproto/gogo.proto";
+
+option (gogoproto.marshaler_all) = false;
+option (gogoproto.unmarshaler_all) = false;
+option (gogoproto.sizer_all) = false;
+option (gogoproto.messagename_all) = false;
 
 service AuthService {
   rpc DeleteUser(DeleteUserRequest) returns (DeleteUserResponse) {}
+  rpc FindAllUsers(FindAllUsersRequest) returns (FindAllUsersResponse) {}
+  rpc FindMe(FindOneUserRequest) returns (FindOneUserResponse) {}
+  rpc FindOneUser(FindOneUserRequest) returns (FindOneUserResponse) {}
   rpc Login(LoginRequest) returns (LoginResponse) {}
   rpc Register(RegisterRequest) returns (RegisterResponse) {}
   rpc UpdateUser(UpdateUserRequest) returns (UpdateUserResponse) {}
@@ -35,9 +44,13 @@ message LoginRequest {
 message LoginResponse {
   uint64 status = 1;
   string error = 2;
-  string token = 3;
-  string role = 4;
-  uint64 id = 5;
+  LoginData data = 3;
+}
+
+message LoginData {
+  string token = 1;
+  string role = 2;
+  uint64 id = 3;
 }
 
 // Register
@@ -45,9 +58,11 @@ message LoginResponse {
 message RegisterRequest {
   google.protobuf.StringValue email = 1;
   google.protobuf.StringValue password = 2;
-  google.protobuf.StringValue full_name = 3;
-  google.protobuf.StringValue role = 4;
-  google.protobuf.Timestamp time_registered = 5;
+  google.protobuf.StringValue first_name = 3;
+  google.protobuf.StringValue last_name = 4;
+  google.protobuf.StringValue bio = 5;
+  google.protobuf.StringValue role = 6;
+  google.protobuf.Timestamp created_at = 7;
 }
 
 message RegisterResponse {
@@ -57,15 +72,37 @@ message RegisterResponse {
 }
 
 
+// Find Users
+message FindOneUserRequest {
+  uint64 id = 1;
+}
+
+message FindOneUserResponse {
+  uint64 status = 1;
+  string error = 2;
+  User data = 3;
+}
+
+// Find All Users
+message FindAllUsersRequest {}
+
+message FindAllUsersResponse {
+  uint64 status = 1;
+  string error = 2;
+  repeated User data = 3;
+}
+
 // Update
 
 message UpdateUserRequest {
   google.protobuf.StringValue email = 1;
   google.protobuf.StringValue password = 2;
-  google.protobuf.StringValue full_name = 3;
-  google.protobuf.StringValue role = 4;
-  google.protobuf.Timestamp time_registered = 5;
-  uint64 id = 6;
+  google.protobuf.StringValue first_name = 3;
+  google.protobuf.StringValue last_name = 4;
+  google.protobuf.StringValue bio = 5;
+  google.protobuf.StringValue role = 6;
+  google.protobuf.Timestamp created_at = 7;
+  uint64 id = 8;
 }
 
 message UpdateUserResponse {
@@ -76,7 +113,7 @@ message UpdateUserResponse {
 
 // Validate
 
-message ValidateRequest { google.protobuf.StringValue token = 1; }
+message ValidateRequest {google.protobuf.StringValue token = 1;}
 
 message ValidateResponse {
   uint64 status = 1;
@@ -88,8 +125,10 @@ message User {
   uint64 id = 1;
   string email = 2;
   string password = 3;
-  string full_name = 4;
-  string role = 5;
-  string token = 6;
-  google.protobuf.Timestamp time_registered = 7;
+  string first_name = 4 [(gogoproto.jsontag)="firstName"];
+  string last_name = 5 [(gogoproto.jsontag)="lastName"];
+  string bio = 6;
+  string role = 7;
+  string token = 8;
+  string created_at = 9 [(gogoproto.jsontag)="createdAt"];
 }

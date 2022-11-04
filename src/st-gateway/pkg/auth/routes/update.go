@@ -11,10 +11,12 @@ import (
 )
 
 type UpdateRequestBody struct {
-	Email    string `json:"email"`
-	Password string `json:"password"`
-	FullName string `json:"fullName"`
-	Role     string `json:"role"`
+	Email     string `json:"email"`
+	Password  string `json:"password"`
+	FirstName string `json:"firstName"`
+	LastName  string `json:"lastName"`
+	Bio       string `json:"bio"`
+	Role      string `json:"role"`
 }
 
 func UpdateUser(ctx *gin.Context, c pb.AuthServiceClient) {
@@ -27,16 +29,20 @@ func UpdateUser(ctx *gin.Context, c pb.AuthServiceClient) {
 	}
 
 	res, err := c.UpdateUser(context.Background(), &pb.UpdateUserRequest{
-		Id:       uint64(id),
-		Email:    wrapperspb.String(b.Email),
-		Password: wrapperspb.String(b.Password),
-		FullName: wrapperspb.String(b.FullName),
-		Role:     wrapperspb.String(b.Role),
+		Id:        uint64(id),
+		Email:     wrapperspb.String(b.Email),
+		Password:  wrapperspb.String(b.Password),
+		FirstName: wrapperspb.String(b.FirstName),
+		LastName:  wrapperspb.String(b.LastName),
+		Bio:       wrapperspb.String(b.Bio),
+		Role:      wrapperspb.String(b.Role),
 	})
 
 	if err != nil {
 		ctx.AbortWithError(http.StatusBadGateway, err)
 		return
+	} else if res.Status == 409 {
+		ctx.AbortWithError(http.StatusConflict, err)
 	}
 
 	ctx.JSON(http.StatusCreated, &res)

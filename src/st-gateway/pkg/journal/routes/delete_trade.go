@@ -5,11 +5,11 @@ import (
 	"errors"
 	"github.com/gin-gonic/gin"
 	"net/http"
-	"st-gateway/pkg/trade/pb"
+	"st-gateway/pkg/journal/pb"
 	"strings"
 )
 
-func Delete(ctx *gin.Context, c pb.TradeServiceClient) {
+func DeleteTrade(ctx *gin.Context, c pb.JournalServiceClient) {
 	id, err := strings.Split(ctx.Param("id"), ","), errors.New("no id")
 
 	if ctx.Param("id") == "" {
@@ -17,7 +17,7 @@ func Delete(ctx *gin.Context, c pb.TradeServiceClient) {
 		return
 	}
 
-	res, err := c.Delete(context.Background(), &pb.DeleteRequest{
+	res, err := c.DeleteTrade(context.Background(), &pb.DeleteTradeRequest{
 		Id: id,
 	})
 
