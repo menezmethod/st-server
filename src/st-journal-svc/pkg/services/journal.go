@@ -105,7 +105,7 @@ func (s *Server) EditJournal(ctx context.Context, req *pb.EditJournalRequest) (*
 func (s *Server) FindAllJournals(ctx context.Context, _ *pb.FindAllJournalsRequest) (*pb.FindAllJournalsResponse, error) {
 	journals := make([]*pb.Journal, 0)
 
-	if err := s.H.DB.NewSelect().Model(&journals).Column("id", "description", "created_at", "start_date", "end_date", "created_by", "users_subscribed").Scan(ctx); err != nil {
+	if err := s.H.DB.NewSelect().Model(&journals).Column("id", "name", "description", "created_at", "start_date", "end_date", "created_by", "users_subscribed").Scan(ctx); err != nil {
 		return &pb.FindAllJournalsResponse{
 			Status: http.StatusNotFound,
 			Error:  err.Error(),
