@@ -16,7 +16,6 @@ func RegisterJournalRoutes(r *gin.Engine, c *config.Config, authSvc *auth.Servic
 	}
 
 	routerJournal := r.Group(fmt.Sprintf("v%v", c.ApiVersion))
-	routerJournal.Use(a.AuthRequired)
 	routerJournal.GET("/journals", svc.FindAllJournals)
 	routerJournal.POST("/journal/", svc.CreateJournal)
 	routerJournal.PATCH("/journal/:id", svc.EditJournal)
@@ -27,6 +26,7 @@ func RegisterJournalRoutes(r *gin.Engine, c *config.Config, authSvc *auth.Servic
 	routerJournal.PATCH("/trade/:id", svc.EditTrade)
 	routerJournal.GET("/trade/:id", svc.FindOneTrade)
 	routerJournal.DELETE("/trade/:id", svc.DeleteTrade)
+	routerJournal.Use(a.AuthRequired)
 	return svc
 }
 

@@ -3,9 +3,8 @@ syntax = "proto3";
 package journal;
 
 option go_package = "./pkg/journal/pb";
-import "google/protobuf/timestamp.proto";
-import "google/protobuf/wrappers.proto";
 import "github.com/gogo/protobuf/gogoproto/gogo.proto";
+import "google/protobuf/timestamp.proto";
 
 option (gogoproto.marshaler_all) = false;
 option (gogoproto.unmarshaler_all) = false;
@@ -28,12 +27,12 @@ service JournalService {
 
 message CreateJournalRequest {
   uint64 id = 1;
-  google.protobuf.StringValue created_by = 2;
+  string created_by = 2;
   google.protobuf.Timestamp created_at = 3;
-  google.protobuf.Timestamp start_date = 4;
-  google.protobuf.Timestamp end_date = 5;
-  google.protobuf.StringValue name = 6;
-  google.protobuf.StringValue description = 7;
+  string start_date = 4;
+  string end_date = 5;
+  string name = 6;
+  string description = 7;
   repeated uint64 users_subscribed = 8;
 }
 
@@ -47,9 +46,9 @@ message CreateJournalResponse {
 message EditJournalData {
   uint64 id = 1;
   string created_by = 2;
-  google.protobuf.Timestamp created_at = 3;
-  google.protobuf.Timestamp start_date = 4;
-  google.protobuf.Timestamp end_date = 5;
+  string created_at = 3;
+  string start_date = 4;
+  string end_date = 5;
   string name = 6;
   string description = 7;
   repeated uint64 users_subscribed = 8;
@@ -57,12 +56,12 @@ message EditJournalData {
 
 message EditJournalRequest {
   uint64 id = 1;
-  google.protobuf.StringValue created_by = 2;
+  string created_by = 2;
   google.protobuf.Timestamp created_at = 3;
-  google.protobuf.Timestamp start_date = 4;
-  google.protobuf.Timestamp end_date = 5;
-  google.protobuf.StringValue name = 6;
-  google.protobuf.StringValue description = 7;
+  string start_date = 4;
+  string end_date = 5;
+  string name = 6;
+  string description = 7;
   repeated uint64 users_subscribed = 8;
 }
 
@@ -74,13 +73,13 @@ message EditJournalResponse {
 
 message Journal {
   uint64 id = 1;
-  string created_by = 2;
-  string created_at = 3;
-  string start_date = 4;
-  string end_date = 5;
+  string created_by = 2 [(gogoproto.jsontag) = "createdBy"];
+  string created_at = 3 [(gogoproto.jsontag) = "createdAt"];
+  string start_date = 4 [(gogoproto.jsontag) = "startDate"];
+  string end_date = 5 [(gogoproto.jsontag) = "endDate"];
   string name = 6;
   string description = 7;
-  repeated uint64 users_subscribed = 8;
+  repeated uint64 users_subscribed = 8 [(gogoproto.jsontag) = "usersSubscribed"];
 }
 
 message FindAllJournalsRequest {}
@@ -113,34 +112,7 @@ message DeleteJournalResponse {
 // CreateTrade
 
 message CreateTradeRequest {
-  google.protobuf.Timestamp time_executed = 2;
-  google.protobuf.StringValue market = 3;
-  google.protobuf.FloatValue stop_loss = 4;
-  google.protobuf.FloatValue entry_price = 5;
-  google.protobuf.FloatValue exit_price = 6;
-  uint64 journal = 7;
-  google.protobuf.FloatValue quantity = 8;
-  google.protobuf.StringValue outcome = 9;
-  google.protobuf.StringValue direction = 10;
-  google.protobuf.StringValue base_instrument = 11;
-  google.protobuf.StringValue quote_instrument = 12;
-  google.protobuf.FloatValue take_profit = 13;
-  google.protobuf.StringValue comments = 14;
-  google.protobuf.StringValue strategy = 15;
-  google.protobuf.Timestamp time_closed = 16;
-  google.protobuf.Timestamp created_at = 17;
-}
-
-message CreateTradeResponse {
-  uint64 status = 1;
-  string error = 2;
-  uint64 id = 3;}
-
-// EditTrade
-
-message TradeData {
-  uint64 id = 1;
-  google.protobuf.Timestamp time_executed = 2;
+  string time_executed = 2;
   string market = 3;
   float stop_loss = 4;
   float entry_price = 5;
@@ -154,27 +126,54 @@ message TradeData {
   float take_profit = 13;
   string comments = 14;
   string strategy = 15;
-  google.protobuf.Timestamp time_closed = 16;
+  string time_closed = 16;
+  google.protobuf.Timestamp created_at = 17;
+}
+
+message CreateTradeResponse {
+  uint64 status = 1;
+  string error = 2;
+  uint64 id = 3;}
+
+// EditTrade
+
+message TradeData {
+  uint64 id = 1;
+  string time_executed = 2;
+  string market = 3;
+  float stop_loss = 4;
+  float entry_price = 5;
+  float exit_price = 6;
+  uint64 journal = 7;
+  float quantity = 8;
+  string outcome = 9;
+  string direction = 10;
+  string base_instrument = 11;
+  string quote_instrument = 12;
+  float take_profit = 13;
+  string comments = 14;
+  string strategy = 15;
+  string time_closed = 16;
   google.protobuf.Timestamp created_at = 17;
 }
 
 message EditTradeRequest {
   uint64 id = 1;
-  google.protobuf.Timestamp time_executed = 2;
-  google.protobuf.StringValue market = 3;
-  google.protobuf.FloatValue stop_loss = 4;
-  google.protobuf.FloatValue entry_price = 5;
-  google.protobuf.FloatValue exit_price = 6;
+  string time_executed = 2;
+  string market = 3;
+  float stop_loss = 4;
+  float entry_price = 5;
+  float exit_price = 6;
   uint64 journal = 7;
-  google.protobuf.FloatValue quantity = 8;
-  google.protobuf.StringValue outcome = 9;
-  google.protobuf.StringValue direction = 10;
-  google.protobuf.StringValue base_instrument = 11;
-  google.protobuf.StringValue quote_instrument = 12;
-  google.protobuf.FloatValue take_profit = 13;
-  google.protobuf.StringValue comments = 14;
-  google.protobuf.StringValue strategy = 15;
-  google.protobuf.Timestamp time_closed = 16;
+  float quantity = 8;
+  string outcome = 9;
+  string direction = 10;
+  string base_instrument = 11;
+  string quote_instrument = 12;
+  float take_profit = 13;
+  string comments = 14;
+  string strategy = 15;
+  string time_closed = 16;
   google.protobuf.Timestamp created_at = 17;
 }
 
