@@ -3,7 +3,6 @@ package services
 import (
 	"context"
 	"github.com/uptrace/bun"
-	"google.golang.org/protobuf/types/known/timestamppb"
 	"net/http"
 	"st-journal-svc/pkg/models"
 	"st-journal-svc/pkg/pb"
@@ -13,21 +12,21 @@ import (
 func (s *Server) CreateTrade(ctx context.Context, req *pb.CreateTradeRequest) (*pb.CreateTradeResponse, error) {
 	var trade models.Trade
 	//TODO This needs validation
-	trade.Comments = req.GetComments().Value
-	trade.Direction = req.GetDirection().Value
-	trade.EntryPrice = req.GetEntryPrice().Value
-	trade.ExitPrice = req.GetExitPrice().Value
+	trade.Comments = req.GetComments()
+	trade.Direction = req.GetDirection()
+	trade.EntryPrice = req.GetEntryPrice()
+	trade.ExitPrice = req.GetExitPrice()
 	trade.Journal = req.GetJournal()
-	trade.BaseInstrument = req.GetBaseInstrument().Value
-	trade.QuoteInstrument = req.GetQuoteInstrument().Value
-	trade.Market = req.GetMarket().Value
-	trade.Outcome = req.GetOutcome().Value
-	trade.Quantity = req.GetQuantity().Value
-	trade.StopLoss = req.GetStopLoss().Value
-	trade.Strategy = req.GetStrategy().Value
-	trade.TakeProfit = req.GetTakeProfit().Value
-	trade.TimeClosed = req.TimeClosed.AsTime()
-	trade.TimeExecuted = req.TimeExecuted.AsTime()
+	trade.BaseInstrument = req.GetBaseInstrument()
+	trade.QuoteInstrument = req.GetQuoteInstrument()
+	trade.Market = req.GetMarket()
+	trade.Outcome = req.GetOutcome()
+	trade.Quantity = req.GetQuantity()
+	trade.StopLoss = req.GetStopLoss()
+	trade.Strategy = req.GetStrategy()
+	trade.TakeProfit = req.GetTakeProfit()
+	trade.TimeClosed = req.GetTimeClosed()
+	trade.TimeExecuted = req.GetTimeExecuted()
 	trade.CreatedAt = time.Now()
 
 	if _, err := s.H.DB.NewInsert().Model(&trade).Exec(ctx); err != nil {
@@ -54,8 +53,8 @@ func (s *Server) CreateTrade(ctx context.Context, req *pb.CreateTradeRequest) (*
 			StopLoss:        trade.StopLoss,
 			Strategy:        trade.Strategy,
 			TakeProfit:      trade.TakeProfit,
-			TimeClosed:      timestamppb.New(trade.TimeClosed),
-			TimeExecuted:    timestamppb.New(trade.TimeExecuted),
+			TimeClosed:      trade.TimeClosed,
+			TimeExecuted:    trade.TimeExecuted,
 		}}, nil
 }
 
@@ -63,50 +62,50 @@ func (s *Server) EditTrade(ctx context.Context, req *pb.EditTradeRequest) (*pb.E
 	var dbRes models.Trade
 	var trade models.Trade
 
-	if req.GetComments().Value != "" {
-		trade.Comments = req.GetComments().Value
+	if req.GetComments() != "" {
+		trade.Comments = req.GetComments()
 	}
-	if req.GetDirection().GetValue() != "" {
-		trade.Comments = req.GetDirection().GetValue()
+	if req.GetDirection() != "" {
+		trade.Comments = req.GetDirection()
 	}
-	if req.GetEntryPrice().Value != 0 {
-		trade.EntryPrice = req.GetEntryPrice().Value
+	if req.GetEntryPrice() != 0 {
+		trade.EntryPrice = req.GetEntryPrice()
 	}
-	if req.GetExitPrice().Value != 0 {
-		trade.ExitPrice = req.GetExitPrice().Value
+	if req.GetExitPrice() != 0 {
+		trade.ExitPrice = req.GetExitPrice()
 	}
 	if req.GetJournal() != 0 {
 		trade.Journal = req.GetJournal()
 	}
-	if req.GetBaseInstrument().Value != "" {
-		trade.BaseInstrument = req.GetBaseInstrument().Value
+	if req.GetBaseInstrument() != "" {
+		trade.BaseInstrument = req.GetBaseInstrument()
 	}
-	if req.GetQuoteInstrument().Value != "" {
-		trade.QuoteInstrument = req.GetQuoteInstrument().Value
+	if req.GetQuoteInstrument() != "" {
+		trade.QuoteInstrument = req.GetQuoteInstrument()
 	}
-	if req.GetMarket().Value != "" {
-		trade.Market = req.GetMarket().Value
+	if req.GetMarket() != "" {
+		trade.Market = req.GetMarket()
 	}
-	if req.GetOutcome().Value != "" {
-		trade.Outcome = req.GetOutcome().Value
+	if req.GetOutcome() != "" {
+		trade.Outcome = req.GetOutcome()
 	}
-	if req.GetQuantity().Value != 0 {
-		trade.Quantity = req.GetQuantity().Value
+	if req.GetQuantity() != 0 {
+		trade.Quantity = req.GetQuantity()
 	}
-	if req.GetStopLoss().Value != 0 {
-		trade.StopLoss = req.GetStopLoss().Value
+	if req.GetStopLoss() != 0 {
+		trade.StopLoss = req.GetStopLoss()
 	}
-	if req.GetStrategy().Value != "" {
-		trade.Strategy = req.GetStrategy().Value
+	if req.GetStrategy() != "" {
+		trade.Strategy = req.GetStrategy()
 	}
-	if req.GetTakeProfit().Value != 0 {
-		trade.TakeProfit = req.GetTakeProfit().Value
+	if req.GetTakeProfit() != 0 {
+		trade.TakeProfit = req.GetTakeProfit()
 	}
-	if req.GetTimeClosed() != nil {
-		trade.TimeClosed = req.GetTimeClosed().AsTime()
+	if req.GetTimeClosed() != "" {
+		trade.TimeClosed = req.GetTimeClosed()
 	}
-	if req.GetTimeExecuted() != nil {
-		trade.TimeExecuted = req.GetTimeExecuted().AsTime()
+	if req.GetTimeExecuted() != "" {
+		trade.TimeExecuted = req.GetTimeExecuted()
 	}
 
 	trade.ID = req.GetId()
@@ -142,8 +141,8 @@ func (s *Server) EditTrade(ctx context.Context, req *pb.EditTradeRequest) (*pb.E
 			StopLoss:        dbRes.StopLoss,
 			Strategy:        dbRes.Strategy,
 			TakeProfit:      dbRes.TakeProfit,
-			TimeClosed:      timestamppb.New(dbRes.TimeClosed),
-			TimeExecuted:    timestamppb.New(dbRes.TimeExecuted),
+			TimeClosed:      dbRes.TimeClosed,
+			TimeExecuted:    dbRes.TimeExecuted,
 		},
 	}, nil
 }
@@ -173,8 +172,8 @@ func (s *Server) FindOneTrade(ctx context.Context, req *pb.FindOneTradeRequest) 
 		StopLoss:        trade.StopLoss,
 		Strategy:        trade.Strategy,
 		TakeProfit:      trade.TakeProfit,
-		TimeClosed:      timestamppb.New(trade.TimeClosed),
-		TimeExecuted:    timestamppb.New(trade.TimeExecuted),
+		TimeClosed:      trade.TimeClosed,
+		TimeExecuted:    trade.TimeExecuted,
 	}
 
 	return &pb.FindOneTradeResponse{

@@ -3,7 +3,6 @@ package services
 import (
 	"context"
 	"github.com/uptrace/bun"
-	"google.golang.org/protobuf/types/known/timestamppb"
 	"net/http"
 	"st-journal-svc/pkg/db"
 	"st-journal-svc/pkg/models"
@@ -19,12 +18,12 @@ type Server struct {
 func (s *Server) CreateJournal(ctx context.Context, req *pb.CreateJournalRequest) (*pb.CreateJournalResponse, error) {
 	var journal models.Journal
 	//TODO This needs validation
-	journal.Name = req.GetName().Value
-	journal.Description = req.GetDescription().Value
+	journal.Name = req.GetName()
+	journal.Description = req.GetDescription()
 	journal.CreatedAt = time.Now()
-	journal.StartDate = req.StartDate.AsTime()
-	journal.EndDate = req.EndDate.AsTime()
-	journal.CreatedBy = req.GetCreatedBy().Value
+	journal.StartDate = req.GetStartDate()
+	journal.EndDate = req.GetEndDate()
+	journal.CreatedBy = req.GetCreatedBy()
 	journal.UsersSubscribed = req.GetUsersSubscribed()
 
 	if _, err := s.H.DB.NewInsert().Model(&journal).Exec(ctx); err != nil {
@@ -40,8 +39,8 @@ func (s *Server) CreateJournal(ctx context.Context, req *pb.CreateJournalRequest
 			Id:              journal.ID,
 			Name:            journal.Name,
 			Description:     journal.Description,
-			StartDate:       journal.StartDate.String(),
-			EndDate:         journal.EndDate.String(),
+			StartDate:       journal.StartDate,
+			EndDate:         journal.EndDate,
 			CreatedAt:       journal.CreatedAt.String(),
 			CreatedBy:       journal.CreatedBy,
 			UsersSubscribed: journal.UsersSubscribed,
@@ -53,20 +52,20 @@ func (s *Server) EditJournal(ctx context.Context, req *pb.EditJournalRequest) (*
 	var dbRes models.Journal
 	var journal models.Journal
 
-	if req.GetName().Value != "" {
-		journal.Name = req.GetName().Value
+	if req.GetName() != "" {
+		journal.Name = req.GetName()
 	}
-	if req.GetDescription().Value != "" {
-		journal.Description = req.GetDescription().Value
+	if req.GetDescription() != "" {
+		journal.Description = req.GetDescription()
 	}
-	if req.GetStartDate() != nil {
-		journal.StartDate = req.GetStartDate().AsTime()
+	if req.GetStartDate() != "" {
+		journal.StartDate = req.GetStartDate()
 	}
-	if req.GetEndDate() != nil {
-		journal.EndDate = req.GetEndDate().AsTime()
+	if req.GetEndDate() != "" {
+		journal.EndDate = req.GetEndDate()
 	}
-	if req.GetCreatedBy().Value != "" {
-		journal.CreatedBy = req.GetCreatedBy().Value
+	if req.GetCreatedBy() != "" {
+		journal.CreatedBy = req.GetCreatedBy()
 	}
 	if req.GetUsersSubscribed() != nil {
 		journal.UsersSubscribed = req.GetUsersSubscribed()
@@ -94,8 +93,8 @@ func (s *Server) EditJournal(ctx context.Context, req *pb.EditJournalRequest) (*
 			Id:              req.Id,
 			Name:            dbRes.Name,
 			Description:     dbRes.Description,
-			StartDate:       timestamppb.New(dbRes.StartDate),
-			EndDate:         timestamppb.New(dbRes.EndDate),
+			StartDate:       dbRes.StartDate,
+			EndDate:         dbRes.EndDate,
 			CreatedBy:       dbRes.CreatedBy,
 			UsersSubscribed: dbRes.UsersSubscribed,
 		},
@@ -135,9 +134,10 @@ func (s *Server) FindOneJournal(ctx context.Context, req *pb.FindOneJournalReque
 		Id:              journal.ID,
 		Name:            journal.Name,
 		Description:     journal.Description,
-		StartDate:       journal.StartDate.String(),
-		EndDate:         journal.EndDate.String(),
+		StartDate:       journal.StartDate,
+		EndDate:         journal.EndDate,
 		CreatedBy:       journal.CreatedBy,
+		CreatedAt:       journal.CreatedAt.String(),
 		UsersSubscribed: journal.UsersSubscribed,
 	}
 
