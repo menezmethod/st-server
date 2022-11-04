@@ -74,13 +74,13 @@ message EditJournalResponse {
 
 message Journal {
   uint64 id = 1;
-  string created_by = 2;
-  string created_at = 3;
-  string start_date = 4;
-  string end_date = 5;
+  string created_by = 2 [(gogoproto.jsontag)="createdBy"];
+  string created_at = 3 [(gogoproto.jsontag)="createdAt"];
+  string start_date = 4 [(gogoproto.jsontag)="startDate"];
+  string end_date = 5 [(gogoproto.jsontag)="endDate"];
   string name = 6;
   string description = 7;
-  repeated uint64 users_subscribed = 8;
+  repeated uint64 users_subscribed = 8 [(gogoproto.jsontag)="usersSubscribed"];
 }
 
 message FindAllJournalsRequest {}
