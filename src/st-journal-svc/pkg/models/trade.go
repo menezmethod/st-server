@@ -20,6 +20,6 @@ type Trade struct {
 	StopLoss        float32   `json:"stopLoss,omitempty"`
 	Strategy        string    `json:"strategy,omitempty"`
 	TakeProfit      float32   `json:"takeProfit,omitempty"`
-	TimeClosed      time.Time `json:"timeClosed,omitempty"`
-	TimeExecuted    time.Time `json:"timeExecuted,omitempty"`
+	TimeClosed      string    `json:"timeClosed,omitempty"`
+	TimeExecuted    string    `json:"timeExecuted,omitempty"`
 }
