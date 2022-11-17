@@ -5,12 +5,6 @@ package auth;
 option go_package = "./pkg/auth/pb";
 import "google/protobuf/timestamp.proto";
 import "google/protobuf/wrappers.proto";
-import "github.com/gogo/protobuf/gogoproto/gogo.proto";
-
-option (gogoproto.marshaler_all) = false;
-option (gogoproto.unmarshaler_all) = false;
-option (gogoproto.sizer_all) = false;
-option (gogoproto.messagename_all) = false;
 
 service AuthService {
   rpc DeleteUser(DeleteUserRequest) returns (DeleteUserResponse) {}
@@ -125,10 +119,10 @@ message User {
   uint64 id = 1;
   string email = 2;
   string password = 3;
-  string first_name = 4 [(gogoproto.jsontag)="firstName"];
-  string last_name = 5 [(gogoproto.jsontag)="lastName"];
+  string first_name = 4;
+  string last_name = 5;
   string bio = 6;
   string role = 7;
   string token = 8;
-  string created_at = 9 [(gogoproto.jsontag)="createdAt"];
+  string created_at = 9;
 }
