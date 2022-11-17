@@ -1,14 +1,11 @@
-proto auth-svc:
-	protoc pkg/pb/*.proto -I=$GOPATH/src/st-auth-svc/vendor --gofast_out=plugins=grpc:. --proto_path=.
+proto gateway:
+	protoc pkg/**/pb/*.proto --go_out=. --go-grpc_out=.
 
-proto journal-svc:
-	protoc pkg/pb/*.proto -I=$GOPATH/src/st-auth-svc/vendor --gofast_out=plugins=grpc:. --proto_path=.
+proto auth:
+	protoc pkg/pb/*.proto --go_out=. --go-grpc_out=.
 
-proto gateway-auth:
-	protoc pkg/auth/pb/*.proto -I=$GOPATH/src/st-auth-svc/vendor --gofast_out=plugins=grpc:. --proto_path=.
-
-proto gateway-journal:
-	protoc pkg/journal/pb/*.proto -I=$GOPATH/src/st-auth-svc/vendor --gofast_out=plugins=grpc:. --proto_path=.
+proto journal:
+	protoc pkg/pb/*.proto --go_out=. --go-grpc_out=.
 
 gateway server:
 	go build ./src/st-gateway/cmd/main.go
@@ -18,6 +15,3 @@ auth server:
 
 journal server:
 	go build ./src/st-journal-svc/cmd/main.go
-
-all servers:
-	go build ./src/st-gateway/cmd/main.go ./src/st-auth-svc/cmd/main.go ./src/st-journal-svc/cmd/main.go

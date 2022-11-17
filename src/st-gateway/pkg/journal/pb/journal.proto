@@ -3,13 +3,7 @@ syntax = "proto3";
 package journal;
 
 option go_package = "./pkg/journal/pb";
-import "github.com/gogo/protobuf/gogoproto/gogo.proto";
 import "google/protobuf/timestamp.proto";
-
-option (gogoproto.marshaler_all) = false;
-option (gogoproto.unmarshaler_all) = false;
-option (gogoproto.sizer_all) = false;
-option (gogoproto.messagename_all) = false;
 
 service JournalService {
   rpc CreateJournal(CreateJournalRequest) returns (CreateJournalResponse) {}
@@ -73,13 +67,13 @@ message EditJournalResponse {
 
 message Journal {
   uint64 id = 1;
-  string created_by = 2 [(gogoproto.jsontag) = "createdBy"];
-  string created_at = 3 [(gogoproto.jsontag) = "createdAt"];
-  string start_date = 4 [(gogoproto.jsontag) = "startDate"];
-  string end_date = 5 [(gogoproto.jsontag) = "endDate"];
+  string created_by = 2;
+  string created_at = 3;
+  string start_date = 4;
+  string end_date = 5;
   string name = 6;
   string description = 7;
-  repeated uint64 users_subscribed = 8 [(gogoproto.jsontag) = "usersSubscribed"];
+  repeated uint64 users_subscribed = 8;
 }
 
 message FindAllJournalsRequest {}
