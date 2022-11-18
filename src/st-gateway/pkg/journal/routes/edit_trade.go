@@ -11,6 +11,7 @@ import (
 type EditTradeRequestBody struct {
 	Id              uint64  `json:"id"`
 	Comments        string  `json:"comments"`
+	CreatedBy       string  `json:"createdBy"`
 	Direction       string  `json:"direction"`
 	EntryPrice      float32 `json:"entryPrice"`
 	ExitPrice       float32 `json:"exitPrice"`
@@ -40,6 +41,7 @@ func EditTrade(ctx *gin.Context, c pb.JournalServiceClient) {
 	res, err := c.EditTrade(context.Background(), &pb.EditTradeRequest{
 		Id:              uint64(id),
 		Comments:        b.Comments,
+		CreatedBy:       b.CreatedBy,
 		Direction:       b.Direction,
 		EntryPrice:      b.EntryPrice,
 		ExitPrice:       b.ExitPrice,

@@ -9,6 +9,7 @@ import (
 
 type CreateTradeRequestBody struct {
 	Comments        string  `json:"comments"`
+	CreatedBy       string  `json:"createdBy"`
 	Direction       string  `json:"direction"`
 	EntryPrice      float32 `json:"entryPrice"`
 	ExitPrice       float32 `json:"exitPrice"`
@@ -35,6 +36,7 @@ func CreateTrade(ctx *gin.Context, c pb.JournalServiceClient) {
 
 	res, err := c.CreateTrade(context.Background(), &pb.CreateTradeRequest{
 		Comments:        b.Comments,
+		CreatedBy:       b.CreatedBy,
 		Direction:       b.Direction,
 		EntryPrice:      b.EntryPrice,
 		ExitPrice:       b.ExitPrice,
