@@ -11,7 +11,7 @@ import (
 
 func (s *Server) CreateTrade(ctx context.Context, req *pb.CreateTradeRequest) (*pb.CreateTradeResponse, error) {
 	var trade models.Trade
-	//TODO This needs validation
+
 	trade.Comments = req.GetComments()
 	trade.Direction = req.GetDirection()
 	trade.EntryPrice = req.GetEntryPrice()
@@ -29,6 +29,16 @@ func (s *Server) CreateTrade(ctx context.Context, req *pb.CreateTradeRequest) (*
 	trade.TimeExecuted = req.GetTimeExecuted()
 	trade.CreatedAt = time.Now()
 	trade.CreatedBy = req.GetCreatedBy()
+
+	if req.GetDirection() == "Long" && req.GetExitPrice()-req.GetEntryPrice() > 0.01 {
+		trade.Outcome = "Win"
+	} else if req.GetDirection() == "Short" && req.GetExitPrice() > 0 && req.GetEntryPrice()-req.GetExitPrice() > 0.01 {
+		trade.Outcome = "Win"
+	} else if req.GetExitPrice() == 0 {
+		trade.Outcome = "TBD"
+	} else {
+		trade.Outcome = "Loss"
+	}
 
 	if _, err := s.H.DB.NewInsert().Model(&trade).Exec(ctx); err != nil {
 		return &pb.CreateTradeResponse{
@@ -67,9 +77,6 @@ func (s *Server) EditTrade(ctx context.Context, req *pb.EditTradeRequest) (*pb.E
 
 	if req.GetComments() != "" {
 		trade.Comments = req.GetComments()
-	}
-	if req.GetCreatedBy() != "" {
-		trade.CreatedBy = req.GetCreatedBy()
 	}
 	if req.GetDirection() != "" {
 		trade.Direction = req.GetDirection()
@@ -116,7 +123,19 @@ func (s *Server) EditTrade(ctx context.Context, req *pb.EditTradeRequest) (*pb.E
 
 	trade.ID = req.GetId()
 
-	if _, err := s.H.DB.NewUpdate().Model(&trade).Where("ID = ?", trade.ID).Exec(ctx); err != nil {
+	if req.GetDirection() == "Long" && req.GetExitPrice()-req.GetEntryPrice() > 0.01 {
+		trade.Outcome = "Win"
+	} else if req.GetDirection() == "Short" && req.GetExitPrice() > 0 && req.GetEntryPrice()-req.GetExitPrice() > 0.01 {
+		trade.Outcome = "Win"
+	} else if req.GetExitPrice() == 0 {
+		trade.Outcome = "TBD"
+	} else {
+		trade.Outcome = "Loss"
+	}
+
+	if _, err := s.H.DB.NewUpdate().Model(&trade).Column("base_instrument", "comments", "direction",
+		"entry_price", "exit_price", "journal", "market", "outcome", "quantity", "quote_instrument", "stop_loss",
+		"strategy", "take_profit", "time_closed", "time_executed").Where("ID = ?", trade.ID).Exec(ctx); err != nil {
 		return &pb.EditTradeResponse{
 			Status: http.StatusConflict,
 			Error:  err.Error(),
@@ -135,7 +154,6 @@ func (s *Server) EditTrade(ctx context.Context, req *pb.EditTradeRequest) (*pb.E
 		Data: &pb.Trade{
 			Id:              req.Id,
 			Comments:        dbRes.Comments,
-			CreatedBy:       dbRes.CreatedBy,
 			Direction:       dbRes.Direction,
 			EntryPrice:      dbRes.EntryPrice,
 			ExitPrice:       dbRes.ExitPrice,
@@ -157,7 +175,9 @@ func (s *Server) EditTrade(ctx context.Context, req *pb.EditTradeRequest) (*pb.E
 func (s *Server) FindAllTrades(ctx context.Context, _ *pb.FindAllTradesRequest) (*pb.FindAllTradesResponse, error) {
 	trades := make([]*pb.Trade, 0)
 
-	if err := s.H.DB.NewSelect().Model(&trades).Column("id", "base_instrument", "quote_instrument", "comments", "direction", "entry_price", "exit_price", "journal", "market", "outcome", "quantity", "stop_loss", "strategy", "take_profit", "time_executed", "time_closed", "created_at", "created_by").Scan(ctx); err != nil {
+	if err := s.H.DB.NewSelect().Model(&trades).Column("id", "base_instrument", "quote_instrument",
+		"comments", "direction", "entry_price", "exit_price", "journal", "market", "outcome", "quantity",
+		"stop_loss", "strategy", "take_profit", "time_executed", "time_closed", "created_at", "created_by").Scan(ctx); err != nil {
 		return &pb.FindAllTradesResponse{
 			Status: http.StatusNotFound,
 			Error:  err.Error(),
@@ -186,6 +206,7 @@ func (s *Server) FindOneTrade(ctx context.Context, req *pb.FindOneTradeRequest) 
 	data := &pb.Trade{
 		Id:              trade.ID,
 		Comments:        trade.Comments,
+		CreatedBy:       trade.CreatedBy,
 		Direction:       trade.Direction,
 		EntryPrice:      trade.EntryPrice,
 		ExitPrice:       trade.ExitPrice,
