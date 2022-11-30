@@ -134,7 +134,7 @@ func (s *Server) Validate(ctx context.Context, req *pb.ValidateRequest) (*pb.Val
 func (s *Server) FindAllUsers(ctx context.Context, _ *pb.FindAllUsersRequest) (*pb.FindAllUsersResponse, error) {
 	users := make([]*pb.User, 0)
 
-	if err := s.H.DB.NewSelect().Model(&users).Column("id", "email", "first_name", "last_name", "role", "created_at").Scan(ctx); err != nil {
+	if err := s.H.DB.NewSelect().Model(&users).Column("id", "email", "firstName", "lastName", "role", "createdAt").Scan(ctx); err != nil {
 		return &pb.FindAllUsersResponse{
 			Status: http.StatusNotFound,
 			Error:  err.Error(),
@@ -250,7 +250,7 @@ func (s *Server) UpdateUser(ctx context.Context, req *pb.UpdateUserRequest) (*pb
 	}
 	user.Id = req.GetId()
 
-	if _, err := s.H.DB.NewUpdate().Model(&user).ExcludeColumn("created_at").Where("ID = ?", user.Id).Exec(ctx); err != nil {
+	if _, err := s.H.DB.NewUpdate().Model(&user).ExcludeColumn("createdAt").Where("ID = ?", user.Id).Exec(ctx); err != nil {
 		return &pb.UpdateUserResponse{
 			Status: http.StatusConflict,
 			Error:  err.Error(),

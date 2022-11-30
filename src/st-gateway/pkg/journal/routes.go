@@ -21,7 +21,7 @@ func RegisterJournalRoutes(r *gin.Engine, c *config.Config, authSvc *auth.Servic
 	routerJournal.PATCH("/journal/:id", svc.EditJournal)
 	routerJournal.GET("/journal/:id", svc.FindOneJournal)
 	routerJournal.DELETE("/journal/:id", svc.DeleteJournal)
-	//routerJournal.GET("/trades/", svc.AllTrades)
+	routerJournal.GET("/trades/", svc.FindAllTrades)
 	routerJournal.POST("/trade/", svc.CreateTrade)
 	routerJournal.PATCH("/trade/:id", svc.EditTrade)
 	routerJournal.GET("/trade/:id", svc.FindOneTrade)
@@ -47,6 +47,10 @@ func (svc *ServiceClient) EditJournal(ctx *gin.Context) {
 
 func (svc *ServiceClient) DeleteJournal(ctx *gin.Context) {
 	routes.DeleteJournal(ctx, svc.Client)
+}
+
+func (svc *ServiceClient) FindAllTrades(ctx *gin.Context) {
+	routes.FindAllTrades(ctx, svc.Client)
 }
 
 func (svc *ServiceClient) FindOneTrade(ctx *gin.Context) {
