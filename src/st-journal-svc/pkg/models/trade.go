@@ -9,6 +9,7 @@ type Trade struct {
 	BaseInstrument  string    `json:"baseInstrument,omitempty"`
 	Comments        string    `json:"comments,omitempty"`
 	CreatedAt       time.Time `json:"createdAt,omitempty"`
+	CreatedBy       string    `json:"createdBy,omitempty"`
 	Direction       string    `json:"direction,omitempty,omitempty"`
 	EntryPrice      float32   `json:"entryPrice,omitempty"`
 	ExitPrice       float32   `json:"exitPrice,omitempty"`

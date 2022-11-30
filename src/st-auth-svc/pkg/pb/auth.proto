@@ -17,16 +17,6 @@ service AuthService {
   rpc Validate(ValidateRequest) returns (ValidateResponse) {}
 }
 
-// DeleteTrade
-
-message DeleteUserRequest {
-  repeated string id = 1;
-}
-
-message DeleteUserResponse {
-  uint64 status = 1;
-  string error = 2;
-}
 
 // Login
 
@@ -52,11 +42,11 @@ message LoginData {
 message RegisterRequest {
   google.protobuf.StringValue email = 1;
   google.protobuf.StringValue password = 2;
-  google.protobuf.StringValue first_name = 3;
-  google.protobuf.StringValue last_name = 4;
+  google.protobuf.StringValue firstName = 3;
+  google.protobuf.StringValue lastName = 4;
   google.protobuf.StringValue bio = 5;
   google.protobuf.StringValue role = 6;
-  google.protobuf.Timestamp created_at = 7;
+  google.protobuf.Timestamp createdAt = 7;
 }
 
 message RegisterResponse {
@@ -91,11 +81,11 @@ message FindAllUsersResponse {
 message UpdateUserRequest {
   google.protobuf.StringValue email = 1;
   google.protobuf.StringValue password = 2;
-  google.protobuf.StringValue first_name = 3;
-  google.protobuf.StringValue last_name = 4;
+  google.protobuf.StringValue firstName = 3;
+  google.protobuf.StringValue lastName = 4;
   google.protobuf.StringValue bio = 5;
   google.protobuf.StringValue role = 6;
-  google.protobuf.Timestamp created_at = 7;
+  google.protobuf.Timestamp createdAt = 7;
   uint64 id = 8;
 }
 
@@ -119,10 +109,19 @@ message User {
   uint64 id = 1;
   string email = 2;
   string password = 3;
-  string first_name = 4;
-  string last_name = 5;
+  string firstName = 4;
+  string lastName = 5;
   string bio = 6;
   string role = 7;
   string token = 8;
-  string created_at = 9;
+  string createdAt = 9;
+}
+
+message DeleteUserRequest {
+  repeated string id = 1;
+}
+
+message DeleteUserResponse {
+  uint64 status = 1;
+  string error = 2;
 }

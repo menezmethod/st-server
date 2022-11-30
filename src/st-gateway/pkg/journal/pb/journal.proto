@@ -13,50 +13,48 @@ service JournalService {
   rpc FindOneJournal(FindOneJournalRequest) returns (FindOneJournalResponse) {}
   rpc CreateTrade(CreateTradeRequest) returns (CreateTradeResponse) {}
   rpc EditTrade(EditTradeRequest) returns (EditTradeResponse) {}
+  rpc FindAllTrades(FindAllTradesRequest) returns (FindAllTradesResponse) {}
   rpc FindOneTrade(FindOneTradeRequest) returns (FindOneTradeResponse) {}
   rpc DeleteTrade(DeleteTradeRequest) returns (DeleteTradeResponse) {}
 }
 
-// CreateJournal
-
 message CreateJournalRequest {
   uint64 id = 1;
-  string created_by = 2;
-  google.protobuf.Timestamp created_at = 3;
-  string start_date = 4;
-  string end_date = 5;
+  string createdBy = 2;
+  google.protobuf.Timestamp createdAt = 3;
+  string startDate = 4;
+  string endDate = 5;
   string name = 6;
   string description = 7;
-  repeated uint64 users_subscribed = 8;
+  repeated uint64 usersSubscribed = 8;
 }
 
 message CreateJournalResponse {
   uint64 status = 1;
   string error = 2;
-  uint64 id = 3;}
-
-// EditJournal
+  uint64 id = 3;
+}
 
 message EditJournalData {
   uint64 id = 1;
-  string created_by = 2;
-  string created_at = 3;
-  string start_date = 4;
-  string end_date = 5;
+  string createdBy = 2;
+  string createdAt = 3;
+  string startDate = 4;
+  string endDate = 5;
   string name = 6;
   string description = 7;
-  repeated uint64 users_subscribed = 8;
+  repeated uint64 usersSubscribed = 8;
 }
 
 message EditJournalRequest {
   uint64 id = 1;
-  string created_by = 2;
-  google.protobuf.Timestamp created_at = 3;
-  string start_date = 4;
-  string end_date = 5;
+  string createdBy = 2;
+  google.protobuf.Timestamp createdAt = 3;
+  string startDate = 4;
+  string endDate = 5;
   string name = 6;
   string description = 7;
-  repeated uint64 users_subscribed = 8;
+  repeated uint64 usersSubscribed = 8;
 }
 
 message EditJournalResponse {
@@ -67,13 +65,13 @@ message EditJournalResponse {
 
 message Journal {
   uint64 id = 1;
-  string created_by = 2;
-  string created_at = 3;
-  string start_date = 4;
-  string end_date = 5;
+  string createdBy = 2;
+  string createdAt = 3;
+  string startDate = 4;
+  string endDate = 5;
   string name = 6;
   string description = 7;
-  repeated uint64 users_subscribed = 8;
+  repeated uint64 usersSubscribed = 8;
 }
 
 message FindAllJournalsRequest {}
@@ -103,78 +101,86 @@ message DeleteJournalResponse {
   string error = 2;
 }
 
-// CreateTrade
-
 message CreateTradeRequest {
-  string time_executed = 2;
+  string timeExecuted = 2;
   string market = 3;
-  float stop_loss = 4;
-  float entry_price = 5;
-  float exit_price = 6;
+  float stopLoss = 4;
+  float entryPrice = 5;
+  float exitPrice = 6;
   uint64 journal = 7;
   float quantity = 8;
   string outcome = 9;
   string direction = 10;
-  string base_instrument = 11;
-  string quote_instrument = 12;
-  float take_profit = 13;
+  string baseInstrument = 11;
+  string quoteInstrument = 12;
+  float takeProfit = 13;
   string comments = 14;
   string strategy = 15;
-  string time_closed = 16;
-  google.protobuf.Timestamp created_at = 17;
+  string timeClosed = 16;
+  google.protobuf.Timestamp createdAt = 17;
+  string createdBy = 18;
 }
 
 message CreateTradeResponse {
   uint64 status = 1;
   string error = 2;
-  uint64 id = 3;}
+  Trade data = 3;
+}
 
-// EditTrade
-
-message TradeData {
+message Trade {
   uint64 id = 1;
-  string time_executed = 2;
+  string timeExecuted = 2;
   string market = 3;
-  float stop_loss = 4;
-  float entry_price = 5;
-  float exit_price = 6;
+  float stopLoss = 4;
+  float entryPrice = 5;
+  float exitPrice = 6;
   uint64 journal = 7;
   float quantity = 8;
   string outcome = 9;
   string direction = 10;
-  string base_instrument = 11;
-  string quote_instrument = 12;
-  float take_profit = 13;
+  string baseInstrument = 11;
+  string quoteInstrument = 12;
+  float takeProfit = 13;
   string comments = 14;
   string strategy = 15;
-  string time_closed = 16;
-  google.protobuf.Timestamp created_at = 17;
+  string timeClosed = 16;
+  string createdAt = 17;
+  string createdBy = 18;
 }
 
 message EditTradeRequest {
   uint64 id = 1;
-  string time_executed = 2;
+  string timeExecuted = 2;
   string market = 3;
-  float stop_loss = 4;
-  float entry_price = 5;
-  float exit_price = 6;
+  float stopLoss = 4;
+  float entryPrice = 5;
+  float exitPrice = 6;
   uint64 journal = 7;
   float quantity = 8;
   string outcome = 9;
   string direction = 10;
-  string base_instrument = 11;
-  string quote_instrument = 12;
-  float take_profit = 13;
+  string baseInstrument = 11;
+  string quoteInstrument = 12;
+  float takeProfit = 13;
   string comments = 14;
   string strategy = 15;
-  string time_closed = 16;
-  google.protobuf.Timestamp created_at = 17;
+  string timeClosed = 16;
+  google.protobuf.Timestamp createdAt = 17;
+  string createdBy = 18;
 }
 
 message EditTradeResponse {
   uint64 status = 1;
   string error = 2;
-  TradeData data = 3;
+  Trade data = 3;
+}
+
+message FindAllTradesRequest {}
+
+message FindAllTradesResponse {
+  uint64 status = 1;
+  string error = 2;
+  repeated Trade data = 3;
 }
 
 message FindOneTradeRequest {
@@ -184,7 +190,7 @@ message FindOneTradeRequest {
 message FindOneTradeResponse {
   uint64 status = 1;
   string error = 2;
-  TradeData data = 3;
+  Trade data = 3;
 }
 
 message DeleteTradeRequest {
