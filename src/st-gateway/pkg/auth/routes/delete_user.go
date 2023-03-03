@@ -10,21 +10,29 @@ import (
 )
 
 func DeleteUser(ctx *gin.Context, c pb.AuthServiceClient) {
-	id, err := strings.Split(ctx.Param("id"), ","), errors.New("no id")
+	id := ctx.Param("id")
 
-	if ctx.Param("id") == "" {
-		ctx.AbortWithError(http.StatusBadGateway, err)
+	if id == "" {
+		ctx.AbortWithError(http.StatusBadRequest, errors.New("no id"))
 		return
 	}
 
-	res, err := c.DeleteUser(context.Background(), &pb.DeleteUserRequest{
-		Id: id,
+	idSlice := strings.Split(id, ",")
+	if len(idSlice) == 0 {
+		ctx.AbortWithError(http.StatusBadRequest, errors.New("no id"))
+		return
+	}
+
+	_, err := c.DeleteUser(context.Background(), &pb.DeleteUserRequest{
+		Id: idSlice,
 	})
 
-	if res == nil {
-		ctx.AbortWithError(http.StatusBadGateway, err)
+	if err != nil {
+		ctx.AbortWithError(http.StatusBadRequest, err)
 		return
 	}
 
-	ctx.JSON(http.StatusCreated, &res)
+	ctx.JSON(http.StatusOK, gin.H{
+		"message": "User deleted successfully",
+	})
 }
