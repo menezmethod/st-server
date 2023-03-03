@@ -2,6 +2,7 @@ package routes
 
 import (
 	"context"
+	"errors"
 	"google.golang.org/protobuf/types/known/wrapperspb"
 	"net/http"
 
@@ -31,7 +32,8 @@ func Login(ctx *gin.Context, c pb.AuthServiceClient) {
 		ctx.AbortWithError(http.StatusBadGateway, err)
 		return
 	} else if res.Status == 404 {
-		ctx.AbortWithError(http.StatusNotFound, err)
+		ctx.AbortWithError(http.StatusNotFound, errors.New("user not found"))
+		return
 	}
 
 	ctx.JSON(http.StatusCreated, &res)

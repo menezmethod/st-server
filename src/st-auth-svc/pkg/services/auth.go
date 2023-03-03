@@ -20,45 +20,69 @@ type Server struct {
 }
 
 func (s *Server) Register(ctx context.Context, req *pb.RegisterRequest) (*pb.RegisterResponse, error) {
-	var user models.User
+	if req == nil {
+		return &pb.RegisterResponse{
+			Status: http.StatusBadRequest,
+			Error:  "Request is empty",
+		}, nil
+	}
 
-	exists, err := s.H.DB.NewSelect().Model(&user).Where("email = ?", req.Email.Value).Exists(ctx)
+	email := req.GetEmail()
+	if email == nil || email.Value == "" {
+		return &pb.RegisterResponse{
+			Status: http.StatusBadRequest,
+			Error:  "Email is required",
+		}, nil
+	}
+
+	password := req.GetPassword()
+	if password == nil || password.Value == "" {
+		return &pb.RegisterResponse{
+			Status: http.StatusBadRequest,
+			Error:  "Password is required",
+		}, nil
+	}
+
+	firstName := req.GetFirstName()
+	lastName := req.GetLastName()
+
+	user := models.User{
+		Email:     email.Value,
+		Password:  utils.HashPassword(password.Value),
+		FirstName: firstName.Value,
+		LastName:  lastName.Value,
+		Role:      "USER",
+		CreatedAt: time.Now(),
+	}
+
+	exists, err := s.H.DB.NewSelect().Model(&models.User{}).Where("email = ?", user.Email).Exists(ctx)
 	if err != nil {
-		log.Fatalln(err)
+		return &pb.RegisterResponse{
+			Status: http.StatusInternalServerError,
+			Error:  "Failed to check if email already exists",
+		}, err
 	}
 	if exists {
 		return &pb.RegisterResponse{
 			Status: http.StatusConflict,
-			Error:  "email already exists",
+			Error:  "Email already exists",
 		}, nil
 	}
-
-	if v := req.GetEmail(); v != nil {
-		user.Email = v.Value
-	}
-	if v := req.GetPassword(); v != nil {
-		user.Password = utils.HashPassword(v.Value)
-	}
-	if v := req.GetFirstName(); v != nil {
-		user.FirstName = v.Value
-	}
-	if v := req.GetLastName(); v != nil {
-		user.LastName = v.Value
-	}
-	if v := req.GetRole(); v != nil {
-		user.Role = "USER"
-	}
-
-	user.CreatedAt = time.Now()
 
 	if _, err := s.H.DB.NewInsert().Model(&user).Exec(ctx); err != nil {
 		return &pb.RegisterResponse{
-			Status: http.StatusConflict,
-			Error:  err.Error(),
-		}, nil
+			Status: http.StatusInternalServerError,
+			Error:  "Failed to create user",
+		}, err
 	}
 
-	token, _ := s.Jwt.GenerateToken(user)
+	token, err := s.Jwt.GenerateToken(user)
+	if err != nil {
+		return &pb.RegisterResponse{
+			Status: http.StatusInternalServerError,
+			Error:  "Failed to generate token",
+		}, err
+	}
 
 	return &pb.RegisterResponse{
 		Status: http.StatusCreated,
@@ -76,6 +100,13 @@ func (s *Server) Register(ctx context.Context, req *pb.RegisterRequest) (*pb.Reg
 
 func (s *Server) Login(ctx context.Context, req *pb.LoginRequest) (*pb.LoginResponse, error) {
 	var user models.User
+
+	if req == nil {
+		return &pb.LoginResponse{
+			Status: http.StatusNotFound,
+			Error:  "empty request",
+		}, nil
+	}
 
 	if err := s.H.DB.NewSelect().Model(&user).Where("email = ?", req.Email.Value).Scan(ctx); err != nil {
 		return &pb.LoginResponse{
@@ -134,7 +165,7 @@ func (s *Server) Validate(ctx context.Context, req *pb.ValidateRequest) (*pb.Val
 func (s *Server) FindAllUsers(ctx context.Context, _ *pb.FindAllUsersRequest) (*pb.FindAllUsersResponse, error) {
 	users := make([]*pb.User, 0)
 
-	if err := s.H.DB.NewSelect().Model(&users).Column("id", "email", "firstName", "lastName", "role", "createdAt").Scan(ctx); err != nil {
+	if err := s.H.DB.NewSelect().Model(&users).Column("id", "email", "first_name", "last_name", "role", "created_at").Scan(ctx); err != nil {
 		return &pb.FindAllUsersResponse{
 			Status: http.StatusNotFound,
 			Error:  err.Error(),

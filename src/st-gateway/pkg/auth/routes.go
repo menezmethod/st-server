@@ -19,7 +19,7 @@ func RegisterAuthRoutes(r *gin.Engine, c *config.Config) *ServiceClient {
 	routerGroup.GET("/users", svc.FindAllUsers)
 	routerGroup.GET("/users/:id", svc.FindOneUser)
 	routerGroup.PATCH("/users/:id", svc.UpdateUser)
-	routerGroup.DELETE("/users/:id", svc.DeleteUser)
+	routerGroup.DELETE("/user/:id", svc.DeleteUser)
 	return svc
 }
 
