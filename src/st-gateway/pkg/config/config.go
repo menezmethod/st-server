@@ -1,6 +1,9 @@
 package config
 
-import "github.com/spf13/viper"
+import (
+	"github.com/spf13/viper"
+	"log"
+)
 
 type Config struct {
 	Port          string `mapstructure:"PORT"`
@@ -10,21 +13,19 @@ type Config struct {
 	JWTSecretKey  string `mapstructure:"JWT_SECRET_KEY"`
 }
 
-func LoadConfig() (c Config, err error) {
-	viper.AddConfigPath("./../config/envs")
-	viper.AddConfigPath("./pkg/config/envs")
-	viper.SetConfigName("dev")
-	viper.SetConfigType("env")
-
+func LoadConfig() (config Config, err error) {
 	viper.AutomaticEnv()
+	requiredVars := []string{"AUTH_SVC_URL", "PORT", "JWT_SECRET_KEY", "JOURNAL_SVC_URL", "API_VERSION"}
 
-	err = viper.ReadInConfig()
-
-	if err != nil {
-		return
+	for _, v := range requiredVars {
+		if err := viper.BindEnv(v); err != nil {
+			return Config{}, err
+		}
 	}
 
-	err = viper.Unmarshal(&c)
-
+	err = viper.Unmarshal(&config)
+	if err != nil {
+		log.Fatalf("Error unmarshaling config: %v", err)
+	}
 	return
 }

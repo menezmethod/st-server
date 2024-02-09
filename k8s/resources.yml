@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: DEPLOYMENT_NAME_PLACEHOLDER
+  labels:
+    app: APP_LABEL_PLACEHOLDER
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: APP_LABEL_PLACEHOLDER
+  template:
+    metadata:
+      labels:
+        app: APP_LABEL_PLACEHOLDER
+    spec:
+      serviceAccountName: st-trader-ksa
+      imagePullSecrets:
+        - name: gcr-json-key
+      containers:
+        - name: CONTAINER_NAME_PLACEHOLDER
+          image: IMAGE_PLACEHOLDER
+          imagePullPolicy: Always
+          ports:
+            - containerPort: CONTAINER_PORT_PLACEHOLDER
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "100Mi"
+            limits:
+              cpu: "200m"
+              memory: "200Mi"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: SERVICE_NAME_PLACEHOLDER
+spec:
+  selector:
+    app: APP_LABEL_PLACEHOLDER
+  ports:
+    - protocol: TCP
+      port: SERVICE_PORT_PLACEHOLDER
+      targetPort: CONTAINER_PORT_PLACEHOLDER
+  type: LoadBalancer
