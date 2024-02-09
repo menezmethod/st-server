@@ -1,6 +1,6 @@
 module st-auth-svc
 
-go 1.19
+go 1.22
 
 require (
 	github.com/gogo/protobuf v1.3.2
