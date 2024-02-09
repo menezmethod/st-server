@@ -1,0 +1,52 @@
+name: Go Services CI/CD
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  build-and-test:
+    name: Build and Test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      # Setup Go environment for each service build
+      - name: Set up Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: '1.22' # Use the Go version required for your project
+
+      # Install dependencies and build the st-auth-svc service
+      - name: Build st-auth-svc
+        run: |
+          cd src/st-auth-svc
+          go build
+          go test ./...
+
+      # Install dependencies and build the st-gateway service
+      - name: Build st-gateway
+        run: |
+          cd src/st-gateway
+          go build
+          go test ./...
+
+      # Install dependencies and build the st-journal-svc service
+      - name: Build st-journal-svc
+        run: |
+          cd src/st-journal-svc
+          go build
+          go test ./...
+
+      # Add additional steps for Docker build and push, deployment, etc.
+      # This is a placeholder for your deployment script
+      - name: Deploy to GCP
+        if: success()
+        run: echo "Add your deployment commands here"
+        # Use secrets for any sensitive information or credentials
+        env:
+          GCP_SA_KEY: ${{ secrets.GCP_SA_KEY }}
+          GCP_PROJECT: ${{ secrets.GCP_PROJECT }}
+          GCP_REGION: ${{ secrets.GCP_REGION }}
