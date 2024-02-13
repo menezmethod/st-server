@@ -1,0 +1,15 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: SERVICE_NAME_PLACEHOLDER
+spec:
+  rules:
+    - http:
+        paths:
+          - path: PATH_PREFIX_PLACEHOLDER
+            pathType: Prefix
+            backend:
+              service:
+                name: SERVICE_NAME_PLACEHOLDER
+                port:
+                  number: SERVICE_PORT_PLACEHOLDER
