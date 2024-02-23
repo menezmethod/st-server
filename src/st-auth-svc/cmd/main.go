@@ -20,7 +20,7 @@ func main() {
 		log.Fatalln("failed loading config", err)
 	}
 
-	h := db.Init(c.DBUrl)
+	h, _ := db.Init(c.DBUrl)
 
 	jwt := utils.JwtWrapper{
 		SecretKey:       c.JWTSecretKey,

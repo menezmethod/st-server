@@ -3,13 +3,14 @@ package journal
 import (
 	"fmt"
 	"github.com/gin-gonic/gin"
+	"st-gateway/middlewares"
 	"st-gateway/pkg/auth"
 	"st-gateway/pkg/config"
 	"st-gateway/pkg/journal/routes"
 )
 
 func RegisterJournalRoutes(r *gin.Engine, c *config.Config, authSvc *auth.ServiceClient) *ServiceClient {
-	a := auth.InitAuthMiddleware(authSvc)
+	a := middlewares.InitAuthMiddleware(authSvc)
 
 	svc := &ServiceClient{
 		Client: InitServiceClient(c),

@@ -6,26 +6,32 @@ import (
 )
 
 type Config struct {
-	Port          string `mapstructure:"PORT"`
-	AuthSvcUrl    string `mapstructure:"AUTH_SVC_URL"`
-	JournalSvcUrl string `mapstructure:"JOURNAL_SVC_URL"`
-	ApiVersion    string `mapstructure:"API_VERSION"`
-	JWTSecretKey  string `mapstructure:"JWT_SECRET_KEY"`
+	Port           string `mapstructure:"PORT"`
+	AuthSvcUrl     string `mapstructure:"AUTH_SVC_URL"`
+	JournalSvcUrl  string `mapstructure:"JOURNAL_SVC_URL"`
+	ApiVersion     string `mapstructure:"API_VERSION"`
+	JWTSecretKey   string `mapstructure:"JWT_SECRET_KEY"`
+	AllowedOrigins []string
 }
 
-func LoadConfig() (config Config, err error) {
+func LoadConfig() (*Config, error) {
 	viper.AutomaticEnv()
-	requiredVars := []string{"AUTH_SVC_URL", "PORT", "JWT_SECRET_KEY", "JOURNAL_SVC_URL", "API_VERSION"}
 
+	requiredVars := []string{"AUTH_SVC_URL", "PORT", "JWT_SECRET_KEY", "JOURNAL_SVC_URL", "API_VERSION"}
 	for _, v := range requiredVars {
 		if err := viper.BindEnv(v); err != nil {
-			return Config{}, err
+			log.Fatalf("Failed to bind environment variable: %s, err: %v", v, err)
+			return nil, err
 		}
 	}
 
-	err = viper.Unmarshal(&config)
-	if err != nil {
+	var config Config
+	if err := viper.Unmarshal(&config); err != nil {
 		log.Fatalf("Error unmarshaling config: %v", err)
+		return nil, err
 	}
-	return
+
+	config.AllowedOrigins = []string{"*"}
+
+	return &config, nil
 }

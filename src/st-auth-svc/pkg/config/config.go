@@ -2,7 +2,7 @@ package config
 
 import (
 	"github.com/spf13/viper"
-	"strings"
+	"log"
 )
 
 type Config struct {
@@ -11,12 +11,8 @@ type Config struct {
 	JWTSecretKey string `mapstructure:"JWT_SECRET_KEY"`
 }
 
-func LoadConfig() (Config, error) {
-	var config Config
-
+func LoadConfig() (config Config, err error) {
 	viper.AutomaticEnv()
-
-	viper.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
 
 	requiredVars := []string{"DB_URL", "PORT", "JWT_SECRET_KEY"}
 	for _, v := range requiredVars {
@@ -25,9 +21,9 @@ func LoadConfig() (Config, error) {
 		}
 	}
 
-	if err := viper.Unmarshal(&config); err != nil {
-		return Config{}, err
+	err = viper.Unmarshal(&config)
+	if err != nil {
+		log.Fatalf("Error unmarshaling config: %v", err)
 	}
-
-	return config, nil
+	return
 }

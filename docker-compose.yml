@@ -1,12 +1,25 @@
 version: '3.3'
 
 services:
-  db:
-    image: postgres
-    environment:
-      - POSTGRES_USER=root
-      - POSTGRES_PASSWORD=StratTrad3r
+  trade_db:
+    image: postgres:13
+    env_file:
+      - database.env
     ports:
       - '5432:5432'
     volumes:
+      - trade_data:/var/lib/postgresql/data
       - ./docker_postgres_init.sql:/docker-entrypoint-initdb.d/docker_postgres_init.sql
+    networks:
+      - trade_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U root"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  trade_data:
+
+networks:
+  trade_network:

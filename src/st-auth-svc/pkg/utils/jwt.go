@@ -14,22 +14,25 @@ type JwtWrapper struct {
 	ExpirationHours uint64
 }
 
-type jwtClaims struct {
+type JwtClaims struct {
 	jwt.StandardClaims
 	Id    uint64
 	Email string
 }
 
-func (w *JwtWrapper) GenerateToken(user models.User) (signedToken string, err error) {
-	signedToken, err = jwt.NewWithClaims(jwt.SigningMethodHS256, &jwtClaims{
+func (w *JwtWrapper) GenerateToken(user models.User) (string, error) {
+	expirationTime := time.Now().Add(time.Duration(w.ExpirationHours) * time.Hour)
+	claims := &JwtClaims{
 		Id:    user.Id,
 		Email: user.Email,
 		StandardClaims: jwt.StandardClaims{
-			ExpiresAt: time.Now().Local().Add(time.Hour * time.Duration(w.ExpirationHours)).Unix(),
+			ExpiresAt: expirationTime.Unix(),
 			Issuer:    w.Issuer,
 		},
-	}).SignedString([]byte(w.SecretKey))
+	}
 
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+	signedToken, err := token.SignedString([]byte(w.SecretKey))
 	if err != nil {
 		return "", err
 	}
@@ -37,29 +40,23 @@ func (w *JwtWrapper) GenerateToken(user models.User) (signedToken string, err er
 	return signedToken, nil
 }
 
-func (w *JwtWrapper) ValidateToken(signedToken string) (claims *jwtClaims, err error) {
-	token, err := jwt.ParseWithClaims(
-		signedToken,
-		&jwtClaims{},
-		func(token *jwt.Token) (interface{}, error) {
-			return []byte(w.SecretKey), nil
-		},
-	)
-
+func (w *JwtWrapper) ValidateToken(signedToken string) (*JwtClaims, error) {
+	token, err := jwt.ParseWithClaims(signedToken, &JwtClaims{}, w.keyFunc)
 	if err != nil {
-		return
+		return nil, err
 	}
 
-	claims, ok := token.Claims.(*jwtClaims)
-
-	if !ok {
-		return nil, errors.New("couldn't parse claims")
-	}
-
-	if claims.ExpiresAt < time.Now().Local().Unix() {
-		return nil, errors.New("JWT is expired")
+	claims, ok := token.Claims.(*JwtClaims)
+	if !ok || !token.Valid {
+		return nil, errors.New("invalid token")
 	}
 
 	return claims, nil
+}
 
+func (w *JwtWrapper) keyFunc(token *jwt.Token) (interface{}, error) {
+	if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+		return nil, errors.New("unexpected signing method")
+	}
+	return []byte(w.SecretKey), nil
 }

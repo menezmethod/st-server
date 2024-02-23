@@ -3,54 +3,30 @@ package main
 import (
 	"github.com/gin-gonic/gin"
 	"log"
-	"net/http"
+	"st-gateway/middlewares"
 	"st-gateway/pkg/auth"
 	"st-gateway/pkg/config"
 	"st-gateway/pkg/journal"
 )
 
-func CORS(allowedOrigins []string) gin.HandlerFunc {
-	return func(c *gin.Context) {
-		origin := c.Request.Header.Get("Origin")
-		var isAllowed bool
-		for _, allowedOrigin := range allowedOrigins {
-			if origin == allowedOrigin {
-				isAllowed = true
-				break
-			}
-		}
+func main() {
+	cfg, err := config.LoadConfig() // Assuming LoadConfig returns a pointer to Config
+	if err != nil {
+		log.Fatalf("Failed to load config: %v", err)
+	}
 
-		if isAllowed {
-			c.Header("Access-Control-Allow-Origin", origin)
-			c.Header("Access-Control-Allow-Headers", "Content-Type, Authorization")
-			c.Header("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
-			c.Header("Access-Control-Allow-Credentials", "true")
-		}
-
-		if c.Request.Method == http.MethodOptions {
-			c.AbortWithStatus(http.StatusNoContent)
-			return
-		}
-
-		c.Next()
+	r := setupRouter(cfg)
+	if err := r.Run(cfg.Port); err != nil {
+		log.Fatalf("Failed to run server: %v", err)
 	}
 }
 
-func main() {
-	config, err := config.LoadConfig()
-	if err != nil {
-		log.Fatalf("Failed loading config: %v\n", err)
-		return
-	}
-
+func setupRouter(cfg *config.Config) *gin.Engine {
 	r := gin.Default()
-	allowedOrigins := []string{"*"}
-	r.Use(CORS(allowedOrigins))
+	r.Use(middlewares.CORS(cfg.AllowedOrigins))
 
-	authSvc := *auth.RegisterAuthRoutes(r, &config)
-	journal.RegisterJournalRoutes(r, &config, &authSvc)
+	authSvc := auth.RegisterAuthRoutes(r, cfg)
+	journal.RegisterJournalRoutes(r, cfg, authSvc)
 
-	if err := r.Run(config.Port); err != nil {
-		log.Fatalf("Failed to run server: %v\n", err)
-	}
+	return r
 }

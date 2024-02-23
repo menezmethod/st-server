@@ -23,12 +23,10 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        service: [ st-auth-svc, st-gateway, st-journal-svc ]
+        service: [st-auth-svc, st-gateway, st-journal-svc]
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-      - name: Set up Go
-        uses: actions/setup-go@v2
+      - uses: actions/checkout@v2
+      - uses: actions/setup-go@v2
         with:
           go-version: '1.22'
       - name: Build and Test ${{ matrix.service }}
@@ -40,6 +38,7 @@ jobs:
   deploy:
     name: Deploy to GKE
     needs: build-and-test
+    if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop' || github.event_name == 'pull_request'
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -51,85 +50,38 @@ jobs:
           - service: st-journal-svc
             port: 50052
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-      - name: Set up Google Cloud SDK
-        uses: google-github-actions/setup-gcloud@v2.1.0
+      - uses: actions/checkout@v2
+      - uses: google-github-actions/setup-gcloud@v2.1.0
         with:
           project_id: ${{ secrets.GCP_PROJECT }}
           install_components: 'gke-gcloud-auth-plugin'
       - name: GCP Authentication
         run: |
-          echo '${{ secrets.GCP_SA_KEY }}' > ${{ github.workspace }}/gcp-credentials.json
-          gcloud auth activate-service-account --key-file=${{ github.workspace }}/gcp-credentials.json
+          echo '${{ secrets.GCP_SA_KEY }}' > gcp-credentials.json
+          gcloud auth activate-service-account --key-file=gcp-credentials.json
       - name: Configure Docker for GCR
         run: gcloud auth configure-docker ${{ env.REGION }}-docker.pkg.dev
       - name: Build and Push Docker Image
         run: |
           IMAGE_TAG="${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ matrix.service }}:${{ github.sha }}"
-          if [ "${{ matrix.service }}" == "st-auth-svc" ]; then
-            docker build \
-              --build-arg PORT=${{ secrets.SVC_AUTH_PORT }} \
-              --build-arg DB_URL=${{ secrets.SVC_AUTH_DB_URL }} \
-              --build-arg JWT_SECRET_KEY=${{ secrets.JWT_SECRET_KEY }} \
-              -t $IMAGE_TAG -f src/${{ matrix.service }}/Dockerfile .
-          elif [ "${{ matrix.service }}" == "st-journal-svc" ]; then
-            docker build \
-              --build-arg PORT=${{ secrets.SVC_JOURNAL_PORT }} \
-              --build-arg DB_URL=${{ secrets.SVC_JOURNAL_DB_URL }} \
-              --build-arg JWT_SECRET_KEY=${{ secrets.JWT_SECRET_KEY }} \
-              -t $IMAGE_TAG -f src/${{ matrix.service }}/Dockerfile .
-          elif [ "${{ matrix.service }}" == "st-gateway" ]; then
-            docker build \
-              --build-arg API_VERSION=${{ secrets.API_VERSION }} \
-              --build-arg PORT=${{ secrets.SVC_GATEWAY_PORT }} \
-              --build-arg AUTH_SVC_URL=${{ secrets.SVC_AUTH_URL }}:${{ secrets.SVC_AUTH_PORT }} \
-              --build-arg JOURNAL_SVC_URL=${{ secrets.SVC_JOURNAL_URL }}:${{ secrets.SVC_JOURNAL_PORT }} \
-              --build-arg JWT_SECRET_KEY=${{ secrets.JWT_SECRET_KEY }} \
-              -t $IMAGE_TAG -f src/${{ matrix.service }}/Dockerfile .
-          fi
+          docker build --build-arg PORT=${{ secrets['SVC_' + matrix.service + '_PORT'] }} --build-arg DB_URL=${{ secrets['SVC_' + matrix.service + '_DB_URL'] }} --build-arg JWT_SECRET_KEY=${{ secrets.JWT_SECRET_KEY }} -t $IMAGE_TAG -f src/${{ matrix.service }}/Dockerfile .
           docker push $IMAGE_TAG
       - name: Get GKE Credentials
         run: gcloud container clusters get-credentials ${{ env.GKE_CLUSTER }} --region ${{ env.REGION }} --project ${{ env.PROJECT_ID }}
       - name: Deploy Services to GKE
         run: |
-          IMAGE_TAG="${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ matrix.service }}:${{ github.sha }}"
-          DEPLOYMENT_FILE="${GITHUB_WORKSPACE}/k8s/${{ matrix.service }}-resources.yml"
-          INGRESS_FILE="${GITHUB_WORKSPACE}/k8s/${{ matrix.service }}-ingress.yml" 
-          
-          if [ "${{ github.ref }}" == "refs/heads/develop" ]; then
-            SUFFIX="-dev"
-          elif [ "${{ github.event_name }}" == "pull_request" ]; then
-            SUFFIX="-pr-${{ github.event.pull_request.number }}"
-          else
-            SUFFIX=""
-          fi
-
-          cp "${GITHUB_WORKSPACE}/k8s/resources.yml" "$DEPLOYMENT_FILE"
-          sed -i "s|DEPLOYMENT_NAME_PLACEHOLDER|${{ matrix.service }}$SUFFIX|g" "$DEPLOYMENT_FILE"
-          sed -i "s|APP_LABEL_PLACEHOLDER|${{ matrix.service }}$SUFFIX|g" "$DEPLOYMENT_FILE"
-          sed -i "s|CONTAINER_NAME_PLACEHOLDER|${{ matrix.service }}|g" "$DEPLOYMENT_FILE"
-          sed -i "s|IMAGE_PLACEHOLDER|${IMAGE_TAG}|g" "$DEPLOYMENT_FILE"
-          sed -i "s|CONTAINER_PORT_PLACEHOLDER|${{ matrix.port }}|g" "$DEPLOYMENT_FILE"
-          sed -i "s|SERVICE_NAME_PLACEHOLDER|${{ matrix.service }}$SUFFIX|g" "$DEPLOYMENT_FILE"
-          sed -i "s|SERVICE_PORT_PLACEHOLDER|${{ matrix.port }}|g" "$DEPLOYMENT_FILE"
-          kubectl apply -f "$DEPLOYMENT_FILE" --namespace=${{ env.NAMESPACE }}
-          kubectl rollout status deployment/${{ matrix.service }}$SUFFIX --namespace=${{ env.NAMESPACE }}
+          ${GITHUB_WORKSPACE}/k8s/deploy-to-gke.sh ${{ matrix.service }} ${{ matrix.port }} "${{ github.sha }}" "${{ github.ref }}" "${{ github.event.pull_request.number }}"
 
   cleanup-pr:
     name: Clean Up Pull Requests
     if: github.event_name == 'pull_request' && github.event.action == 'closed'
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-      - name: Set up Google Cloud SDK
-        uses: google-github-actions/setup-gcloud@v2.1.0
+      - uses: actions/checkout@v2
+      - uses: google-github-actions/setup-gcloud@v2.1.0
         with:
           project_id: ${{ env.PROJECT_ID }}
       - name: Get GKE credentials
         run: gcloud container clusters get-credentials ${{ env.GKE_CLUSTER }} --region ${{ env.REGION }} --project ${{ env.PROJECT_ID }}
       - name: Delete PR deployments
-        run: |
-          PR_NUMBER=${{ github.event.pull_request.number }}
-          kubectl delete all,ingress,configmap,secret -l pr-number=$PR_NUMBER --namespace ${{ env.NAMESPACE }}
+        run: kubectl delete all,ingress,configmap,secret -l pr-number=${{ github.event.pull_request.number }} --namespace ${{ env.NAMESPACE }}

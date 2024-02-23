@@ -11,7 +11,7 @@ import (
 )
 
 type Server struct {
-	H db.DB
+	H *db.DB
 	pb.JournalServiceServer
 }
 

@@ -14,7 +14,7 @@ import (
 )
 
 type Server struct {
-	H   db.Handler
+	H   *db.DB
 	Jwt utils.JwtWrapper
 	pb.UnimplementedAuthServiceServer
 }
@@ -46,9 +46,17 @@ func (s *Server) Register(ctx context.Context, req *pb.RegisterRequest) (*pb.Reg
 	firstName := req.GetFirstName()
 	lastName := req.GetLastName()
 
+	hashedPassword, err := utils.HashPassword(password.Value)
+	if err != nil {
+		return &pb.RegisterResponse{
+			Status: http.StatusInternalServerError,
+			Error:  "Failed to hash password",
+		}, nil
+	}
+
 	user := models.User{
 		Email:     email.Value,
-		Password:  utils.HashPassword(password.Value),
+		Password:  hashedPassword,
 		FirstName: firstName.Value,
 		LastName:  lastName.Value,
 		Role:      "USER",
@@ -115,7 +123,20 @@ func (s *Server) Login(ctx context.Context, req *pb.LoginRequest) (*pb.LoginResp
 		}, nil
 	}
 
-	match := utils.CheckPasswordHash(req.GetPassword().Value, user.Password)
+	match, err := utils.CheckPasswordHash(req.GetPassword().Value, user.Password)
+	if err != nil {
+		return &pb.LoginResponse{
+			Status: http.StatusInternalServerError,
+			Error:  "Failed to verify password",
+		}, nil
+	}
+
+	if !match {
+		return &pb.LoginResponse{
+			Status: http.StatusUnauthorized,
+			Error:  "Invalid credentials",
+		}, nil
+	}
 
 	if !match {
 		return &pb.LoginResponse{
@@ -257,7 +278,14 @@ func (s *Server) UpdateUser(ctx context.Context, req *pb.UpdateUserRequest) (*pb
 	if req.GetPassword() == nil || req.GetPassword().String() == "" {
 		user.Password = dbRes.Password
 	} else {
-		user.Password = utils.HashPassword(req.GetPassword().Value)
+		hashedPassword, err := utils.HashPassword(req.GetPassword().Value)
+		if err != nil {
+			return &pb.UpdateUserResponse{
+				Status: http.StatusInternalServerError,
+				Error:  "Failed to hash password",
+			}, nil
+		}
+		user.Password = hashedPassword
 	}
 	if req.GetFirstName() == nil || req.GetFirstName().String() == "" {
 		user.FirstName = dbRes.FirstName

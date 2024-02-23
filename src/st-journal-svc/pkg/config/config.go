@@ -6,15 +6,14 @@ import (
 )
 
 type Config struct {
-	Port         string `mapstructure:"PORT"`
-	DBUrl        string `mapstructure:"DB_URL"`
-	JWTSecretKey string `mapstructure:"JWT_SECRET_KEY"`
+	Port  string `mapstructure:"PORT"`
+	DBUrl string `mapstructure:"DB_URL"`
 }
 
 func LoadConfig() (config Config, err error) {
 	viper.AutomaticEnv()
 
-	requiredVars := []string{"DB_URL", "PORT", "JWT_SECRET_KEY"}
+	requiredVars := []string{"DB_URL", "PORT"}
 	for _, v := range requiredVars {
 		if err := viper.BindEnv(v); err != nil {
 			return Config{}, err

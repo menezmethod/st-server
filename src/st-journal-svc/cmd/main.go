@@ -16,18 +16,17 @@ func main() {
 	c, err := config.LoadConfig()
 
 	if err != nil {
-		log.Fatalln("failed loading config", err)
+		log.Fatalf("Failed loading config: %v", err)
 	}
 
-	h := db.Init(c.DBUrl)
+	h, _ := db.Init(c.DBUrl)
 
 	lis, err := net.Listen("tcp", c.Port)
-
 	if err != nil {
-		log.Fatalln("Failed to listing:", err)
+		log.Fatalf("Failed to listen: %v", err)
 	}
 
-	fmt.Println("Trade service on", c.Port)
+	fmt.Printf("Journal service is listening on %s\n", c.Port)
 
 	s := services.Server{
 		H: h,
