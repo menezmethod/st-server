@@ -136,17 +136,17 @@ jobs:
       - name: Set up Google Cloud SDK
         uses: google-github-actions/setup-gcloud@v2.1.0
         with:
-          project_id: ${{ env.PROJECT_ID }}
+          project_id: ${{ secrets.PROJECT_ID }}
       - name: Get GKE credentials
-        run: gcloud container clusters get-credentials ${{ env.GKE_CLUSTER }} --region ${{ env.REGION }} --project ${{ env.PROJECT_ID }}
+        run: gcloud container clusters get-credentials ${{ secrets.GKE_CLUSTER }} --region ${{ secrets.REGION }} --project ${{ secrets.PROJECT_ID }}
       - name: Delete PR Deployments
         run: |
           PR_NUMBER=${{ github.event.pull_request.number }}
-          kubectl delete all,ingress,configmap,secret -l pr-number=$PR_NUMBER --namespace ${{ env.NAMESPACE }}
+          kubectl delete all,ingress,configmap,secret -l pr-number=$PR_NUMBER --namespace ${{ secrets.NAMESPACE }}
       - name: Remove Past Images from GCR
         run: |
           CURRENT_SHA="${{ github.sha }}"
-          IMAGE_PATH="${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ matrix.service }}"
+          IMAGE_PATH="${{ secrets.REGION }}-docker.pkg.dev/${{ secrets.PROJECT_ID }}/${{ secrets.REPOSITORY }}/${{ matrix.service }}"
           DIGESTS=$(gcloud container images list-tags $IMAGE_PATH --format='get(digest)' --filter='-tags:$CURRENT_SHA')
 
           for DIGEST in $DIGESTS; do
