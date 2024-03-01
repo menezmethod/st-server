@@ -98,14 +98,14 @@ jobs:
           DEPLOYMENT_FILE="${GITHUB_WORKSPACE}/k8s/deploy/${{ matrix.service }}${SUFFIX}-deployment.yml"
           SERVICE_FILE="${GITHUB_WORKSPACE}/k8s/deploy/${{ matrix.service }}${SUFFIX}-service.yml"
 
-          if [ "${{ github.ref }}" == "refs/heads/develop" ]; then
+          if [[ "${{ github.ref }}" == "refs/heads/develop" ]] && [[ "${{ github.event_name }}" != "pull_request" ]]; then
             SUFFIX="-dev"
-          elif [ "${{ github.event_name }}" == "pull_request" ]; then
-            SUFFIX="-pr-${{ github.event.pull_request.number }}"
+          elif [[ "${{ github.event_name }}" == "pull_request" ]] && [[ "${{ github.ref }}" != "refs/heads/develop" ]]; then
+            SUFFIX="-pr-${{ github.event.pull_request.number }}-dev"
           else
-            SUFFIX=""
+            SUFFIX="-dev"
           fi
-          
+ 
           mkdir -p "${DEPLOYMENT_DIR}"
 
           cp "${GITHUB_WORKSPACE}/k8s/base/dev/deployment.yml" "${DEPLOYMENT_FILE}"
