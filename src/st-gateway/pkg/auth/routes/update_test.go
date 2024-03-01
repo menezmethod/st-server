@@ -15,7 +15,7 @@ import (
 	. "github.com/onsi/gomega"
 
 	"st-gateway/pkg/auth/pb"
-	mock "st-gateway/pkg/auth/pb/mock"
+	"st-gateway/pkg/auth/pb/mock"
 )
 
 var _ = Describe("UpdateUser", func() {

@@ -14,7 +14,7 @@ import (
 	"google.golang.org/protobuf/types/known/wrapperspb"
 
 	"st-gateway/pkg/auth/pb"
-	mock "st-gateway/pkg/auth/pb/mock"
+	"st-gateway/pkg/auth/pb/mock"
 )
 
 var _ = Describe("Register Route", func() {

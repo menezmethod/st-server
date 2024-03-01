@@ -1,70 +1,67 @@
 # st-server
 
-`st-server` is a comprehensive server-side solution written in Go, tailored for stock trading platforms. It encapsulates three distinct services that communicate via gRPC, offering a cohesive backend system for handling authorization, journaling trades, and interfacing with RESTful requests.
+`st-server` is a comprehensive server-side application designed for stock trading platforms. It's composed of three
+microservices that handle various aspects of the trading platform's backend operations.
 
 ## Services Overview
 
-- **Authorization/Users Service**: Manages user authentication and authorization, ensuring secure access to the platform.
-- **Journals/Trades Service**: Records and processes all trading activities, maintaining a secure and reliable trade history.
-- **Gateway Service**: Serves as the RESTful endpoint for the platform, utilizing `gin` for efficient HTTP request routing.
+- **Authorization/Users Service (`st-auth-svc`)**: Manages user authentication and authorization, ensuring secure access
+  to the platform.
+- **Journals/Trades Service (`st-journal-svc`)**: Handles recording and processing of trade activities, maintaining a
+  reliable trade history.
+- **Gateway Service (`st-gateway`)**: Provides a RESTful interface for client interactions, leveraging the `gin`
+  framework for efficient HTTP request handling.
 
-Each service communicates internally using gRPC to ensure high performance and efficient type-safe messaging.
+Each service is designed to operate independently, communicating with the others through gRPC for high-performance and
+type-safe operations.
 
 ## Getting Started
 
-These instructions will get you a copy of the project up and running on your local machine for development and testing purposes.
+Follow these instructions to set up the project on your local machine for development and testing purposes.
 
 ### Prerequisites
 
 - Go (version 1.x or later)
-- gRPC and Protocol Buffers
+- Docker (optional for containerization)
+- Minikube (optional for local Kubernetes deployment)
+- Skaffold (optional for continuous development with Kubernetes)
 
-### Installing
-
-A step-by-step series of examples that tell you how to get a development environment running:
+### Installation and Local Development
 
 1. Clone the repository:
-    ```bash
+    ```sh
     git clone https://github.com/yourusername/st-server.git
     ```
 
 2. Navigate to the project directory:
-    ```bash
+    ```sh
     cd st-server
     ```
 
 3. Install dependencies:
-    ```bash
-    go mod download
+    ```sh
+    make install_deps
     ```
 
-4. Start each service separately. For example, to start the Authorization/Users Service:
-    ```bash
-    go run services/auth/main.go
+4. Generate gRPC code for services:
+    ```sh
+    make proto_gw_auth proto_gw_journal proto_auth proto_journal
     ```
 
-Repeat the steps above for the Journals/Trades Service and the Gateway Service.
-
-## Usage
-
-A brief description of how to use the system, possibly with a few quick examples.
-
-## Running the tests
-
-Explain how to run the automated tests for this system.
-
-    ```bash
-    go test ./...
+5. Build services:
+    ```sh
+    make build_gateway build_auth build_journal
     ```
 
-## Deployment
+6. Run services:
+    ```sh
+    make run_auth run_journal run_gateway
+    ```
 
-Add additional notes about how to deploy this on a live system, potentially with links to more comprehensive documentation or guides.
+## Testing
 
-## Authors
+To run automated tests for this system:
 
-- Luis Gimenez
-
-## License
-
-This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details.
+```sh
+make test
+```

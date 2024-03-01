@@ -27,7 +27,7 @@ func main() {
 		log.Fatalln("Failed to listing:", err)
 	}
 
-	fmt.Println("Trade service on", c.Port)
+	fmt.Println("Trade service listening on: ", c.Port)
 
 	s := services.Server{
 		H: h,
