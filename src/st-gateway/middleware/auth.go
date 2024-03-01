@@ -1,24 +1,25 @@
-package auth
+package middleware
 
 import (
 	"context"
 	"github.com/gin-gonic/gin"
 	"google.golang.org/protobuf/types/known/wrapperspb"
 	"net/http"
+	"st-gateway/pkg/auth"
 	"strings"
 
 	"st-gateway/pkg/auth/pb"
 )
 
-type MiddlewareConfig struct {
-	svc *ServiceClient
+type Config struct {
+	svc *auth.ServiceClient
 }
 
-func InitAuthMiddleware(svc *ServiceClient) MiddlewareConfig {
-	return MiddlewareConfig{svc}
+func InitAuthMiddleware(svc *auth.ServiceClient) Config {
+	return Config{svc}
 }
 
-func (c *MiddlewareConfig) AuthRequired(ctx *gin.Context) {
+func (c *Config) AuthRequired(ctx *gin.Context) {
 	if ctx.Request.Header.Get("authorization") == "" {
 		ctx.AbortWithStatus(http.StatusUnauthorized)
 		return

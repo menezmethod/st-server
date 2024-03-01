@@ -1,28 +1,110 @@
 - model: Trade
   rows:
-    - base_instrument: USD
-      quote_instrument: MNMD
-      comments: We screwed up
+    - base_instrument: EUR
+      quote_instrument: JPY
+      comments: Took a chance on a currency pair.
+      created_by: System
+      direction: Long
+      entry_price: 119
+      exit_price: 124
+      journal: 1
+      market: Forex
+      outcome: Win
+      quantity: 1000
+      stop_loss: 117
+      strategy: Breakout
+      take_profit: 125
+      time_executed: 2021-03-10T10:30:00.000Z
+      time_closed: 2021-04-10T15:45:00.000Z
+      created_at: 2021-04-10T15:45:00.000Z
+
+    - base_instrument: BTC
+      quote_instrument: USD
+      comments: Bullish trend followed.
+      created_by: System
+      direction: Long
+      entry_price: 30000
+      exit_price: 35000
+      journal: 1
+      market: Crypto
+      outcome: Win
+      quantity: 2
+      stop_loss: 29000
+      strategy: Trend Following
+      take_profit: 36000
+      time_executed: 2021-06-15T09:00:00.000Z
+      time_closed: 2021-07-01T14:00:00.000Z
+      created_at: 2021-07-01T14:00:00.000Z
+
+    - base_instrument: AAPL
+      quote_instrument: USD
+      comments: Missed earnings prediction.
       created_by: System
       direction: Short
-      entry_price: 122
-      exit_price: 92
+      entry_price: 150
+      exit_price: 140
       journal: 1
       market: Stock
       outcome: Loss
-      quantity: 123
-      stop_loss: 9
-      strategy: RSI
-      take_profit: 15
-      time_executed: 2020-02-06T08:18:12.500Z
-      time_closed: 2022-08-06T08:17:12.500Z
-      created_at: 2022-08-06T08:17:12.500Z
+      quantity: 50
+      stop_loss: 155
+      strategy: Earnings Report
+      take_profit: 130
+      time_executed: 2022-01-28T13:20:00.000Z
+      time_closed: 2022-02-05T16:00:00.000Z
+      created_at: 2022-02-05T16:00:00.000Z
+
+    - base_instrument: GOLD
+      quote_instrument: USD
+      comments: Inflation hedge.
+      created_by: System
+      direction: Long
+      entry_price: 1800
+      exit_price: 1850
+      journal: 1
+      market: Commodities
+      outcome: Win
+      quantity: 10
+      stop_loss: 1780
+      strategy: Inflation Hedge
+      take_profit: 1900
+      time_executed: 2022-05-20T11:00:00.000Z
+      time_closed: 2022-06-10T10:30:00.000Z
+      created_at: 2022-06-10T10:30:00.000Z
 
 - model: Journal
   rows:
-    - name: Crypto Spring
-      created_at: 2022-08-06T08:17:12.500Z
-      created_by: System
-      description: Hopefully a winning journal
-      start_date: 2020-02-06T08:18:12.500Z
-      end_date: 2022-08-06T08:17:12.500Z
+    - name: Equities Summer
+      created_at: 2022-06-01T10:00:00.000Z
+      created_by: Analyst
+      description: A journal focusing on the equities market during the summer volatility.
+      start_date: 2022-06-01T10:00:00.000Z
+      end_date: 2022-09-01T10:00:00.000Z
+
+    - name: Forex Fluctuations
+      created_at: 2022-01-15T08:00:00.000Z
+      created_by: ForexGuru
+      description: Tracking currency pair trades in reaction to geopolitical events.
+      start_date: 2022-01-01T08:00:00.000Z
+      end_date: 2022-12-31T20:00:00.000Z
+
+    - name: Crypto Winter
+      created_at: 2023-12-05T09:30:00.000Z
+      created_by: CryptoFan
+      description: Documenting the bear market in crypto and strategizing for the next bull run.
+      start_date: 2023-12-01T00:00:00.000Z
+      end_date: 2024-03-01T00:00:00.000Z
+
+    - name: Options and Derivatives
+      created_at: 2023-05-20T14:30:00.000Z
+      created_by: DerivativesMaster
+      description: A detailed journal for options trading and other derivatives to hedge against market movements.
+      start_date: 2023-05-01T09:00:00.000Z
+      end_date: 2023-11-01T17:00:00.000Z
+
+    - name: Bond Market Analysis
+      created_at: 2022-11-10T16:45:00.000Z
+      created_by: BondAnalyst
+      description: Analyzing trends in the bond market and the impact of interest rate changes.
+      start_date: 2022-11-01T08:30:00.000Z
+      end_date: 2023-02-01T15:00:00.000Z

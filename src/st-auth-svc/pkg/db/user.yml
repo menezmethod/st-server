@@ -7,3 +7,43 @@
       bio: Terrible trader
       role: ADMIN
       created_at: '{{ now }}'
+
+    - email: jordan@traders.com
+      password: $2a$05$lsxZcJwUBKAZ2Fc/N03DuuXQcb59SjXHO.2q7MW1EkXbcAv8NNVCy
+      first_name: Jordan
+      last_name: Bell
+      bio: Passionate about swing trading and technical analysis.
+      role: TRADER
+      created_at: '{{ now }}'
+
+    - email: taylor@analytics.com
+      password: $2a$05$lsxZcJwUBKAZ2Fc/N03DuuXQcb59SjXHO.2q7MW1EkXbcAv8NNVCy
+      first_name: Taylor
+      last_name: Kim
+      bio: Data analyst focusing on market trends and trade optimization.
+      role: ANALYST
+      created_at: '{{ now }}'
+
+    - email: chris@journalapp.com
+      password: $2a$05$lsxZcJwUBKAZ2Fc/N03DuuXQcb59SjXHO.2q7MW1EkXbcAv8NNVCy
+      first_name: Chris
+      last_name: Morgan
+      bio: Oversees app functionality and user experience.
+      role: ADMIN
+      created_at: '{{ now }}'
+
+    - email: pat@review.com
+      password: $2a$05$lsxZcJwUBKAZ2Fc/N03DuuXQcb59SjXHO.2q7MW1EkXbcAv8NNVCy
+      first_name: Pat
+      last_name: Rivera
+      bio: Reviews and provides feedback on trading strategies.
+      role: REVIEWER
+      created_at: '{{ now }}'
+
+    - email: alex@support.com
+      password: $2a$05$lsxZcJwUBKAZ2Fc/N03DuuXQcb59SjXHO.2q7MW1EkXbcAv8NNVCy
+      first_name: Alex
+      last_name: Taylor
+      bio: Helps users with technical issues and guides them through app features.
+      role: SUPPORT
+      created_at: '{{ now }}'
