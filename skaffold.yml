@@ -1,0 +1,48 @@
+apiVersion: skaffold/v4beta5
+kind: Config
+metadata:
+  name: st-server
+build:
+  tagPolicy:
+    sha256: { }
+  artifacts:
+    - image: st-auth-svc
+      context: .
+      docker:
+        dockerfile: src/st-auth-svc/Dockerfile
+        buildArgs:
+          PORT: "50051"
+          DB_URL: "postgres://root:StratTrad3r@postgres:5432/auth_db?sslmode=disable"
+          JWT_SECRET_KEY: "stauth983"
+      sync:
+        infer:
+          - '**/*'
+    - image: st-journal-svc
+      context: .
+      docker:
+        dockerfile: src/st-journal-svc/Dockerfile
+        buildArgs:
+          PORT: "50052"
+          DB_URL: "postgres://root:StratTrad3r@postgres:5432/journal_db?sslmode=disable"
+      sync:
+        infer:
+          - '**/*'
+    - image: st-gateway
+      context: .
+      docker:
+        dockerfile: src/st-gateway/Dockerfile
+        buildArgs:
+          API_VERSION: "1"
+          AUTH_SVC_URL: "st-auth-svc:50051"
+          JOURNAL_SVC_URL: "st-journal-svc:50052"
+          JWT_SECRET_KEY: "stauth983"
+          PORT: "8080"
+      sync:
+        infer:
+          - '**/*'
+  local: { }
+manifests:
+  rawYaml:
+    - ./k8s/base/local/*
+deploy:
+  kubectl: { }

@@ -15,35 +15,42 @@ import (
 
 func main() {
 	c, err := config.LoadConfig()
-
 	if err != nil {
 		log.Fatalln("failed loading config", err)
 	}
 
-	h := db.Init(c.DBUrl)
+	dbHandler := db.InitDB(c.DBUrl)
+	if err != nil {
+		log.Fatalln("failed to initialize the database", err)
+	}
 
-	jwt := utils.JwtWrapper{
+	jwt := initJwt(c)
+
+	startGrpcServer(c.Port, &dbHandler, jwt)
+}
+
+func initJwt(c config.Config) utils.JwtWrapper {
+	return utils.JwtWrapper{
 		SecretKey:       c.JWTSecretKey,
 		Issuer:          "st-auth-svc",
 		ExpirationHours: 24 * 365,
 	}
+}
 
-	lis, err := net.Listen("tcp", c.Port)
-
+func startGrpcServer(port string, dbHandler *db.Handler, jwt utils.JwtWrapper) {
+	lis, err := net.Listen("tcp", port)
 	if err != nil {
-		log.Fatalln("Failed to listing:", err)
+		log.Fatalln("Failed to listen:", err)
 	}
 
-	fmt.Println("Auth service on", c.Port)
-
-	s := services.Server{
-		H:   h,
-		Jwt: jwt,
-	}
+	fmt.Println("Auth service listening on:", port)
 
 	grpcServer := grpc.NewServer()
 
-	pb.RegisterAuthServiceServer(grpcServer, &s)
+	pb.RegisterAuthServiceServer(grpcServer, &services.Server{
+		H:   *dbHandler,
+		Jwt: jwt,
+	})
 
 	if err := grpcServer.Serve(lis); err != nil {
 		log.Fatalln("Failed to serve:", err)

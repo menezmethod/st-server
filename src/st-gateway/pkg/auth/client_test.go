@@ -16,16 +16,15 @@ import (
 )
 
 var _ = Describe("Test InitServiceClient()", func() {
-	c, err := config.LoadConfig()
 
 	if err != nil {
 		log.Fatalln("failed loading config", err)
 	}
 	config := &config.Config{
-		Port:          c.Port,
-		AuthSvcUrl:    c.AuthSvcUrl,
-		JournalSvcUrl: c.JournalSvcUrl,
-		ApiVersion:    c.ApiVersion,
+		Port:          "8080",
+		AuthSvcUrl:    "localhost:50051",
+		JournalSvcUrl: "localhost:50052",
+		ApiVersion:    "1",
 	}
 
 	Context("Register request", func() {

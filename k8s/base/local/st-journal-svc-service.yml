@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: st-journal-svc
+spec:
+  selector:
+    app: st-journal-svc
+  ports:
+    - protocol: TCP
+      port: 50052
+      targetPort: 50052
+  type: LoadBalancer

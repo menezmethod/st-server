@@ -1,39 +1,35 @@
 package main
 
 import (
-	"github.com/gin-gonic/gin"
 	"log"
-	"net/http"
-	"st-gateway/pkg/journal"
 
+	"github.com/gin-gonic/gin"
+	"st-gateway/middleware"
 	"st-gateway/pkg/auth"
 	"st-gateway/pkg/config"
+	"st-gateway/pkg/journal"
 )
 
-func CORS(c *gin.Context) {
-	c.Header("Content-Type", "application/json")
-	c.Header("Access-Control-Allow-Origin", "*")
-	c.Header("Access-Control-Allow-Headers", "*")
-	c.Header("Access-Control-Allow-Methods", "*")
-	c.Header("Access-Control-Allow-Credentials", "true")
-	if c.Request.Method == http.MethodOptions {
-		c.AbortWithStatus(http.StatusNoContent)
+func main() {
+	cfg, err := config.LoadConfig()
+	if err != nil {
+		log.Fatalf("Failed loading config: %v\n", err)
 		return
 	}
-	c.Next()
+
+	r := setupRouter(cfg)
+	if err := r.Run(cfg.Port); err != nil {
+		log.Fatalf("Failed to run server: %v\n", err)
+	}
 }
 
-func main() {
-
-	c, err := config.LoadConfig()
-
-	if err != nil {
-		log.Fatalln("failed loading config", err)
-	}
+func setupRouter(cfg config.Config) *gin.Engine {
 	r := gin.Default()
-	r.Use(CORS)
-	//r.Use(cors.Default())
-	authSvc := *auth.RegisterAuthRoutes(r, &c)
-	journal.RegisterJournalRoutes(r, &c, &authSvc)
-	r.Run(c.Port)
+	allowedOrigins := []string{"*"}
+	r.Use(middleware.CORS(allowedOrigins))
+
+	authSvc := *auth.RegisterAuthRoutes(r, &cfg)
+	journal.RegisterJournalRoutes(r, &cfg, &authSvc)
+
+	return r
 }
