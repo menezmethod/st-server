@@ -126,7 +126,7 @@
 					"response": []
 				},
 				{
-					"name": "Edit User",
+					"name": "Update User",
 					"request": {
 						"auth": {
 							"type": "bearer",
@@ -520,7 +520,7 @@
 					"response": []
 				},
 				{
-					"name": "Edit Journal",
+					"name": "Update Journal",
 					"event": [
 						{
 							"listen": "prerequest",
@@ -737,7 +737,7 @@
 					"response": []
 				},
 				{
-					"name": "Edit Trade",
+					"name": "Update Trade",
 					"event": [
 						{
 							"listen": "prerequest",

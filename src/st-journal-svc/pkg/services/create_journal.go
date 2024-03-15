@@ -2,20 +2,55 @@ package services
 
 import (
 	"context"
+	"fmt"
 	"net/http"
+	"time"
+
+	"go.uber.org/zap"
+
+	"st-journal-svc/pkg/db"
 	"st-journal-svc/pkg/models"
 	"st-journal-svc/pkg/pb"
-	"time"
+	"st-journal-svc/pkg/utils"
 )
 
-func validateJournal(journal *models.Journal) string {
-	if journal.Name == "" {
-		return "Name cannot be empty"
+type Server struct {
+	H db.DB
+	pb.JournalServiceServer
+	Logger *zap.Logger
+}
+
+func (s *Server) CreateJournal(ctx context.Context, req *pb.CreateJournalRequest) (*pb.CreateJournalResponse, error) {
+	if s.Logger == nil {
+		return nil, fmt.Errorf("logger is nil")
 	}
-	if journal.Description == "" {
-		return "Description cannot be empty"
+
+	log := s.Logger.With(
+		zap.String("action", "CreateJournal"),
+		zap.String("name", req.GetName()),
+		zap.Time("requestTime", time.Now()),
+	)
+
+	log.Debug("Received CreateJournal request")
+
+	journal := populateJournalFromRequest(req)
+	errorMsg := utils.ValidateJournal(&journal)
+
+	var resp *pb.CreateJournalResponse
+	if errorMsg != "" {
+		log.Error("Validation failed for CreateJournal", zap.String("error", errorMsg))
+		resp = createJournalResponse(log, journal, http.StatusBadRequest, errorMsg)
+	} else if _, err := s.H.DB.NewInsert().Model(&journal).Exec(ctx); err != nil {
+		log.Error("Failed to insert journal", zap.Error(err))
+		resp = createJournalResponse(log, journal, http.StatusInternalServerError, "Failed to insert journal")
+	} else {
+		log.Info("Journal created successfully", zap.Any("journal", journal))
+		resp = createJournalResponse(log, journal, http.StatusCreated, "")
 	}
-	return ""
+
+	utils.LogResponse(s.Logger, "CreateJournal", resp, int(resp.Status))
+
+	return resp, nil
 }
 
 func populateJournalFromRequest(req *pb.CreateJournalRequest) models.Journal {
@@ -30,38 +65,20 @@ func populateJournalFromRequest(req *pb.CreateJournalRequest) models.Journal {
 	}
 }
 
-func createJournalResponse(journal models.Journal) *pb.CreateJournalResponse {
+func createJournalResponse(logger *zap.Logger, journal models.Journal, status int, message string) *pb.CreateJournalResponse {
 	return &pb.CreateJournalResponse{
-		Status: http.StatusCreated,
-		Data: &pb.Journal{
+		Timestamp: time.Now().Format(time.RFC1123),
+		Level:     utils.GetStatusLevel(status),
+		Message:   message,
+		Status:    uint64(status),
+		Journal: &pb.Journal{
 			Id:              journal.ID,
 			Name:            journal.Name,
 			Description:     journal.Description,
 			StartDate:       journal.StartDate,
 			EndDate:         journal.EndDate,
-			CreatedAt:       journal.CreatedAt.String(),
 			CreatedBy:       journal.CreatedBy,
 			UsersSubscribed: journal.UsersSubscribed,
 		},
 	}
-}
-
-func (s *Server) CreateJournal(ctx context.Context, req *pb.CreateJournalRequest) (*pb.CreateJournalResponse, error) {
-	journal := populateJournalFromRequest(req)
-	errorMsg := validateJournal(&journal)
-	if errorMsg != "" {
-		return &pb.CreateJournalResponse{
-			Status: http.StatusBadRequest,
-			Error:  errorMsg,
-		}, nil
-	}
-
-	if _, err := s.H.DB.NewInsert().Model(&journal).Exec(ctx); err != nil {
-		return &pb.CreateJournalResponse{
-			Status: http.StatusConflict,
-			Error:  err.Error(),
-		}, nil
-	}
-
-	return createJournalResponse(journal), nil
 }

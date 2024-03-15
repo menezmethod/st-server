@@ -3,6 +3,9 @@ package services
 import (
 	"context"
 	"net/http"
+
+	"go.uber.org/zap"
+
 	"st-journal-svc/pkg/models"
 	"st-journal-svc/pkg/pb"
 )
@@ -31,8 +34,11 @@ func mapModelTradeToPBTrade(trade models.Trade) *pb.Trade {
 }
 
 func (s *Server) FindAllTrades(ctx context.Context, _ *pb.FindAllTradesRequest) (*pb.FindAllTradesResponse, error) {
+	s.Logger.Debug("Received request to find all trades")
+
 	var modelTrades []models.Trade
 	if err := s.H.DB.NewSelect().Model(&modelTrades).Scan(ctx); err != nil {
+		s.Logger.Error("Failed to retrieve trades", zap.Error(err))
 		return &pb.FindAllTradesResponse{
 			Status: http.StatusNotFound,
 			Error:  err.Error(),
@@ -44,18 +50,23 @@ func (s *Server) FindAllTrades(ctx context.Context, _ *pb.FindAllTradesRequest) 
 		pbTrades[i] = mapModelTradeToPBTrade(trade)
 	}
 
+	s.Logger.Info("Successfully found trades", zap.Int("count", len(pbTrades)))
 	return &pb.FindAllTradesResponse{Data: pbTrades}, nil
 }
 
 func (s *Server) FindOneTrade(ctx context.Context, req *pb.FindOneTradeRequest) (*pb.FindOneTradeResponse, error) {
+	s.Logger.Debug("Received request to find trade with ID", zap.Uint64("ID", req.Id))
+
 	var trade models.Trade
 	if err := s.H.DB.NewSelect().Model(&trade).Where("id = ?", req.Id).Scan(ctx); err != nil {
+		s.Logger.Error("Failed to find trade", zap.Uint64("ID", req.Id), zap.Error(err))
 		return &pb.FindOneTradeResponse{
 			Status: http.StatusNotFound,
 			Error:  err.Error(),
 		}, nil
 	}
 
+	s.Logger.Info("Successfully found trade", zap.Uint64("ID", trade.ID))
 	return &pb.FindOneTradeResponse{
 		Status: http.StatusOK,
 		Data:   mapModelTradeToPBTrade(trade),
