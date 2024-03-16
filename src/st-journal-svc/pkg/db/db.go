@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"time"
 
 	"github.com/uptrace/bun"
 	"github.com/uptrace/bun/dbfixture"
@@ -36,16 +37,33 @@ func Init(url string) DB {
 }
 
 func connectDB(url string) *bun.DB {
-	connector := pgdriver.NewConnector(pgdriver.WithDSN(url))
-	sqldb := sql.OpenDB(connector)
-	db := bun.NewDB(sqldb, pgdialect.New())
+	const maxRetries = 12
+	const retryDelay = 5 * time.Second
 
-	if err := db.Ping(); err != nil {
-		log.Fatalf("Failed to connect to database: %v", err)
+	var db *bun.DB
+	for i := 0; i < maxRetries; i++ {
+		connector := pgdriver.NewConnector(pgdriver.WithDSN(url))
+		sqldb := sql.OpenDB(connector)
+		tempDB := bun.NewDB(sqldb, pgdialect.New())
+
+		if err := tempDB.Ping(); err != nil {
+			log.Printf("Failed to connect to database (attempt %d/%d): %v", i+1, maxRetries, err)
+			if i < maxRetries-1 {
+				log.Printf("Retrying in %v...", retryDelay)
+				time.Sleep(retryDelay)
+				continue
+			} else {
+				log.Fatalf("Failed to connect to database after %d attempts, stopping application", maxRetries)
+			}
+		}
+
+		tempDB.RegisterModel((*models.Trade)(nil))
+		tempDB.RegisterModel((*models.Journal)(nil))
+
+		db = tempDB
+		log.Println("Connected to database successfully.")
+		break
 	}
-
-	db.RegisterModel((*models.Trade)(nil))
-	db.RegisterModel((*models.Journal)(nil))
 
 	return db
 }

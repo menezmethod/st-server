@@ -11,8 +11,6 @@ import (
 	"github.com/golang/mock/gomock"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
-	"google.golang.org/protobuf/types/known/wrapperspb"
-
 	"st-gateway/pkg/auth/pb"
 	"st-gateway/pkg/auth/pb/mock"
 )
@@ -54,11 +52,11 @@ var _ = Describe("Register Route", func() {
 				Status: http.StatusOK,
 			}
 			mockClient.EXPECT().Register(gomock.Any(), &pb.RegisterRequest{
-				Email:     wrapperspb.String(reqBody.Email),
-				Password:  wrapperspb.String(reqBody.Password),
-				FirstName: wrapperspb.String(reqBody.FirstName),
-				LastName:  wrapperspb.String(reqBody.LastName),
-				Role:      wrapperspb.String(reqBody.Role),
+				Email:     reqBody.Email,
+				Password:  reqBody.Password,
+				FirstName: reqBody.FirstName,
+				LastName:  reqBody.LastName,
+				Role:      reqBody.Role,
 			}).Return(expectedRes, nil)
 
 			req, err := http.NewRequest("POST", "/register", bytes.NewReader(reqBodyBytes))

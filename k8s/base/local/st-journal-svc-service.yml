@@ -6,7 +6,9 @@ spec:
   selector:
     app: st-journal-svc
   ports:
-    - protocol: TCP
+    - name: grpc
       port: 50052
       targetPort: 50052
-  type: LoadBalancer
+    - name: metrics
+      port: 9092
+      targetPort: 9092

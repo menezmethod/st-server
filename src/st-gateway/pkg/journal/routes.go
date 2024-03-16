@@ -19,12 +19,12 @@ func RegisterJournalRoutes(r *gin.Engine, c *config.Config, authSvc *auth.Servic
 	routerJournal := r.Group(fmt.Sprintf("v%v", c.ApiVersion))
 	routerJournal.GET("/journals", svc.FindAllJournals)
 	routerJournal.POST("/journal/", svc.CreateJournal)
-	routerJournal.PATCH("/journal/:id", svc.EditJournal)
+	routerJournal.PATCH("/journal/:id", svc.UpdateJournal)
 	routerJournal.GET("/journal/:id", svc.FindOneJournal)
 	routerJournal.DELETE("/journal/:id", svc.DeleteJournal)
 	routerJournal.GET("/trades/", svc.FindAllTrades)
 	routerJournal.POST("/trade/", svc.CreateTrade)
-	routerJournal.PATCH("/trade/:id", svc.EditTrade)
+	routerJournal.PATCH("/trade/:id", svc.UpdateTrade)
 	routerJournal.GET("/trade/:id", svc.FindOneTrade)
 	routerJournal.DELETE("/trade/:id", svc.DeleteTrade)
 	routerJournal.Use(a.AuthRequired)
@@ -42,8 +42,8 @@ func (svc *ServiceClient) CreateJournal(ctx *gin.Context) {
 	routes.CreateJournal(ctx, svc.Client)
 }
 
-func (svc *ServiceClient) EditJournal(ctx *gin.Context) {
-	routes.EditJournal(ctx, svc.Client)
+func (svc *ServiceClient) UpdateJournal(ctx *gin.Context) {
+	routes.UpdateJournal(ctx, svc.Client)
 }
 
 func (svc *ServiceClient) DeleteJournal(ctx *gin.Context) {
@@ -62,8 +62,8 @@ func (svc *ServiceClient) CreateTrade(ctx *gin.Context) {
 	routes.CreateTrade(ctx, svc.Client)
 }
 
-func (svc *ServiceClient) EditTrade(ctx *gin.Context) {
-	routes.EditTrade(ctx, svc.Client)
+func (svc *ServiceClient) UpdateTrade(ctx *gin.Context) {
+	routes.UpdateTrade(ctx, svc.Client)
 }
 
 func (svc *ServiceClient) DeleteTrade(ctx *gin.Context) {
