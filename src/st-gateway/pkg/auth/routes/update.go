@@ -2,6 +2,7 @@ package routes
 
 import (
 	"context"
+	"google.golang.org/protobuf/types/known/wrapperspb"
 	"net/http"
 	"strconv"
 
@@ -29,12 +30,12 @@ func UpdateUser(ctx *gin.Context, c pb.AuthServiceClient) {
 
 	res, err := c.UpdateUser(context.Background(), &pb.UpdateUserRequest{
 		Id:        uint64(id),
-		Email:     b.Email,
-		Password:  b.Password,
-		FirstName: b.FirstName,
-		LastName:  b.LastName,
-		Bio:       b.Bio,
-		Role:      b.Role,
+		Email:     wrapperspb.String(b.Email),
+		Password:  wrapperspb.String(b.Password),
+		FirstName: wrapperspb.String(b.FirstName),
+		LastName:  wrapperspb.String(b.LastName),
+		Bio:       wrapperspb.String(b.Bio),
+		Role:      wrapperspb.String(b.Role),
 	})
 
 	if err != nil {

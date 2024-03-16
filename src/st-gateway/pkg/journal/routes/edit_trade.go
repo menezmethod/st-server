@@ -8,7 +8,7 @@ import (
 	"strconv"
 )
 
-type UpdateTradeRequestBody struct {
+type EditTradeRequestBody struct {
 	Id              uint64  `json:"id"`
 	Comments        string  `json:"comments"`
 	CreatedBy       string  `json:"createdBy"`
@@ -28,17 +28,17 @@ type UpdateTradeRequestBody struct {
 	TimeExecuted    string  `json:"timeExecuted"`
 }
 
-func UpdateTrade(ctx *gin.Context, c pb.JournalServiceClient) {
+func EditTrade(ctx *gin.Context, c pb.JournalServiceClient) {
 	id, err := strconv.ParseInt(ctx.Param("id"), 10, 32)
 
-	b := UpdateTradeRequestBody{}
+	b := EditTradeRequestBody{}
 
 	if err := ctx.BindJSON(&b); err != nil {
 		ctx.AbortWithError(http.StatusBadRequest, err)
 		return
 	}
 
-	res, err := c.UpdateTrade(context.Background(), &pb.UpdateTradeRequest{
+	res, err := c.EditTrade(context.Background(), &pb.EditTradeRequest{
 		Id:              uint64(id),
 		Comments:        b.Comments,
 		CreatedBy:       b.CreatedBy,

@@ -2,6 +2,7 @@ package routes_test
 
 import (
 	"errors"
+	"google.golang.org/protobuf/types/known/wrapperspb"
 	"net/http"
 	"net/http/httptest"
 	"st-gateway/pkg/auth/routes"
@@ -55,12 +56,12 @@ var _ = Describe("UpdateUser", func() {
 			gomock.Any(),
 			&pb.UpdateUserRequest{
 				Id:        testUser.Id,
-				Email:     testUser.Email,
-				Password:  testUser.Password,
-				FirstName: testUser.FirstName,
-				LastName:  testUser.LastName,
-				Bio:       testUser.Bio,
-				Role:      testUser.Role,
+				Email:     wrapperspb.String(testUser.Email),
+				Password:  wrapperspb.String(testUser.Password),
+				FirstName: wrapperspb.String(testUser.FirstName),
+				LastName:  wrapperspb.String(testUser.LastName),
+				Bio:       wrapperspb.String(testUser.Bio),
+				Role:      wrapperspb.String(testUser.Role),
 			},
 		).Return(&pb.UpdateUserResponse{}, nil)
 
@@ -107,12 +108,12 @@ var _ = Describe("UpdateUser", func() {
 			gomock.Any(),
 			&pb.UpdateUserRequest{
 				Id:        testUser.Id,
-				Email:     testUser.Email,
-				Password:  testUser.Password,
-				FirstName: testUser.FirstName,
-				LastName:  testUser.LastName,
-				Bio:       testUser.Bio,
-				Role:      testUser.Role,
+				Email:     wrapperspb.String(testUser.Email),
+				Password:  wrapperspb.String(testUser.Password),
+				FirstName: wrapperspb.String(testUser.FirstName),
+				LastName:  wrapperspb.String(testUser.LastName),
+				Bio:       wrapperspb.String(testUser.Bio),
+				Role:      wrapperspb.String(testUser.Role),
 			},
 		).Return(nil, errors.New("update user failed"))
 

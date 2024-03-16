@@ -9,11 +9,11 @@ import "google/protobuf/timestamp.proto";
 service JournalService {
   rpc CreateJournal(CreateJournalRequest) returns (CreateJournalResponse) {}
   rpc DeleteJournal(DeleteJournalRequest) returns (DeleteJournalResponse) {}
-  rpc UpdateJournal(UpdateJournalRequest) returns (UpdateJournalResponse) {}
+  rpc EditJournal(EditJournalRequest) returns (EditJournalResponse) {}
   rpc FindAllJournals(FindAllJournalsRequest) returns (FindAllJournalsResponse) {}
   rpc FindOneJournal(FindOneJournalRequest) returns (FindOneJournalResponse) {}
   rpc CreateTrade(CreateTradeRequest) returns (CreateTradeResponse) {}
-  rpc UpdateTrade(UpdateTradeRequest) returns (UpdateTradeResponse) {}
+  rpc EditTrade(EditTradeRequest) returns (EditTradeResponse) {}
   rpc FindOneTrade(FindOneTradeRequest) returns (FindOneTradeResponse) {}
   rpc FindAllTrades(FindAllTradesRequest) returns (FindAllTradesResponse) {}
   rpc DeleteTrade(DeleteTradeRequest) returns (DeleteTradeResponse) {}
@@ -31,16 +31,12 @@ message CreateJournalRequest {
 }
 
 message CreateJournalResponse {
-  string timestamp = 1;
-  string level = 2;
-  string message = 3;
-  uint64 status = 4;
-  Journal journal = 5;
-  string error = 6;
-  map<string, string> data = 7;
+  uint64 status = 1;
+  string error = 2;
+  Journal data = 3;
 }
 
-message UpdateJournalData {
+message EditJournalData {
   uint64 id = 1;
   string created_by = 2;
   google.protobuf.Timestamp createdAt = 3;
@@ -51,7 +47,7 @@ message UpdateJournalData {
   repeated uint64 users_subscribed = 8;
 }
 
-message UpdateJournalRequest {
+message EditJournalRequest {
   uint64 id = 1;
   string created_by = 2;
   google.protobuf.Timestamp createdAt = 3;
@@ -62,24 +58,21 @@ message UpdateJournalRequest {
   repeated uint64 users_subscribed = 8;
 }
 
-message UpdateJournalResponse {
-  string timestamp = 1;
-  string level = 2;
-  string message = 3;
-  uint64 status = 4;
-  UpdateJournalData data = 5;
-  string error = 6;
+message EditJournalResponse {
+  uint64 status = 1;
+  string error = 2;
+  EditJournalData data = 3;
 }
 
 message Journal {
   uint64 id = 1;
-  string name = 2;
-  string description = 3;
-  string startDate = 4;
-  string endDate = 5;
-  string createdAt = 6;
-  string createdBy = 7;
-  repeated uint64 usersSubscribed = 8;
+  string created_by = 2;
+  string createdAt = 3;
+  string start_date = 4;
+  string end_date = 5;
+  string name = 6;
+  string description = 7;
+  repeated uint64 users_subscribed = 8;
 }
 
 message FindAllJournalsRequest {}
@@ -106,10 +99,7 @@ message DeleteJournalRequest {
 
 message DeleteJournalResponse {
   uint64 status = 1;
-  string message = 2;
-  string level = 3;
-  string error = 4;
-  uint64 rowsAffected = 5;
+  string error = 2;
 }
 
 message CreateTradeRequest {
@@ -132,15 +122,10 @@ message CreateTradeRequest {
   string createdBy = 18;
 }
 
-// Create Trade
-
 message CreateTradeResponse {
-  string timestamp = 1;
-  string level = 2;
-  string message = 3;
-  uint64 status = 4;
-  Trade data = 5;
-  string error = 6;
+  uint64 status = 1;
+  string error = 2;
+  Trade data = 3;
 }
 
 // EditTrade
@@ -166,7 +151,7 @@ message Trade {
   string createdBy = 18;
 }
 
-message UpdateTradeRequest {
+message EditTradeRequest {
   uint64 id = 1;
   string timeExecuted = 2;
   string market = 3;
@@ -187,13 +172,10 @@ message UpdateTradeRequest {
   string createdBy = 18;
 }
 
-message UpdateTradeResponse {
-  string timestamp = 1;
-  string level = 2;
-  string message = 3;
-  uint64 status = 4;
-  Trade data = 5;
-  string error = 6;
+message EditTradeResponse {
+  uint64 status = 1;
+  string error = 2;
+  Trade data = 3;
 }
 
 message FindAllTradesRequest {}
@@ -220,8 +202,5 @@ message DeleteTradeRequest {
 
 message DeleteTradeResponse {
   uint64 status = 1;
-  string message = 2;
-  string level = 3;
-  string error = 4;
-  uint64 rowsAffected = 5;
+  string error = 2;
 }
