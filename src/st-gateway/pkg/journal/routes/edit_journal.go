@@ -8,7 +8,7 @@ import (
 	"strconv"
 )
 
-type UpdateJournalRequestBody struct {
+type EditJournalRequestBody struct {
 	Id              uint64   `json:"id"`
 	Name            string   `json:"name"`
 	Description     string   `json:"description"`
@@ -18,17 +18,17 @@ type UpdateJournalRequestBody struct {
 	UsersSubscribed []uint64 `json:"subscribed"`
 }
 
-func UpdateJournal(ctx *gin.Context, c pb.JournalServiceClient) {
+func EditJournal(ctx *gin.Context, c pb.JournalServiceClient) {
 	id, err := strconv.ParseInt(ctx.Param("id"), 10, 32)
 
-	b := UpdateJournalRequestBody{}
+	b := EditJournalRequestBody{}
 
 	if err := ctx.BindJSON(&b); err != nil {
 		ctx.AbortWithError(http.StatusBadRequest, err)
 		return
 	}
 
-	res, err := c.UpdateJournal(context.Background(), &pb.UpdateJournalRequest{
+	res, err := c.EditJournal(context.Background(), &pb.EditJournalRequest{
 		Id:              uint64(id),
 		Name:            b.Name,
 		Description:     b.Description,

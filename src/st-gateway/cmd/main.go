@@ -4,8 +4,6 @@ import (
 	"log"
 
 	"github.com/gin-gonic/gin"
-	"github.com/prometheus/client_golang/prometheus/promhttp"
-
 	"st-gateway/middleware"
 	"st-gateway/pkg/auth"
 	"st-gateway/pkg/config"
@@ -33,14 +31,5 @@ func setupRouter(cfg config.Config) *gin.Engine {
 	authSvc := *auth.RegisterAuthRoutes(r, &cfg)
 	journal.RegisterJournalRoutes(r, &cfg, &authSvc)
 
-	r.GET("/metrics", prometheusHandler())
-
 	return r
-}
-
-func prometheusHandler() gin.HandlerFunc {
-	return func(c *gin.Context) {
-		handler := promhttp.Handler()
-		handler.ServeHTTP(c.Writer, c.Request)
-	}
 }

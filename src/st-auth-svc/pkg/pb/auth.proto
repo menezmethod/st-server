@@ -4,6 +4,7 @@ package auth;
 
 option go_package = "./pkg/pb";
 import "google/protobuf/timestamp.proto";
+import "google/protobuf/wrappers.proto";
 
 service AuthService {
   rpc DeleteUser(DeleteUserRequest) returns (DeleteUserResponse) {}
@@ -16,20 +17,18 @@ service AuthService {
   rpc Validate(ValidateRequest) returns (ValidateResponse) {}
 }
 
+
 // Login
 
 message LoginRequest {
-  string email = 1;
-  string password = 2;
+  google.protobuf.StringValue email = 1;
+  google.protobuf.StringValue password = 2;
 }
 
 message LoginResponse {
-  string timestamp = 1;
-  string level = 2;
-  string message = 3;
-  uint64 status = 4;
-  string error = 5;
-  LoginData data = 6;
+  uint64 status = 1;
+  string error = 2;
+  LoginData data = 3;
 }
 
 message LoginData {
@@ -41,22 +40,19 @@ message LoginData {
 // Register
 
 message RegisterRequest {
-  string email = 1;
-  string password = 2;
-  string firstName = 3;
-  string lastName = 4;
-  string bio = 5;
-  string role = 6;
+  google.protobuf.StringValue email = 1;
+  google.protobuf.StringValue password = 2;
+  google.protobuf.StringValue firstName = 3;
+  google.protobuf.StringValue lastName = 4;
+  google.protobuf.StringValue bio = 5;
+  google.protobuf.StringValue role = 6;
   google.protobuf.Timestamp createdAt = 7;
 }
 
 message RegisterResponse {
-  string timestamp = 1;
-  string level = 2;
-  string message = 3;
-  uint64 status = 4;
-  string error = 5;
-  User data = 6;
+  uint64 status = 1;
+  string error = 2;
+  User data = 3;
 }
 
 
@@ -83,36 +79,30 @@ message FindAllUsersResponse {
 // Update
 
 message UpdateUserRequest {
-  string email = 1;
-  string password = 2;
-  string firstName = 3;
-  string lastName = 4;
-  string bio = 5;
-  string role = 6;
+  google.protobuf.StringValue email = 1;
+  google.protobuf.StringValue password = 2;
+  google.protobuf.StringValue firstName = 3;
+  google.protobuf.StringValue lastName = 4;
+  google.protobuf.StringValue bio = 5;
+  google.protobuf.StringValue role = 6;
   google.protobuf.Timestamp createdAt = 7;
   uint64 id = 8;
 }
 
 message UpdateUserResponse {
-  string timestamp = 1;
-  string level = 2;
-  string message = 3;
-  uint64 status = 4;
-  string error = 5;
-  User data = 6;
+  uint64 status = 1;
+  string error = 2;
+  User data = 3;
 }
 
 // Validate
 
-message ValidateRequest {string token = 1;}
+message ValidateRequest {google.protobuf.StringValue token = 1;}
 
 message ValidateResponse {
-  string timestamp = 1;
-  string level = 2;
-  string message = 3;
-  uint64 status = 4;
-  string error = 5;
-  uint64 userId = 6;
+  uint64 status = 1;
+  string error = 2;
+  uint64 userId = 3;
 }
 
 message User {
@@ -132,10 +122,6 @@ message DeleteUserRequest {
 }
 
 message DeleteUserResponse {
-  string timestamp = 1;
-  string level = 2;
-  string message = 3;
-  uint64 status = 4;
-  string error = 5;
-  uint64 rowsAffected = 6;
+  uint64 status = 1;
+  string error = 2;
 }

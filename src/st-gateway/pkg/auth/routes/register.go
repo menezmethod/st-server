@@ -2,6 +2,7 @@ package routes
 
 import (
 	"context"
+	"google.golang.org/protobuf/types/known/wrapperspb"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -25,11 +26,11 @@ func Register(ctx *gin.Context, c pb.AuthServiceClient) {
 	}
 
 	res, err := c.Register(context.Background(), &pb.RegisterRequest{
-		Email:     b.Email,
-		Password:  b.Password,
-		FirstName: b.FirstName,
-		LastName:  b.LastName,
-		Role:      b.Role,
+		Email:     wrapperspb.String(b.Email),
+		Password:  wrapperspb.String(b.Password),
+		FirstName: wrapperspb.String(b.FirstName),
+		LastName:  wrapperspb.String(b.LastName),
+		Role:      wrapperspb.String(b.Role),
 	})
 
 	if err != nil {

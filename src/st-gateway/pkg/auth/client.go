@@ -1,8 +1,8 @@
 package auth
 
 import (
+	"fmt"
 	"google.golang.org/grpc/credentials/insecure"
-	"log"
 
 	"google.golang.org/grpc"
 	"st-gateway/pkg/auth/pb"
@@ -14,14 +14,11 @@ type ServiceClient struct {
 }
 
 func InitServiceClient(c *config.Config) pb.AuthServiceClient {
-	log.Printf("Initializing gRPC service client for Auth service at URL: %s", c.AuthSvcUrl)
-
 	cc, err := grpc.Dial(c.AuthSvcUrl, grpc.WithTransportCredentials(insecure.NewCredentials()))
-	if err != nil {
-		log.Fatalf("Failed to connect to Auth service at %s: %v", c.AuthSvcUrl, err)
-	}
 
-	log.Println("Successfully connected to Auth service")
+	if err != nil {
+		fmt.Println("No connection:", err)
+	}
 
 	return pb.NewAuthServiceClient(cc)
 }
