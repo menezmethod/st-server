@@ -2,29 +2,29 @@ package routes
 
 import (
 	"context"
-	"errors"
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"st-gateway/pkg/journal/pb"
 	"strings"
 )
 
+func handleError(ctx *gin.Context, errMsg string, statusCode int) {
+	ctx.JSON(statusCode, gin.H{"error": errMsg})
+}
+
 func DeleteJournal(ctx *gin.Context, c pb.JournalServiceClient) {
-	id, err := strings.Split(ctx.Param("id"), ","), errors.New("no id")
-
-	if ctx.Param("id") == "" {
-		ctx.AbortWithError(http.StatusBadGateway, err)
+	idParam := ctx.Param("id")
+	if idParam == "" {
+		handleError(ctx, "no id provided", http.StatusBadRequest)
 		return
 	}
 
-	res, err := c.DeleteJournal(context.Background(), &pb.DeleteJournalRequest{
-		Id: id,
-	})
-
-	if res == nil {
-		ctx.AbortWithError(http.StatusBadGateway, err)
+	ids := strings.Split(idParam, ",")
+	res, err := c.DeleteJournal(context.Background(), &pb.DeleteJournalRequest{Id: ids})
+	if err != nil {
+		handleError(ctx, "error deleting journal: "+err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	ctx.JSON(http.StatusCreated, &res)
+	ctx.JSON(http.StatusOK, res)
 }

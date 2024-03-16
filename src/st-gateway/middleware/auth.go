@@ -3,7 +3,6 @@ package middleware
 import (
 	"context"
 	"github.com/gin-gonic/gin"
-	"google.golang.org/protobuf/types/known/wrapperspb"
 	"net/http"
 	"st-gateway/pkg/auth"
 	"strings"
@@ -31,7 +30,7 @@ func (c *Config) AuthRequired(ctx *gin.Context) {
 	}
 
 	res, err := c.svc.Client.Validate(context.Background(), &pb.ValidateRequest{
-		Token: wrapperspb.String(strings.Split(ctx.Request.Header.Get("authorization"), "Bearer ")[1]),
+		Token: strings.Split(ctx.Request.Header.Get("authorization"), "Bearer ")[1],
 	})
 
 	if err != nil || res.Status != http.StatusOK {

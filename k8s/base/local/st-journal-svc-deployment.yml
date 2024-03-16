@@ -13,6 +13,10 @@ spec:
     metadata:
       labels:
         app: st-journal-svc
+      annotations:
+        prometheus.io/scrape: 'true'
+        prometheus.io/port: '9092'
+        prometheus.io/path: '/metrics'
     spec:
       containers:
         - name: st-journal-svc

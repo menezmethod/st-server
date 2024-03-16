@@ -3,7 +3,6 @@ package routes
 import (
 	"context"
 	"errors"
-	"google.golang.org/protobuf/types/known/wrapperspb"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -24,8 +23,8 @@ func Login(ctx *gin.Context, c pb.AuthServiceClient) {
 	}
 
 	res, err := c.Login(context.Background(), &pb.LoginRequest{
-		Email:    wrapperspb.String(b.Email),
-		Password: wrapperspb.String(b.Password),
+		Email:    b.Email,
+		Password: b.Password,
 	})
 
 	if err != nil {
