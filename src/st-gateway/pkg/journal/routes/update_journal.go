@@ -5,6 +5,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"st-gateway/pkg/journal/pb"
+	"st-gateway/pkg/util"
 	"strconv"
 )
 
@@ -24,7 +25,7 @@ func UpdateJournal(ctx *gin.Context, c pb.JournalServiceClient) {
 	b := UpdateJournalRequestBody{}
 
 	if err := ctx.BindJSON(&b); err != nil {
-		ctx.AbortWithError(http.StatusBadRequest, err)
+		ctx.JSON(http.StatusBadRequest, err)
 		return
 	}
 
@@ -39,9 +40,9 @@ func UpdateJournal(ctx *gin.Context, c pb.JournalServiceClient) {
 	})
 
 	if err != nil {
-		ctx.AbortWithError(http.StatusBadGateway, err)
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "An internal error occurred"})
 		return
 	}
 
-	ctx.JSON(http.StatusCreated, &res)
+	util.RespondWithStatus(ctx, int(res.Status), res)
 }

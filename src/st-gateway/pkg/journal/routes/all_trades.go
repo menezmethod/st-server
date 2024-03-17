@@ -5,19 +5,16 @@ import (
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"st-gateway/pkg/journal/pb"
+	"st-gateway/pkg/util"
 )
 
-func FindAllTrades(ctx *gin.Context, c pb.JournalServiceClient) {
-	var id []uint64
-
-	id = append(id, 1)
-
+func FindAllTrades(ctx *gin.Context, c pb.TradeServiceClient) {
 	res, err := c.FindAllTrades(context.Background(), &pb.FindAllTradesRequest{})
 
 	if err != nil {
-		ctx.AbortWithError(http.StatusBadGateway, err)
+		util.RespondWithStatus(ctx, http.StatusInternalServerError, gin.H{"error": "An internal error occurred"})
 		return
 	}
 
-	ctx.JSON(http.StatusCreated, &res)
+	util.RespondWithStatus(ctx, int(res.Status), res)
 }

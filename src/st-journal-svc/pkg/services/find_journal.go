@@ -3,6 +3,7 @@ package services
 import (
 	"context"
 	"go.uber.org/zap"
+	"google.golang.org/protobuf/types/known/timestamppb"
 	"net/http"
 
 	"st-journal-svc/pkg/models"
@@ -17,7 +18,7 @@ func mapJournalToPBJournal(journal models.Journal) *pb.Journal {
 		StartDate:       journal.StartDate,
 		EndDate:         journal.EndDate,
 		CreatedBy:       journal.CreatedBy,
-		CreatedAt:       journal.CreatedAt.String(),
+		CreatedAt:       timestamppb.New(journal.CreatedAt),
 		UsersSubscribed: journal.UsersSubscribed,
 	}
 }

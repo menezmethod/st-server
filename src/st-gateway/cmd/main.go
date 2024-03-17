@@ -2,20 +2,20 @@ package main
 
 import (
 	"log"
+	"st-gateway/configs"
 
 	"github.com/gin-gonic/gin"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 
 	"st-gateway/middleware"
 	"st-gateway/pkg/auth"
-	"st-gateway/pkg/config"
 	"st-gateway/pkg/journal"
 )
 
 func main() {
-	cfg, err := config.LoadConfig()
+	cfg, err := configs.LoadConfig()
 	if err != nil {
-		log.Fatalf("Failed loading config: %v\n", err)
+		log.Fatalf("Failed loading configs: %v\n", err)
 		return
 	}
 
@@ -25,7 +25,7 @@ func main() {
 	}
 }
 
-func setupRouter(cfg config.Config) *gin.Engine {
+func setupRouter(cfg configs.Config) *gin.Engine {
 	r := gin.Default()
 	allowedOrigins := []string{"*"}
 	r.Use(middleware.CORS(allowedOrigins))

@@ -3,8 +3,8 @@ package auth
 import (
 	"fmt"
 	"github.com/gin-gonic/gin"
+	"st-gateway/configs"
 	"st-gateway/pkg/auth/routes"
-	"st-gateway/pkg/config"
 )
 
 type endpoint struct {
@@ -12,7 +12,7 @@ type endpoint struct {
 	handler      func(ctx *gin.Context)
 }
 
-func RegisterAuthRoutes(r *gin.Engine, c *config.Config) *ServiceClient {
+func RegisterAuthRoutes(r *gin.Engine, c *configs.Config) *ServiceClient {
 	svc := &ServiceClient{
 		Client: InitServiceClient(c),
 	}

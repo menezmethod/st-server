@@ -2,8 +2,8 @@ package routes
 
 import (
 	"context"
-	"errors"
 	"net/http"
+	"st-gateway/pkg/util"
 
 	"github.com/gin-gonic/gin"
 	"st-gateway/pkg/auth/pb"
@@ -18,7 +18,7 @@ func Login(ctx *gin.Context, c pb.AuthServiceClient) {
 	b := LoginRequestBody{}
 
 	if err := ctx.BindJSON(&b); err != nil {
-		ctx.AbortWithError(http.StatusBadRequest, err)
+		ctx.JSON(http.StatusBadRequest, err)
 		return
 	}
 
@@ -28,12 +28,9 @@ func Login(ctx *gin.Context, c pb.AuthServiceClient) {
 	})
 
 	if err != nil {
-		ctx.AbortWithError(http.StatusBadGateway, err)
-		return
-	} else if res.Status == 404 {
-		ctx.AbortWithError(http.StatusNotFound, errors.New("user not found"))
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "An internal error occurred"})
 		return
 	}
 
-	ctx.JSON(http.StatusCreated, &res)
+	util.RespondWithStatus(ctx, int(res.Status), res)
 }

@@ -1,16 +1,17 @@
 package main
 
 import (
+	"github.com/go-playground/validator/v10"
 	"go.uber.org/zap"
 	"log"
 	"net"
 	"net/http"
+	"st-auth-svc/configs"
 
 	"github.com/grpc-ecosystem/go-grpc-prometheus"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"google.golang.org/grpc"
-	"st-auth-svc/pkg/config"
 	"st-auth-svc/pkg/db"
 	"st-auth-svc/pkg/pb"
 	"st-auth-svc/pkg/services"
@@ -29,9 +30,9 @@ func main() {
 		}
 	}(logger)
 
-	c, err := config.LoadConfig()
+	c, err := configs.LoadConfig()
 	if err != nil {
-		logger.Fatal("Failed loading config", zap.Error(err))
+		logger.Fatal("Failed loading configs", zap.Error(err))
 	}
 
 	dbHandler := db.InitDB(c.DBUrl, logger)
@@ -60,9 +61,10 @@ func main() {
 	grpcMetrics.InitializeMetrics(grpcServer)
 
 	pb.RegisterAuthServiceServer(grpcServer, &services.Server{
-		H:      *&dbHandler,
-		Logger: logger,
-		Jwt:    jwt,
+		H:         *&dbHandler,
+		Logger:    logger,
+		Jwt:       jwt,
+		Validator: validator.New(),
 	})
 
 	go func() {
@@ -78,7 +80,7 @@ func main() {
 	}
 }
 
-func initJwt(c config.Config) utils.JwtWrapper {
+func initJwt(c configs.Config) utils.JwtWrapper {
 	return utils.JwtWrapper{
 		SecretKey:       c.JWTSecretKey,
 		Issuer:          "st-auth-svc",

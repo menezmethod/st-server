@@ -5,6 +5,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"st-gateway/pkg/journal/pb"
+	"st-gateway/pkg/util"
 )
 
 func FindAllJournals(ctx *gin.Context, c pb.JournalServiceClient) {
@@ -15,9 +16,9 @@ func FindAllJournals(ctx *gin.Context, c pb.JournalServiceClient) {
 	res, err := c.FindAllJournals(context.Background(), &pb.FindAllJournalsRequest{})
 
 	if err != nil {
-		ctx.AbortWithError(http.StatusBadGateway, err)
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "An internal error occurred"})
 		return
 	}
 
-	ctx.JSON(http.StatusCreated, &res)
+	util.RespondWithStatus(ctx, int(res.Status), res)
 }

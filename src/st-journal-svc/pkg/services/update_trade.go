@@ -13,13 +13,13 @@ import (
 
 func determineOutcome(req *pb.UpdateTradeRequest, trade *models.Trade) {
 	if req.GetDirection() == "Long" && req.GetExitPrice()-req.GetEntryPrice() > 0.01 {
-		trade.Outcome = "Win"
+		trade.Outcome = "WIN"
 	} else if req.GetDirection() == "Short" && req.GetExitPrice() > 0 && req.GetEntryPrice()-req.GetExitPrice() > 0.01 {
-		trade.Outcome = "Win"
+		trade.Outcome = "WIN"
 	} else if req.GetExitPrice() == 0 {
 		trade.Outcome = "TBD"
 	} else {
-		trade.Outcome = "Loss"
+		trade.Outcome = "LOSS"
 	}
 }
 
@@ -102,7 +102,7 @@ func (s *Server) UpdateTrade(ctx context.Context, req *pb.UpdateTradeRequest) (*
 		return createUpdateTradeResponse(models.Trade{}, http.StatusNotFound, err.Error()), nil
 	}
 
-	resp := createUpdateTradeResponse(dbRes, http.StatusCreated, "")
+	resp := createUpdateTradeResponse(dbRes, http.StatusOK, "")
 	utils.LogResponse(s.Logger, "UpdateTrade", resp, int(resp.Status))
 
 	return resp, nil

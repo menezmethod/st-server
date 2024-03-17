@@ -2,7 +2,12 @@ package services
 
 import (
 	"context"
+	"errors"
+	"fmt"
+	"github.com/go-playground/validator/v10"
+	"go.uber.org/zap"
 	"net/http"
+	"strings"
 	"time"
 
 	"st-auth-svc/pkg/models"
@@ -11,26 +16,43 @@ import (
 )
 
 func (s *Server) Register(ctx context.Context, req *pb.RegisterRequest) (*pb.RegisterResponse, error) {
-	s.Logger.Debug("Received Register request")
 
-	if req == nil || req.Email == "" || req.Password == "" {
-		return s.generateRegisterResponse(http.StatusBadRequest, "Invalid request parameters", "Request is nil or missing fields", nil, ""), nil
-	}
+	s.Logger.Debug("Received Register request")
 	hashedPassword, err := utils.HashPassword(s.Logger, req.Password, 10)
 
 	user := models.User{
 		Email:     req.Email,
-		Password:  hashedPassword,
+		Password:  req.Password,
 		FirstName: req.FirstName,
 		LastName:  req.LastName,
-		Role:      "USER",
+		Role:      req.Role,
 		CreatedAt: time.Now(),
 	}
+
+	if err := s.Validator.Struct(user); err != nil {
+		var validationErrors validator.ValidationErrors
+		if errors.As(err, &validationErrors) {
+			errMsgs := make([]string, 0)
+			for _, e := range validationErrors {
+				errMsg := fmt.Sprintf("%s is invalid or missing for field %s", e.ActualTag(), e.Field())
+				errMsgs = append(errMsgs, errMsg)
+			}
+			detailedErrMsg := strings.Join(errMsgs, ", ")
+			response := s.generateRegisterResponse(http.StatusBadRequest, "Invalid request parameters", detailedErrMsg, nil, "")
+			s.Logger.Error("Validation failed",
+				zap.String("method", "Register"),
+				zap.String("error", detailedErrMsg),
+			)
+			return response, nil
+		}
+	}
+
+	user.Password = hashedPassword
 
 	if exists, err := s.userExists(ctx, user.Email); err != nil {
 		return s.generateRegisterResponse(http.StatusInternalServerError, "User existence check failed", err.Error(), nil, ""), err
 	} else if exists {
-		return s.generateRegisterResponse(http.StatusConflict, "User already exists", "", nil, ""), nil
+		return s.generateRegisterResponse(http.StatusConflict, "User already exists", "UserRegistrationConflict", nil, ""), nil
 	}
 
 	if err := s.createUser(ctx, &user); err != nil {
@@ -46,10 +68,7 @@ func (s *Server) Register(ctx context.Context, req *pb.RegisterRequest) (*pb.Reg
 }
 
 func (s *Server) generateRegisterResponse(statusCode int, message, errorDetail string, user *models.User, token string) *pb.RegisterResponse {
-	level := "INFO"
-	if statusCode >= 400 {
-		level = "ERROR"
-	}
+	level := utils.GetStatusLevel(statusCode)
 
 	response := &pb.RegisterResponse{
 		Status:  uint64(statusCode),

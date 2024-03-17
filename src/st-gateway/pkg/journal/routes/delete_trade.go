@@ -6,14 +6,15 @@ import (
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"st-gateway/pkg/journal/pb"
+	"st-gateway/pkg/util"
 	"strings"
 )
 
-func DeleteTrade(ctx *gin.Context, c pb.JournalServiceClient) {
+func DeleteTrade(ctx *gin.Context, c pb.TradeServiceClient) {
 	id, err := strings.Split(ctx.Param("id"), ","), errors.New("no id")
 
 	if ctx.Param("id") == "" {
-		ctx.AbortWithError(http.StatusBadGateway, err)
+		ctx.JSON(http.StatusBadGateway, err)
 		return
 	}
 
@@ -21,10 +22,10 @@ func DeleteTrade(ctx *gin.Context, c pb.JournalServiceClient) {
 		Id: id,
 	})
 
-	if res == nil {
-		ctx.AbortWithError(http.StatusBadGateway, err)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "An internal error occurred"})
 		return
 	}
 
-	ctx.JSON(http.StatusCreated, &res)
+	util.RespondWithStatus(ctx, int(res.Status), res)
 }

@@ -5,6 +5,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"st-gateway/pkg/journal/pb"
+	"st-gateway/pkg/util"
 	"strconv"
 )
 
@@ -28,13 +29,13 @@ type UpdateTradeRequestBody struct {
 	TimeExecuted    string  `json:"timeExecuted"`
 }
 
-func UpdateTrade(ctx *gin.Context, c pb.JournalServiceClient) {
+func UpdateTrade(ctx *gin.Context, c pb.TradeServiceClient) {
 	id, err := strconv.ParseInt(ctx.Param("id"), 10, 32)
 
 	b := UpdateTradeRequestBody{}
 
 	if err := ctx.BindJSON(&b); err != nil {
-		ctx.AbortWithError(http.StatusBadRequest, err)
+		ctx.JSON(http.StatusBadRequest, err)
 		return
 	}
 
@@ -59,9 +60,9 @@ func UpdateTrade(ctx *gin.Context, c pb.JournalServiceClient) {
 	})
 
 	if err != nil {
-		ctx.AbortWithError(http.StatusBadGateway, err)
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "An internal error occurred"})
 		return
 	}
 
-	ctx.JSON(http.StatusCreated, &res)
+	util.RespondWithStatus(ctx, int(res.Status), res)
 }

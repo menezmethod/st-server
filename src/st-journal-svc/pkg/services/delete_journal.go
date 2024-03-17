@@ -38,7 +38,7 @@ func (s *Server) DeleteJournal(ctx context.Context, req *pb.DeleteJournalRequest
 			errorDetail = err.Error()
 		} else if rowsAffected == 0 {
 			status = http.StatusNotFound
-			message = "No journal found for the provided ID"
+			message = "Journal not found for the provided ID"
 			errorDetail = "Journal not found"
 		} else {
 			status = http.StatusOK

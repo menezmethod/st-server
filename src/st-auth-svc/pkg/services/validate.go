@@ -39,10 +39,7 @@ func (s *Server) Validate(ctx context.Context, req *pb.ValidateRequest) (*pb.Val
 
 func (s *Server) createValidateResponse(statusCode int64, message, errorDetail string, userID uint64, fields ...zap.Field) *pb.ValidateResponse {
 	timestamp := time.Now().Format(time.RFC3339)
-	level := "INFO"
-	if errorDetail != "" {
-		level = "ERROR"
-	}
+	level := utils.GetStatusLevel(int(statusCode))
 
 	logger := s.Logger.With(fields...)
 	utils.LogResponse(logger, "Validate", &pb.ValidateResponse{

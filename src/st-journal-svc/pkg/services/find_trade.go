@@ -2,6 +2,7 @@ package services
 
 import (
 	"context"
+	"google.golang.org/protobuf/types/known/timestamppb"
 	"net/http"
 
 	"go.uber.org/zap"
@@ -28,7 +29,7 @@ func mapModelTradeToPBTrade(trade models.Trade) *pb.Trade {
 		TakeProfit:      trade.TakeProfit,
 		TimeExecuted:    trade.TimeExecuted,
 		TimeClosed:      trade.TimeClosed,
-		CreatedAt:       trade.CreatedAt.String(),
+		CreatedAt:       timestamppb.New(trade.CreatedAt),
 		CreatedBy:       trade.CreatedBy,
 	}
 }
@@ -51,9 +52,11 @@ func (s *Server) FindAllTrades(ctx context.Context, _ *pb.FindAllTradesRequest) 
 	}
 
 	s.Logger.Info("Successfully found trades", zap.Int("count", len(pbTrades)))
-	return &pb.FindAllTradesResponse{Data: pbTrades}, nil
+	return &pb.FindAllTradesResponse{
+		Status: http.StatusOK,
+		Data:   pbTrades,
+	}, nil
 }
-
 func (s *Server) FindOneTrade(ctx context.Context, req *pb.FindOneTradeRequest) (*pb.FindOneTradeResponse, error) {
 	s.Logger.Debug("Received request to find trade with ID", zap.Uint64("ID", req.Id))
 

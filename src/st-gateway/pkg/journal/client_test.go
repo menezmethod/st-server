@@ -6,7 +6,7 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/test/bufconn"
 	"log"
-	"st-gateway/pkg/config"
+	"st-gateway/configs"
 	"st-gateway/pkg/journal"
 )
 
@@ -14,7 +14,7 @@ const bufSize = 1024 * 1024
 
 var lis *bufconn.Listener
 
-var _ = Describe("Client: Journal Service", func() {
+var _ = Describe("JournalServiceClient: Journal Service", func() {
 	BeforeEach(func() {
 		lis = bufconn.Listen(bufSize)
 		s := grpc.NewServer()
@@ -26,14 +26,14 @@ var _ = Describe("Client: Journal Service", func() {
 		}()
 	})
 
-	Describe("Function InitServiceClient()", func() {
+	Describe("Function InitTradeServiceClient()", func() {
 		Context("Initializing the journal service client", func() {
 			It("Should successfully create a service client", func() {
-				c := &config.Config{
+				c := &configs.Config{
 					JournalSvcUrl: "bufnet",
 				}
 
-				client := journal.InitServiceClient(c)
+				client := journal.InitJournalServiceClient(c)
 				Expect(client).NotTo(BeNil())
 			})
 		})
