@@ -26,11 +26,10 @@ func populateJournalFromEditRequest(req *pb.UpdateJournalRequest) models.Journal
 
 func createUpdateJournalResponse(logger *zap.Logger, journal models.Journal, status uint64, errorMessage string) *pb.UpdateJournalResponse {
 	timestamp := time.Now().Format(time.RFC3339)
-	level := "INFO"
+	level := utils.GetStatusLevel(int(status))
 	message := "Journal updated successfully"
 
 	if errorMessage != "" {
-		level = "ERROR"
 		message = "Failed to update journal"
 		logger.Error("Failed to update journal", zap.String("error", errorMessage), zap.Any("journal", journal))
 	}
@@ -40,7 +39,7 @@ func createUpdateJournalResponse(logger *zap.Logger, journal models.Journal, sta
 		Level:     level,
 		Message:   message,
 		Status:    status,
-		Data: &pb.UpdateJournalData{
+		Data: &pb.Journal{
 			Id:              journal.ID,
 			Name:            journal.Name,
 			Description:     journal.Description,

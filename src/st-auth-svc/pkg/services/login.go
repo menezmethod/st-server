@@ -2,9 +2,13 @@ package services
 
 import (
 	"context"
+	"errors"
+	"fmt"
+	"github.com/go-playground/validator/v10"
 	"go.uber.org/zap"
 	"net/http"
 	"st-auth-svc/pkg/db"
+	"strings"
 	"time"
 
 	"st-auth-svc/pkg/models"
@@ -16,61 +20,74 @@ type Server struct {
 	H   db.Handler
 	Jwt utils.JwtWrapper
 	pb.UnimplementedAuthServiceServer
-	Logger *zap.Logger
+	Logger    *zap.Logger
+	Validator *validator.Validate
 }
 
 func (s *Server) Login(ctx context.Context, req *pb.LoginRequest) (*pb.LoginResponse, error) {
 	s.Logger.Debug("Received Login request")
 
-	if req == nil || req.Email == "" {
-		response := generateLoginResponse(http.StatusBadRequest, "Invalid request parameters", "", "Empty request or email is required")
-		utils.LogResponse(s.Logger, "Login", response, http.StatusBadRequest)
-		return response, nil
+	login := models.User{
+		Email:    req.Email,
+		Password: req.Password,
+	}
+
+	if err := s.Validator.StructPartial(login, "Email", "Password"); err != nil {
+		var validationErrors validator.ValidationErrors
+		if errors.As(err, &validationErrors) {
+			errMsgs := make([]string, 0)
+			for _, e := range validationErrors {
+				errMsg := fmt.Sprintf("%s is invalid or missing for field %s", e.ActualTag(), e.Field())
+				errMsgs = append(errMsgs, errMsg)
+			}
+			detailedErrMsg := strings.Join(errMsgs, ", ")
+			response := s.generateLoginResponse(http.StatusBadRequest, "Invalid request parameters", detailedErrMsg, "")
+			s.Logger.Error("Validation failed",
+				zap.String("method", "Login"),
+				zap.String("error", detailedErrMsg),
+			)
+			return response, nil
+		}
 	}
 
 	var user models.User
 	if err := s.H.DB.NewSelect().Model(&user).Where("email = ?", req.Email).Scan(ctx); err != nil {
-		response := generateLoginResponse(http.StatusNotFound, "User not found", "", "User not found")
-		utils.LogResponse(s.Logger, "Login", response, http.StatusNotFound)
+		response := s.generateLoginResponse(http.StatusUnauthorized, "User not found", "", "")
 		return response, nil
 	}
 
-	if valid, err := utils.CheckPasswordHash(s.Logger, req.Password, user.Password); err != nil {
-		response := generateLoginResponse(http.StatusInternalServerError, "Authentication failed", "", "Error checking password hash")
-		utils.LogResponse(s.Logger, "Login", response, http.StatusInternalServerError)
-		return response, err
-	} else if !valid {
-		response := generateLoginResponse(http.StatusUnauthorized, "Authentication failed", "", "Incorrect password")
-		utils.LogResponse(s.Logger, "Login", response, http.StatusUnauthorized)
+	if valid, err := utils.CheckPasswordHash(s.Logger, req.Password, user.Password); !valid || err != nil {
+		if err != nil {
+			response := s.generateLoginResponse(http.StatusInternalServerError, "Error during password check", "", "")
+			return response, err
+		}
+		response := s.generateLoginResponse(http.StatusUnauthorized, "Incorrect password", "", "")
 		return response, nil
 	}
 
 	token, err := s.Jwt.GenerateToken(user)
 	if err != nil {
-		response := generateLoginResponse(http.StatusInternalServerError, "Token generation failed", "", "Failed to generate token")
-		utils.LogResponse(s.Logger, "Login", response, http.StatusInternalServerError)
+		response := s.generateLoginResponse(http.StatusInternalServerError, "Failed to generate token", "", "")
 		return response, err
 	}
 
-	response := generateLoginResponse(http.StatusOK, "Login successful", token, "")
-	utils.LogResponse(s.Logger, "Login", response, http.StatusOK)
+	response := s.generateLoginResponse(http.StatusOK, "Login successful", "", token)
 	return response, nil
 }
 
-func generateLoginResponse(statusCode int, message, token, errMessage string) *pb.LoginResponse {
-	level := "INFO"
-	if errMessage != "" {
-		level = "ERROR"
-	}
+func (s *Server) generateLoginResponse(statusCode int, message, errorDetail, token string) *pb.LoginResponse {
+	level := utils.GetStatusLevel(statusCode)
+
 	response := &pb.LoginResponse{
-		Timestamp: time.Now().Format(time.RFC3339),
-		Level:     level,
-		Message:   message,
 		Status:    uint64(statusCode),
-		Error:     errMessage,
+		Message:   message,
+		Error:     errorDetail,
+		Level:     level,
+		Timestamp: time.Now().Format(time.RFC3339),
 	}
 	if token != "" {
 		response.Data = &pb.LoginData{Token: token}
 	}
+	utils.LogResponse(s.Logger, "Login", response, statusCode)
 	return response
 }

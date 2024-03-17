@@ -5,6 +5,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"st-gateway/pkg/auth/pb"
+	"st-gateway/pkg/util"
 )
 
 func FindAllUsers(ctx *gin.Context, c pb.AuthServiceClient) {
@@ -15,9 +16,9 @@ func FindAllUsers(ctx *gin.Context, c pb.AuthServiceClient) {
 	res, err := c.FindAllUsers(context.Background(), &pb.FindAllUsersRequest{})
 
 	if err != nil {
-		ctx.AbortWithError(http.StatusBadGateway, err)
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "An internal error occurred"})
 		return
 	}
 
-	ctx.JSON(http.StatusOK, &res)
+	util.RespondWithStatus(ctx, int(res.Status), res)
 }

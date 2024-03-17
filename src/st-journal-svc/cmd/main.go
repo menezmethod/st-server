@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/go-playground/validator/v10"
 	"log"
 	"net"
 	"net/http"
@@ -26,7 +27,7 @@ func main() {
 
 	c, err := config.LoadConfig()
 	if err != nil {
-		logger.Fatal("Failed loading config", zap.Error(err))
+		logger.Fatal("Failed loading configs", zap.Error(err))
 	}
 
 	h := db.Init(c.DBUrl)
@@ -42,8 +43,9 @@ func main() {
 	fmt.Println("Journal service listening on:", c.Port)
 
 	serverInstance := &services.Server{
-		H:      h,
-		Logger: logger,
+		H:         h,
+		Logger:    logger,
+		Validator: validator.New(),
 	}
 
 	grpcServer := grpc.NewServer(
@@ -51,6 +53,7 @@ func main() {
 		grpc.StreamInterceptor(grpcMetrics.StreamServerInterceptor()),
 	)
 	pb.RegisterJournalServiceServer(grpcServer, serverInstance)
+	pb.RegisterTradeServiceServer(grpcServer, serverInstance)
 	grpcMetrics.InitializeMetrics(grpcServer)
 
 	go func() {

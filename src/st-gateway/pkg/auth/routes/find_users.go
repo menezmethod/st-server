@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/gin-gonic/gin"
 	"net/http"
+	"st-gateway/pkg/util"
 	"strconv"
 
 	"st-gateway/pkg/auth/pb"
@@ -13,7 +14,7 @@ func FindOneUser(ctx *gin.Context, c pb.AuthServiceClient) {
 	id, err := strconv.ParseInt(ctx.Param("id"), 10, 32)
 
 	if err != nil {
-		ctx.AbortWithError(http.StatusBadGateway, err)
+		ctx.JSON(http.StatusBadGateway, err)
 		return
 	}
 
@@ -22,9 +23,9 @@ func FindOneUser(ctx *gin.Context, c pb.AuthServiceClient) {
 	})
 
 	if err != nil {
-		ctx.AbortWithError(http.StatusBadGateway, err)
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "An internal error occurred"})
 		return
 	}
 
-	ctx.JSON(http.StatusOK, &res)
+	util.RespondWithStatus(ctx, int(res.Status), res)
 }

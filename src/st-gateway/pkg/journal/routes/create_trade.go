@@ -2,8 +2,10 @@ package routes
 
 import (
 	"context"
-	"github.com/gin-gonic/gin"
 	"net/http"
+	"st-gateway/pkg/util"
+
+	"github.com/gin-gonic/gin"
 	"st-gateway/pkg/journal/pb"
 )
 
@@ -26,11 +28,16 @@ type CreateTradeRequestBody struct {
 	TimeExecuted    string  `json:"timeExecuted"`
 }
 
-func CreateTrade(ctx *gin.Context, c pb.JournalServiceClient) {
+func CreateTrade(ctx *gin.Context, c pb.TradeServiceClient) {
 	b := CreateTradeRequestBody{}
 
 	if err := ctx.BindJSON(&b); err != nil {
-		ctx.AbortWithError(http.StatusBadRequest, err)
+		ctx.JSON(http.StatusBadRequest, err)
+		return
+	}
+
+	if c == nil {
+		ctx.AbortWithStatus(http.StatusInternalServerError)
 		return
 	}
 
@@ -54,9 +61,9 @@ func CreateTrade(ctx *gin.Context, c pb.JournalServiceClient) {
 	})
 
 	if err != nil {
-		ctx.AbortWithError(http.StatusBadGateway, err)
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "An internal error occurred"})
 		return
 	}
 
-	ctx.JSON(http.StatusCreated, &res)
+	util.RespondWithStatus(ctx, int(res.Status), res)
 }

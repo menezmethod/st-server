@@ -5,6 +5,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"st-gateway/pkg/auth/pb"
+	"st-gateway/pkg/util"
 	"strings"
 )
 
@@ -31,5 +32,10 @@ func DeleteUser(ctx *gin.Context, c pb.AuthServiceClient) {
 		return
 	}
 
-	ctx.JSON(http.StatusOK, res)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "An internal error occurred"})
+		return
+	}
+
+	util.RespondWithStatus(ctx, int(res.Status), res)
 }

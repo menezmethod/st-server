@@ -3,6 +3,7 @@ package routes
 import (
 	"context"
 	"net/http"
+	"st-gateway/pkg/util"
 
 	"github.com/gin-gonic/gin"
 	"st-gateway/pkg/auth/pb"
@@ -20,7 +21,7 @@ func Register(ctx *gin.Context, c pb.AuthServiceClient) {
 	b := RegisterRequestBody{}
 
 	if err := ctx.BindJSON(&b); err != nil {
-		ctx.AbortWithError(http.StatusBadRequest, err)
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
@@ -33,11 +34,9 @@ func Register(ctx *gin.Context, c pb.AuthServiceClient) {
 	})
 
 	if err != nil {
-		ctx.AbortWithError(http.StatusBadGateway, err)
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "An internal error occurred"})
 		return
-	} else if res.Status == 409 {
-		ctx.AbortWithError(http.StatusConflict, err)
 	}
 
-	ctx.JSON(http.StatusCreated, &res)
+	util.RespondWithStatus(ctx, int(res.Status), res)
 }

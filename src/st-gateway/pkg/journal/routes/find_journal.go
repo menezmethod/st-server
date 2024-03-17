@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/gin-gonic/gin"
 	"net/http"
+	"st-gateway/pkg/util"
 	"strconv"
 
 	"st-gateway/pkg/journal/pb"
@@ -13,7 +14,7 @@ func FineOneJournal(ctx *gin.Context, c pb.JournalServiceClient) {
 	id, err := strconv.ParseInt(ctx.Param("id"), 10, 32)
 
 	if err != nil {
-		ctx.AbortWithError(http.StatusBadGateway, err)
+		ctx.JSON(http.StatusBadGateway, err)
 		return
 	}
 
@@ -22,9 +23,9 @@ func FineOneJournal(ctx *gin.Context, c pb.JournalServiceClient) {
 	})
 
 	if err != nil {
-		ctx.AbortWithError(http.StatusBadGateway, err)
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "An internal error occurred"})
 		return
 	}
 
-	ctx.JSON(http.StatusCreated, &res)
+	util.RespondWithStatus(ctx, int(res.Status), res)
 }

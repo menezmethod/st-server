@@ -6,13 +6,14 @@ import (
 	"github.com/golang-jwt/jwt"
 	"log"
 	"net/http"
+	"st-gateway/configs"
 	"st-gateway/pkg/auth/pb"
-	"st-gateway/pkg/config"
+	"st-gateway/pkg/util"
 	"strings"
 )
 
 func Me(ctx *gin.Context, client pb.AuthServiceClient) {
-	c, err := config.LoadConfig()
+	c, err := configs.LoadConfig()
 
 	tokenString := ctx.GetHeader("Authorization")
 	tokenString = strings.ReplaceAll(tokenString, "Bearer ", "")
@@ -23,7 +24,7 @@ func Me(ctx *gin.Context, client pb.AuthServiceClient) {
 	})
 
 	if err != nil {
-		ctx.AbortWithError(http.StatusBadGateway, err)
+		ctx.JSON(http.StatusBadGateway, err)
 		return
 	}
 
@@ -42,5 +43,15 @@ func Me(ctx *gin.Context, client pb.AuthServiceClient) {
 
 	log.Println(token.Claims)
 
-	ctx.JSON(http.StatusCreated, &res)
+	if err != nil {
+		ctx.JSON(http.StatusBadGateway, res)
+		return
+	}
+
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "An internal error occurred"})
+		return
+	}
+
+	util.RespondWithStatus(ctx, int(res.Status), res)
 }

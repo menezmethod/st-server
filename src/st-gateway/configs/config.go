@@ -1,4 +1,4 @@
-package config
+package configs
 
 import (
 	"github.com/spf13/viper"
@@ -25,7 +25,7 @@ func LoadConfig() (config Config, err error) {
 
 	err = viper.Unmarshal(&config)
 	if err != nil {
-		log.Fatalf("Error unmarshaling config: %v", err)
+		log.Fatalf("Error unmarshaling configs: %v", err)
 	}
 	return
 }

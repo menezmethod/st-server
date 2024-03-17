@@ -5,6 +5,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"st-gateway/pkg/journal/pb"
+	"st-gateway/pkg/util"
 	"strings"
 )
 
@@ -21,10 +22,11 @@ func DeleteJournal(ctx *gin.Context, c pb.JournalServiceClient) {
 
 	ids := strings.Split(idParam, ",")
 	res, err := c.DeleteJournal(context.Background(), &pb.DeleteJournalRequest{Id: ids})
+
 	if err != nil {
-		handleError(ctx, "error deleting journal: "+err.Error(), http.StatusInternalServerError)
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "An internal error occurred"})
 		return
 	}
 
-	ctx.JSON(http.StatusOK, res)
+	util.RespondWithStatus(ctx, int(res.Status), res)
 }

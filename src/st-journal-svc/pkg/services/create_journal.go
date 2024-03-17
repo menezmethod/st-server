@@ -3,6 +3,7 @@ package services
 import (
 	"context"
 	"fmt"
+	"github.com/go-playground/validator/v10"
 	"net/http"
 	"time"
 
@@ -17,7 +18,9 @@ import (
 type Server struct {
 	H db.DB
 	pb.JournalServiceServer
-	Logger *zap.Logger
+	pb.TradeServiceServer
+	Logger    *zap.Logger
+	Validator *validator.Validate
 }
 
 func (s *Server) CreateJournal(ctx context.Context, req *pb.CreateJournalRequest) (*pb.CreateJournalResponse, error) {

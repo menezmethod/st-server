@@ -3,6 +3,7 @@ package routes
 import (
 	"context"
 	"net/http"
+	"st-gateway/pkg/util"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
@@ -23,7 +24,7 @@ func UpdateUser(ctx *gin.Context, c pb.AuthServiceClient) {
 	b := UpdateRequestBody{}
 
 	if err := ctx.BindJSON(&b); err != nil {
-		ctx.AbortWithError(http.StatusBadRequest, err)
+		ctx.JSON(http.StatusBadRequest, err)
 		return
 	}
 
@@ -38,11 +39,9 @@ func UpdateUser(ctx *gin.Context, c pb.AuthServiceClient) {
 	})
 
 	if err != nil {
-		ctx.AbortWithError(http.StatusBadGateway, err)
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "An internal error occurred"})
 		return
-	} else if res.Status == 409 {
-		ctx.AbortWithError(http.StatusConflict, err)
 	}
 
-	ctx.JSON(http.StatusCreated, &res)
+	util.RespondWithStatus(ctx, int(res.Status), res)
 }

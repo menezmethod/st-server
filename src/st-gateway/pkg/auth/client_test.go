@@ -3,8 +3,8 @@ package auth_test
 import (
 	"context"
 	"google.golang.org/protobuf/types/known/timestamppb"
-	"google.golang.org/protobuf/types/known/wrapperspb"
 	"log"
+	"st-gateway/configs"
 	"time"
 
 	. "github.com/onsi/ginkgo/v2"
@@ -12,15 +12,14 @@ import (
 
 	"st-gateway/pkg/auth"
 	"st-gateway/pkg/auth/pb"
-	"st-gateway/pkg/config"
 )
 
 var _ = Describe("Test InitServiceClient()", func() {
 
 	if err != nil {
-		log.Fatalln("failed loading config", err)
+		log.Fatalln("failed loading configs", err)
 	}
-	config := &config.Config{
+	config := &configs.Config{
 		Port:          "8080",
 		AuthSvcUrl:    "localhost:50051",
 		JournalSvcUrl: "localhost:50052",
@@ -32,12 +31,12 @@ var _ = Describe("Test InitServiceClient()", func() {
 		It("Will send a test register request user and should not return an error", func() {
 			res, err := auth.InitServiceClient(config).Register(context.Background(),
 				&pb.RegisterRequest{
-					Email:     wrapperspb.String("test@gimenez.com"),
-					Password:  wrapperspb.String("123456"),
-					FirstName: wrapperspb.String("Test"),
-					LastName:  wrapperspb.String("User"),
-					Bio:       wrapperspb.String("This user was created by a test"),
-					Role:      wrapperspb.String("USER"),
+					Email:     "test@gimenez.com",
+					Password:  "123456",
+					FirstName: "Test",
+					LastName:  "User",
+					Bio:       "This user was created by a test",
+					Role:      "USER",
 					CreatedAt: timestamppb.New(time.Now()),
 				})
 
@@ -49,8 +48,8 @@ var _ = Describe("Test InitServiceClient()", func() {
 	Context("Login request", func() {
 		It("Will log the test user in, get token, and should not return an error", func() {
 			res, err := auth.InitServiceClient(config).Login(context.Background(), &pb.LoginRequest{
-				Email:    wrapperspb.String("test@gimenez.com"),
-				Password: wrapperspb.String("123456"),
+				Email:    "test@gimenez.com",
+				Password: "123456",
 			})
 			Expect(err).ShouldNot(HaveOccurred())
 			Expect(res).ToNot(BeNil())

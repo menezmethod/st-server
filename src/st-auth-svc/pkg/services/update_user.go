@@ -14,27 +14,27 @@ func (s *Server) UpdateUser(ctx context.Context, req *pb.UpdateUserRequest) (*pb
 	s.Logger.Debug("Received UpdateUser request")
 
 	if req == nil {
-		return s.generateResponse("ERROR", "Failed to update user", "Request is nil", http.StatusBadRequest, nil)
+		return s.generateResponse(utils.GetStatusLevel(http.StatusBadRequest), "Failed to update user", "Request is nil", http.StatusBadRequest, nil)
 	}
 
 	user, err := s.getUserByID(ctx, req.Id)
 	if err != nil {
-		return s.generateResponse("ERROR", "Failed to find user", fmt.Sprintf("User with ID %d not found: %v", req.Id, err), http.StatusNotFound, nil)
+		return s.generateResponse(utils.GetStatusLevel(http.StatusNotFound), "Failed to find user", fmt.Sprintf("User with ID %d not found: %v", req.Id, err), http.StatusNotFound, nil)
 	}
 
 	s.updateFieldsFromRequest(&user, req)
 
 	result, err := s.H.DB.NewUpdate().Model(&user).ExcludeColumn("created_at").Where("ID = ?", user.Id).Exec(ctx)
 	if err != nil || result == nil {
-		return s.generateResponse("ERROR", "Failed to update user", fmt.Sprintf("Database error: %v", err), http.StatusInternalServerError, nil)
+		return s.generateResponse(utils.GetStatusLevel(http.StatusInternalServerError), "Failed to update user", fmt.Sprintf("Database error: %v", err), http.StatusInternalServerError, nil)
 	}
 
 	rowsAffected, _ := result.RowsAffected()
 	if rowsAffected == 0 {
-		return s.generateResponse("WARNING", "No user updated", fmt.Sprintf("No changes made for user with ID %d", req.Id), http.StatusNoContent, nil)
+		return s.generateResponse(utils.GetStatusLevel(http.StatusNoContent), "No user updated", fmt.Sprintf("No changes made for user with ID %d", req.Id), http.StatusNoContent, nil)
 	}
 
-	return s.generateResponse("INFO", "User updated successfully", "", http.StatusOK, &user)
+	return s.generateResponse(utils.GetStatusLevel(http.StatusOK), "User updated successfully", "", http.StatusOK, &user)
 }
 
 func (s *Server) updateFieldsFromRequest(user *models.User, req *pb.UpdateUserRequest) {
