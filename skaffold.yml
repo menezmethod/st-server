@@ -40,12 +40,43 @@ build:
       sync:
         infer:
           - '**/*'
-  local: { }
-manifests:
-  rawYaml:
-    - ./k8s/base/local/*
 deploy:
-  kubectl: { }
+  helm:
+    releases:
+      - name: st-auth-svc
+        chartPath: k8s/charts/st-auth-svc
+        valuesFiles:
+          - k8s/charts/st-auth-svc/values.yaml
+        setValues:
+          image.repository: st-auth-svc
+          image.tag: latest
+          service.port: 50051
+          env:
+            DB_URL: postgres://root:StratTrad3r@auth-db:5432/auth_db?sslmode=disable
+            JWT_SECRET_KEY: stauth983
+      - name: st-journal-svc
+        chartPath: k8s/charts/st-journal-svc
+        valuesFiles:
+          - k8s/charts/st-journal-svc/values.yaml
+        setValues:
+          image.repository: st-journal-svc
+          image.tag: latest
+          service.port: 50052
+          env:
+            DB_URL: postgres://root:StratTrad3r@journal-db:5433/journal_db?sslmode=disable
+      - name: st-gateway
+        chartPath: k8s/charts/st-gateway
+        valuesFiles:
+          - k8s/charts/st-gateway/values.yaml
+        setValues:
+          image.repository: st-gateway
+          image.tag: latest
+          service.port: 8080
+          env:
+            API_VERSION: "1"
+            AUTH_SVC_URL: st-auth-svc:50051
+            JOURNAL_SVC_URL: st-journal-svc:50052
+            JWT_SECRET_KEY: stauth983
 portForward:
   - resourceType: service
     resourceName: st-auth-svc

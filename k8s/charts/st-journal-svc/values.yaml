@@ -1,0 +1,51 @@
+deployment:
+  name: "st-journal-svc"
+
+app:
+  label: "st-journal-svc"
+
+replicaCount: 1
+
+image:
+  repository: "st-journal-svc"
+  tag: "latest"
+  pullSecret: "gcr-json-key"
+
+container:
+  name: "st-journal-svc"
+  port: 50052
+
+service:
+  name: "st-journal-svc"
+  port: 80
+  type: "LoadBalancer"
+
+resources:
+  requests:
+    cpu: "100m"
+    memory: "100Mi"
+  limits:
+    cpu: "200m"
+    memory: "200Mi"
+
+journalDb:
+  configMap:
+    name: "journal-db-config"
+    user: "root"
+    db: "journal_db"
+  secret:
+    name: "journal-db-secret"
+  deployment:
+    name: "journal-db"
+    image: "postgres:alpine"
+    replicas: 1
+    port: 5433
+  pvc:
+    name: "journal-db-pvc"
+    accessMode: "ReadWriteOnce"
+    size: "5Gi"
+  storage:
+    mountPath: "/var/lib/postgresql/data"
+  service:
+    name: "journal-db"
+    port: 5433

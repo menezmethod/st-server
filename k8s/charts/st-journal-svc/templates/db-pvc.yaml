@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ .Values.journalDb.pvc.name }}
+spec:
+  accessModes:
+    - {{ .Values.journalDb.pvc.accessMode }}
+  resources:
+    requests:
+      storage: {{ .Values.journalDb.pvc.size }}

@@ -1,0 +1,33 @@
+deployment:
+  name: "st-gateway"
+
+app:
+  label: "st-gateway"
+
+replicaCount: 1
+
+serviceAccount:
+  name: "st-trader-ksa"
+
+image:
+  repository: "st-gateway"
+  tag: "latest"
+  pullPolicy: "IfNotPresent"
+
+container:
+  name: "st-gateway"
+  port: 8080
+
+service:
+  name: "st-gateway"
+  port: 80
+  type: "LoadBalancer"
+  metricsPort: 9092
+
+resources:
+  requests:
+    cpu: "100m"
+    memory: "100Mi"
+  limits:
+    cpu: "200m"
+    memory: "200Mi"

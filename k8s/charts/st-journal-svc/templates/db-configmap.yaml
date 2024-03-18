@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Values.journalDb.configMap.name }}
+data:
+  POSTGRES_USER: "{{ .Values.journalDb.configMap.user }}"
+  POSTGRES_DB: "{{ .Values.journalDb.configMap.db }}"
+  change-port.sh: |
+    #!/bin/sh
+    sed -i "s/#port = 5432/port = 5433/" /var/lib/postgresql/data/postgresql.conf
