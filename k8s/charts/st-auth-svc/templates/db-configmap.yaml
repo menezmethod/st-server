@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Values.authDb.configMap.name }}
+data:
+  POSTGRES_USER: "{{ .Values.authDb.configMap.user }}"
+  POSTGRES_DB: "{{ .Values.authDb.configMap.db }}"

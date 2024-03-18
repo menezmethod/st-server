@@ -1,16 +1,15 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: st-auth-svc
+  name: {{ .Values.service.name }}
 spec:
   selector:
-    app: st-auth-svc
+    app: {{ .Values.app.label }}
   ports:
     - name: grpc
-      port: 50051
-      targetPort: 50051
+      port: {{ .Values.service.port }}
+      targetPort: {{ .Values.service.port }}
     - name: metrics
       port: 9093
       targetPort: 9093
-
   type: LoadBalancer

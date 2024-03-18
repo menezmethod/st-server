@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ .Values.authDb.pvc.name }}
+spec:
+  accessModes:
+    - {{ .Values.authDb.pvc.accessMode }}
+  resources:
+    requests:
+      storage: {{ .Values.authDb.pvc.size }}
