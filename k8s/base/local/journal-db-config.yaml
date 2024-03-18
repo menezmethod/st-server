@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: journal-db-config
+data:
+  POSTGRES_USER: "root"
+  POSTGRES_DB: "journal_db"

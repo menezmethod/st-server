@@ -12,7 +12,7 @@ build:
         dockerfile: src/st-auth-svc/Dockerfile
         buildArgs:
           PORT: "50051"
-          DB_URL: "postgres://root:StratTrad3r@postgres:5432/auth_db?sslmode=disable"
+          DB_URL: "postgres://root:StratTrad3r@auth-db:5432/auth_db?sslmode=disable"
           JWT_SECRET_KEY: "stauth983"
       sync:
         infer:
@@ -23,7 +23,7 @@ build:
         dockerfile: src/st-journal-svc/Dockerfile
         buildArgs:
           PORT: "50052"
-          DB_URL: "postgres://root:StratTrad3r@postgres:5432/journal_db?sslmode=disable"
+          DB_URL: "postgres://root:StratTrad3r@journal-db:5433/journal_db?sslmode=disable"
       sync:
         infer:
           - '**/*'
@@ -82,3 +82,13 @@ portForward:
     namespace: grafana
     port: 3000
     localPort: 3000
+  - resourceType: service
+    resourceName: auth-db
+    namespace: default
+    port: 5432
+    localPort: 5432
+  - resourceType: service
+    resourceName: journal-db
+    namespace: default
+    port: 5433
+    localPort: 5433
