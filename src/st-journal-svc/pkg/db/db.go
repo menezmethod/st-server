@@ -8,18 +8,18 @@ import (
 	"os"
 	"time"
 
+	"github.com/menezmethod/st-server/src/st-journal-svc/pkg/models"
 	"github.com/uptrace/bun"
 	"github.com/uptrace/bun/dbfixture"
 	"github.com/uptrace/bun/dialect/pgdialect"
 	"github.com/uptrace/bun/driver/pgdriver"
-	"st-journal-svc/pkg/models"
 )
 
 type DB struct {
 	*bun.DB
 }
 
-func Init(url string) DB {
+func InitDB(url string) DB {
 	if url == "" {
 		log.Fatalf("Database URL is not provided")
 	}
@@ -27,7 +27,7 @@ func Init(url string) DB {
 	db := connectDB(url)
 	handler := DB{db}
 
-	if !handler.checkDataExists(&models.Trade{}, "journal.yml") {
+	if !handler.checkDataExists(&models.Record{}, "journal.yml") {
 		handler.ensureFixturesLoaded("journal.yml")
 	} else {
 		log.Println("Existing data detected, skipping fixtures.")
@@ -57,7 +57,7 @@ func connectDB(url string) *bun.DB {
 			}
 		}
 
-		tempDB.RegisterModel((*models.Trade)(nil))
+		tempDB.RegisterModel((*models.Record)(nil))
 		tempDB.RegisterModel((*models.Journal)(nil))
 
 		db = tempDB

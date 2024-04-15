@@ -15,8 +15,10 @@ build:
           DB_URL: "postgres://root:StratTrad3r@auth-db:5432/auth_db?sslmode=disable"
           JWT_SECRET_KEY: "stauth983"
       sync:
-        infer:
-          - '**/*'
+        manual:
+          - src: 'src/st-auth-svc/**/*.go'
+            strip: 'src/st-auth-svc/'
+            dest: ./
     - image: st-journal-svc
       context: .
       docker:
@@ -25,8 +27,16 @@ build:
           PORT: "50052"
           DB_URL: "postgres://root:StratTrad3r@journal-db:5433/journal_db?sslmode=disable"
       sync:
-        infer:
-          - '**/*'
+        manual:
+          - src: 'src/st-journal-svc/**/*.go'
+            strip: 'src/st-journal-svc/'
+            dest: ./
+    - image: st-helper-svc
+      context: ./src/st-helper-svc
+      docker:
+        dockerfile: src/st-helper-svc/Dockerfile
+        buildArgs:
+          PORT: "50053"
     - image: st-gateway
       context: .
       docker:
@@ -35,11 +45,23 @@ build:
           API_VERSION: "1"
           AUTH_SVC_URL: "st-auth-svc:50051"
           JOURNAL_SVC_URL: "st-journal-svc:50052"
+          HELPER_SVC_URL: "st-helper-svc:50053"
           JWT_SECRET_KEY: "stauth983"
           PORT: "8080"
       sync:
-        infer:
-          - '**/*'
+        manual:
+          - src: 'src/st-gateway/**/*.go'
+            strip: 'src/st-gateway/'
+            dest: ./
+    - image: ollama
+      context: ./src/ollama
+      docker:
+        dockerfile: src/ollama/Dockerfile
+      sync:
+        manual:
+          - src: 'src/ollama/**/*'
+            strip: 'src/ollama/'
+            dest: ./
 deploy:
   helm:
     releases:
@@ -64,6 +86,16 @@ deploy:
           service.port: 50052
           env:
             DB_URL: postgres://root:StratTrad3r@journal-db:5433/journal_db?sslmode=disable
+      - name: st-helper-svc
+        chartPath: k8s/charts/st-helper-svc
+        valuesFiles:
+          - k8s/charts/st-helper-svc/values.yaml
+        setValues:
+          image.repository: st-helper-svc
+          image.tag: latest
+          service.port: 50053
+          env:
+            PORT: 50053
       - name: st-gateway
         chartPath: k8s/charts/st-gateway
         valuesFiles:
@@ -77,6 +109,14 @@ deploy:
             AUTH_SVC_URL: st-auth-svc:50051
             JOURNAL_SVC_URL: st-journal-svc:50052
             JWT_SECRET_KEY: stauth983
+      - name: ollama
+        chartPath: k8s/charts/ollama
+        valuesFiles:
+          - k8s/charts/ollama/values.yaml
+        setValues:
+          image.repository: ollama
+          image.tag: latest
+          service.port: 11434
 portForward:
   - resourceType: service
     resourceName: st-auth-svc
@@ -89,6 +129,11 @@ portForward:
     port: 50052
     localPort: 50052
   - resourceType: service
+    resourceName: st-helper-svc
+    namespace: default
+    port: 50053
+    localPort: 50053
+  - resourceType: service
     resourceName: st-gateway
     namespace: default
     port: 8080
@@ -98,16 +143,6 @@ portForward:
     namespace: prometheus
     port: 80
     localPort: 9090
-  - resourceType: service
-    resourceName: st-auth-svc
-    namespace: default
-    port: 9093
-    localPort: 9093
-  - resourceType: service
-    resourceName: st-journal-svc
-    namespace: default
-    port: 9092
-    localPort: 9092
   - resourceType: service
     resourceName: grafana
     namespace: grafana
@@ -123,3 +158,8 @@ portForward:
     namespace: default
     port: 5433
     localPort: 5433
+  - resourceType: service
+    resourceName: ollama
+    namespace: default
+    port: 11434
+    localPort: 11434

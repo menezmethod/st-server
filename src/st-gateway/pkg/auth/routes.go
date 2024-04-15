@@ -2,9 +2,11 @@ package auth
 
 import (
 	"fmt"
+
 	"github.com/gin-gonic/gin"
-	"st-gateway/configs"
-	"st-gateway/pkg/auth/routes"
+
+	"github.com/menezmethod/st-server/src/st-gateway/configs"
+	"github.com/menezmethod/st-server/src/st-gateway/pkg/auth/routes"
 )
 
 type endpoint struct {
@@ -14,8 +16,10 @@ type endpoint struct {
 
 func RegisterAuthRoutes(r *gin.Engine, c *configs.Config) *ServiceClient {
 	svc := &ServiceClient{
-		Client: InitServiceClient(c),
+		AuthServiceClient: InitServiceClient(c),
 	}
+
+	a := InitAuthMiddleware(svc)
 
 	endpoints := []endpoint{
 		{"POST", "/auth/register", svc.Register},
@@ -28,28 +32,37 @@ func RegisterAuthRoutes(r *gin.Engine, c *configs.Config) *ServiceClient {
 	}
 
 	group := r.Group(fmt.Sprintf("v%v/", c.ApiVersion))
+
+	authRoutes := group.Group("/")
+	authRoutes.Use(a.AuthRequired)
 	for _, e := range endpoints {
 		switch e.method {
 		case "POST":
-			group.POST(e.path, e.handler)
+			if e.path == "/auth/register" || e.path == "/auth/login" {
+				group.POST(e.path, e.handler)
+			} else {
+				authRoutes.POST(e.path, e.handler)
+			}
 		case "GET":
-			group.GET(e.path, e.handler)
+			authRoutes.GET(e.path, e.handler)
 		case "PATCH":
-			group.PATCH(e.path, e.handler)
+			authRoutes.PATCH(e.path, e.handler)
 		case "DELETE":
-			group.DELETE(e.path, e.handler)
+			authRoutes.DELETE(e.path, e.handler)
 		}
 	}
 
 	return svc
 }
 
-func (svc *ServiceClient) DeleteUser(ctx *gin.Context) { routes.DeleteUser(ctx, svc.Client) }
-func (svc *ServiceClient) Login(ctx *gin.Context)      { routes.Login(ctx, svc.Client) }
-func (svc *ServiceClient) Register(ctx *gin.Context)   { routes.Register(ctx, svc.Client) }
+func (svc *ServiceClient) DeleteUser(ctx *gin.Context) { routes.DeleteUser(ctx, svc.AuthServiceClient) }
+func (svc *ServiceClient) Login(ctx *gin.Context)      { routes.Login(ctx, svc.AuthServiceClient) }
+func (svc *ServiceClient) Register(ctx *gin.Context)   { routes.Register(ctx, svc.AuthServiceClient) }
 func (svc *ServiceClient) FindAllUsers(ctx *gin.Context) {
-	routes.FindAllUsers(ctx, svc.Client)
+	routes.FindAllUsers(ctx, svc.AuthServiceClient)
 }
-func (svc *ServiceClient) FindOneUser(ctx *gin.Context) { routes.FindOneUser(ctx, svc.Client) }
-func (svc *ServiceClient) FindMe(ctx *gin.Context)      { routes.Me(ctx, svc.Client) }
-func (svc *ServiceClient) UpdateUser(ctx *gin.Context)  { routes.UpdateUser(ctx, svc.Client) }
+func (svc *ServiceClient) FindOneUser(ctx *gin.Context) {
+	routes.FindOneUser(ctx, svc.AuthServiceClient)
+}
+func (svc *ServiceClient) FindMe(ctx *gin.Context)     { routes.Me(ctx, svc.AuthServiceClient) }
+func (svc *ServiceClient) UpdateUser(ctx *gin.Context) { routes.UpdateUser(ctx, svc.AuthServiceClient) }

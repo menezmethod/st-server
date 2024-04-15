@@ -5,7 +5,7 @@ import (
 	"time"
 
 	"github.com/golang-jwt/jwt"
-	"st-auth-svc/pkg/models"
+	"github.com/menezmethod/st-server/src/st-auth-svc/pkg/models"
 )
 
 type JwtWrapper struct {

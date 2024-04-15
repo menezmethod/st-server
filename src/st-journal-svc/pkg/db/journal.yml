@@ -1,4 +1,4 @@
-- model: Trade
+- model: Record
   rows:
     - base_instrument: EUR
       quote_instrument: JPY

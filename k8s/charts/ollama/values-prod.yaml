@@ -1,0 +1,15 @@
+replicaCount: 3
+image:
+  tag: "prod"
+resources:
+  requests:
+    cpu: "300m"
+    memory: "300Mi"
+  limits:
+    cpu: "500m"
+    memory: "500Mi"
+authDb:
+  deployment:
+    image: "postgres:11-alpine"
+  pvc:
+    size: "20Gi"

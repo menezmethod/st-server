@@ -5,8 +5,8 @@ package mock
 
 import (
 	context "context"
+	"github.com/menezmethod/st-server/src/st-gateway/pkg/auth/pb"
 	reflect "reflect"
-	"st-gateway/pkg/auth/pb"
 
 	gomock "github.com/golang/mock/gomock"
 	grpc "google.golang.org/grpc"

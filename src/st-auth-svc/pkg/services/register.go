@@ -4,15 +4,16 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/go-playground/validator/v10"
-	"go.uber.org/zap"
 	"net/http"
 	"strings"
 	"time"
 
-	"st-auth-svc/pkg/models"
-	"st-auth-svc/pkg/pb"
-	"st-auth-svc/pkg/utils"
+	"github.com/go-playground/validator/v10"
+	"go.uber.org/zap"
+
+	"github.com/menezmethod/st-server/src/st-auth-svc/pkg/models"
+	"github.com/menezmethod/st-server/src/st-auth-svc/pkg/pb"
+	"github.com/menezmethod/st-server/src/st-auth-svc/pkg/utils"
 )
 
 func (s *Server) Register(ctx context.Context, req *pb.RegisterRequest) (*pb.RegisterResponse, error) {

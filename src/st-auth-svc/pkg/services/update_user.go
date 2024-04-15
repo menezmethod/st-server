@@ -3,10 +3,10 @@ package services
 import (
 	"context"
 	"fmt"
+	"github.com/menezmethod/st-server/src/st-auth-svc/pkg/models"
+	"github.com/menezmethod/st-server/src/st-auth-svc/pkg/pb"
+	"github.com/menezmethod/st-server/src/st-auth-svc/pkg/utils"
 	"net/http"
-	"st-auth-svc/pkg/models"
-	"st-auth-svc/pkg/pb"
-	"st-auth-svc/pkg/utils"
 	"time"
 )
 

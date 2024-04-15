@@ -2,9 +2,9 @@ package routes_test
 
 import (
 	"errors"
+	"github.com/menezmethod/st-server/src/st-gateway/pkg/auth/routes"
 	"net/http"
 	"net/http/httptest"
-	"st-gateway/pkg/auth/routes"
 	"strconv"
 	"strings"
 
@@ -13,8 +13,8 @@ import (
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 
-	"st-gateway/pkg/auth/pb"
-	"st-gateway/pkg/auth/pb/mock"
+	"github.com/menezmethod/st-server/src/st-gateway/pkg/auth/pb"
+	"github.com/menezmethod/st-server/src/st-gateway/pkg/auth/pb/mock"
 )
 
 var _ = Describe("UpdateUser", func() {

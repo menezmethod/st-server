@@ -1,15 +1,16 @@
 package main
 
 import (
+	"github.com/menezmethod/st-server/src/st-gateway/pkg/record"
 	"log"
-	"st-gateway/configs"
 
 	"github.com/gin-gonic/gin"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 
-	"st-gateway/middleware"
-	"st-gateway/pkg/auth"
-	"st-gateway/pkg/journal"
+	"github.com/menezmethod/st-server/src/st-gateway/configs"
+	"github.com/menezmethod/st-server/src/st-gateway/pkg/auth"
+	"github.com/menezmethod/st-server/src/st-gateway/pkg/helper"
+	"github.com/menezmethod/st-server/src/st-gateway/pkg/journal"
 )
 
 func main() {
@@ -28,10 +29,12 @@ func main() {
 func setupRouter(cfg configs.Config) *gin.Engine {
 	r := gin.Default()
 	allowedOrigins := []string{"*"}
-	r.Use(middleware.CORS(allowedOrigins))
+	r.Use(auth.CORS(allowedOrigins))
 
 	authSvc := *auth.RegisterAuthRoutes(r, &cfg)
 	journal.RegisterJournalRoutes(r, &cfg, &authSvc)
+	record.RegisterRecordRoutes(r, &cfg, &authSvc)
+	helper.RegisterHelperRoutes(r, &cfg)
 
 	r.GET("/metrics", prometheusHandler())
 

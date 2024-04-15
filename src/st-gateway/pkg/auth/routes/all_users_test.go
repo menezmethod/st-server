@@ -3,16 +3,16 @@ package routes_test
 import (
 	"context"
 	"github.com/gin-gonic/gin"
+	mocks "github.com/menezmethod/st-server/src/st-gateway/pkg/auth/pb/mock"
+	"github.com/menezmethod/st-server/src/st-gateway/pkg/auth/routes"
 	"net/http"
 	"net/http/httptest"
-	mocks "st-gateway/pkg/auth/pb/mock"
-	"st-gateway/pkg/auth/routes"
 
 	"github.com/golang/mock/gomock"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 
-	"st-gateway/pkg/auth/pb"
+	"github.com/menezmethod/st-server/src/st-gateway/pkg/auth/pb"
 )
 
 var _ = Describe("Find All Users Route", func() {

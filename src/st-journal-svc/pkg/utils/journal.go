@@ -2,8 +2,8 @@ package utils
 
 import (
 	"encoding/json"
+	"github.com/menezmethod/st-server/src/st-journal-svc/pkg/models"
 	"go.uber.org/zap"
-	"st-journal-svc/pkg/models"
 )
 
 func ValidateJournal(journal *models.Journal) string {
@@ -16,7 +16,7 @@ func ValidateJournal(journal *models.Journal) string {
 	return ""
 }
 
-func ValidateTrade(trade *models.Trade) string {
+func ValidateTrade(trade *models.Record) string {
 	if trade.EntryPrice <= 0 {
 		return "Entry Price must be greater than 0"
 	}

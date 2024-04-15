@@ -4,7 +4,7 @@ import (
 	"time"
 )
 
-type Trade struct {
+type Record struct {
 	ID              uint64    `json:"id" bun:",pk,autoincrement"`
 	BaseInstrument  string    `json:"baseInstrument" validate:"required"`
 	Comments        string    `json:"comments" validate:"max=500"`

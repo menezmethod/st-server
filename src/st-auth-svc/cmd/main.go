@@ -1,58 +1,79 @@
 package main
 
 import (
-	"github.com/go-playground/validator/v10"
-	"go.uber.org/zap"
 	"log"
 	"net"
 	"net/http"
-	"st-auth-svc/configs"
 
-	"github.com/grpc-ecosystem/go-grpc-prometheus"
+	"github.com/go-playground/validator/v10"
+	grpcprometheus "github.com/grpc-ecosystem/go-grpc-prometheus"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
+	"go.uber.org/zap"
 	"google.golang.org/grpc"
-	"st-auth-svc/pkg/db"
-	"st-auth-svc/pkg/pb"
-	"st-auth-svc/pkg/services"
-	"st-auth-svc/pkg/utils"
+
+	"github.com/menezmethod/st-server/src/st-auth-svc/configs"
+	"github.com/menezmethod/st-server/src/st-auth-svc/pkg/db"
+	"github.com/menezmethod/st-server/src/st-auth-svc/pkg/pb"
+	"github.com/menezmethod/st-server/src/st-auth-svc/pkg/services"
+	"github.com/menezmethod/st-server/src/st-auth-svc/pkg/utils"
 )
 
 func main() {
+	logger := initLogger()
+	defer logger.Sync()
+
+	c := loadConfig(logger)
+
+	dbHandler := db.InitDB(c.DBUrl, logger)
+
+	reg := initPrometheus()
+
+	lis := initListener(c.Port, logger)
+	logger.Info("Auth service listening on", zap.String("port", c.Port))
+
+	grpcServer := initGRPCServer(dbHandler, logger, c)
+
+	startPrometheusServer(reg)
+
+	if err := grpcServer.Serve(lis); err != nil {
+		log.Fatalln("Failed to serve:", zap.Error(err))
+	}
+}
+
+func initLogger() *zap.Logger {
 	logger, err := zap.NewDevelopment() // Change to NewProduction in Prod
 	if err != nil {
 		log.Fatalf("can't initialize zap logger: %v", err)
 	}
-	defer func(logger *zap.Logger) {
-		err := logger.Sync()
-		if err != nil {
-			log.Printf("can't sync: %v\n", zap.Error(err))
-		}
-	}(logger)
+	return logger
+}
 
+func loadConfig(logger *zap.Logger) configs.Config {
 	c, err := configs.LoadConfig()
 	if err != nil {
 		logger.Fatal("Failed loading configs", zap.Error(err))
 	}
+	return c
+}
 
-	dbHandler := db.InitDB(c.DBUrl, logger)
-	if err != nil {
-		log.Fatalln("failed to initialize the database", zap.Error(err))
-	}
-
-	jwt := initJwt(c)
-
+func initPrometheus() *prometheus.Registry {
 	reg := prometheus.NewRegistry()
-	grpcMetrics := grpc_prometheus.NewServerMetrics()
+	grpcMetrics := grpcprometheus.NewServerMetrics()
 	reg.MustRegister(grpcMetrics)
+	return reg
+}
 
-	lis, err2 := net.Listen("tcp", c.Port)
-	if err2 != nil {
-		log.Fatalln("Failed to listen:", err2)
+func initListener(port string, logger *zap.Logger) net.Listener {
+	lis, err := net.Listen("tcp", port)
+	if err != nil {
+		logger.Fatal("Failed to listen", zap.String("port", port), zap.Error(err))
 	}
+	return lis
+}
 
-	logger.Info("Auth service listening on", zap.String("port", c.Port))
-
+func initGRPCServer(dbHandler db.DB, logger *zap.Logger, c configs.Config) *grpc.Server {
+	grpcMetrics := grpcprometheus.NewServerMetrics()
 	grpcServer := grpc.NewServer(
 		grpc.StreamInterceptor(grpcMetrics.StreamServerInterceptor()),
 		grpc.UnaryInterceptor(grpcMetrics.UnaryServerInterceptor()),
@@ -61,23 +82,13 @@ func main() {
 	grpcMetrics.InitializeMetrics(grpcServer)
 
 	pb.RegisterAuthServiceServer(grpcServer, &services.Server{
-		H:         *&dbHandler,
+		H:         dbHandler,
 		Logger:    logger,
-		Jwt:       jwt,
+		Jwt:       initJwt(c),
 		Validator: validator.New(),
 	})
 
-	go func() {
-		http.Handle("/metrics", promhttp.HandlerFor(reg, promhttp.HandlerOpts{}))
-		err := http.ListenAndServe(":9093", nil)
-		if err != nil {
-			log.Printf("can't initialize prometheus metrics port: %v\n", zap.Error(err))
-		}
-	}()
-
-	if err3 := grpcServer.Serve(lis); err3 != nil {
-		log.Fatalln("Failed to serve:", zap.Error(err3))
-	}
+	return grpcServer
 }
 
 func initJwt(c configs.Config) utils.JwtWrapper {
@@ -86,4 +97,13 @@ func initJwt(c configs.Config) utils.JwtWrapper {
 		Issuer:          "st-auth-svc",
 		ExpirationHours: 24 * 365,
 	}
+}
+
+func startPrometheusServer(reg *prometheus.Registry) {
+	go func() {
+		http.Handle("/metrics", promhttp.HandlerFor(reg, promhttp.HandlerOpts{}))
+		if err := http.ListenAndServe(":9093", nil); err != nil {
+			log.Printf("can't initialize prometheus metrics port: %v\n", zap.Error(err))
+		}
+	}()
 }

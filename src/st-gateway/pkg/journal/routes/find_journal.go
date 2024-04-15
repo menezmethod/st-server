@@ -3,11 +3,11 @@ package routes
 import (
 	"context"
 	"github.com/gin-gonic/gin"
+	"github.com/menezmethod/st-server/src/st-gateway/pkg/util"
 	"net/http"
-	"st-gateway/pkg/util"
 	"strconv"
 
-	"st-gateway/pkg/journal/pb"
+	"github.com/menezmethod/st-server/src/st-gateway/pkg/journal/pb"
 )
 
 func FineOneJournal(ctx *gin.Context, c pb.JournalServiceClient) {
@@ -18,7 +18,7 @@ func FineOneJournal(ctx *gin.Context, c pb.JournalServiceClient) {
 		return
 	}
 
-	res, err := c.FindOneJournal(context.Background(), &pb.FindOneJournalRequest{
+	res, err := c.GetJournal(context.Background(), &pb.FindOneJournalRequest{
 		Id: uint64(id),
 	})
 

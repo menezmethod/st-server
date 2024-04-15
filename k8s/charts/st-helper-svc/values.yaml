@@ -1,0 +1,33 @@
+deployment:
+  name: "st-helper-svc"
+
+app:
+  label: "st-helper-svc"
+
+replicaCount: 1
+
+image:
+  repository: "st-helper-svc"
+  tag: "latest"
+  pullSecret: "gcr-json-key"
+
+container:
+  name: "st-helper-svc"
+  port: 50053
+
+service:
+  name: "st-helper-svc"
+  port: 80
+  type: "LoadBalancer"
+
+resources:
+  requests:
+    cpu: "100m"
+    memory: "1Gi"
+  limits:
+    cpu: "200m"
+    memory: "4Gi"
+
+ollamaService:
+  host: "0.0.0.0"
+  port: 11434

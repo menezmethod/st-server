@@ -1,7 +1,0 @@
-go 1.22
-
-use (
-	./src/st-auth-svc
-	./src/st-gateway
-	./src/st-journal-svc
-)

@@ -1,20 +1,20 @@
 package journal_test
 
 import (
+	"github.com/menezmethod/st-server/src/st-gateway/configs"
+	"github.com/menezmethod/st-server/src/st-gateway/pkg/journal"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/test/bufconn"
 	"log"
-	"st-gateway/configs"
-	"st-gateway/pkg/journal"
 )
 
 const bufSize = 1024 * 1024
 
 var lis *bufconn.Listener
 
-var _ = Describe("JournalServiceClient: Journal Service", func() {
+var _ = Describe("JournalClient: Journal Service", func() {
 	BeforeEach(func() {
 		lis = bufconn.Listen(bufSize)
 		s := grpc.NewServer()
@@ -26,7 +26,7 @@ var _ = Describe("JournalServiceClient: Journal Service", func() {
 		}()
 	})
 
-	Describe("Function InitTradeServiceClient()", func() {
+	Describe("Function InitRecordServiceClient()", func() {
 		Context("Initializing the journal service client", func() {
 			It("Should successfully create a service client", func() {
 				c := &configs.Config{

@@ -3,9 +3,9 @@ package routes
 import (
 	"context"
 	"github.com/gin-gonic/gin"
+	"github.com/menezmethod/st-server/src/st-gateway/pkg/journal/pb"
+	"github.com/menezmethod/st-server/src/st-gateway/pkg/util"
 	"net/http"
-	"st-gateway/pkg/journal/pb"
-	"st-gateway/pkg/util"
 	"strings"
 )
 
@@ -13,7 +13,7 @@ func handleError(ctx *gin.Context, errMsg string, statusCode int) {
 	ctx.JSON(statusCode, gin.H{"error": errMsg})
 }
 
-func DeleteJournal(ctx *gin.Context, c pb.JournalServiceClient) {
+func RemoveJournal(ctx *gin.Context, c pb.JournalServiceClient) {
 	idParam := ctx.Param("id")
 	if idParam == "" {
 		handleError(ctx, "no id provided", http.StatusBadRequest)
@@ -21,7 +21,7 @@ func DeleteJournal(ctx *gin.Context, c pb.JournalServiceClient) {
 	}
 
 	ids := strings.Split(idParam, ",")
-	res, err := c.DeleteJournal(context.Background(), &pb.DeleteJournalRequest{Id: ids})
+	res, err := c.RemoveJournal(context.Background(), &pb.DeleteJournalRequest{Id: ids})
 
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "An internal error occurred"})

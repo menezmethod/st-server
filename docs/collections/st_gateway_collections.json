@@ -2,7 +2,7 @@
 	"info": {
 		"_postman_id": "cb77579b-7c72-4d7b-9279-b545e586b9af",
 		"name": "ST Server Gateway",
-		"description": "In the \"Journal\" section, the endpoints allow for the creation of new journal entries, viewing of individual or all journal entries, editing existing journal entries, and deletion of one or multiple journal entries at once.\n\nThe \"Trade\" section offers a similar set of functionalities but is focused on trade records. It includes endpoints for adding new trade records, viewing all trades or a single trade's details, editing trades, and deleting multiple trade records simultaneously.",
+		"description": "In the \"Journal\" section, the endpoints allow for the creation of new journal entries, viewing of individual or all journal entries, editing existing journal entries, and deletion of one or multiple journal entries at once.\n\nThe \"Record\" section offers a similar set of functionalities but is focused on trade records. It includes endpoints for adding new trade records, viewing all trades or a single trade's details, editing trades, and deleting multiple trade records simultaneously.",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "18112029"
 	},
@@ -1043,10 +1043,10 @@
 			]
 		},
 		{
-			"name": "Trade",
+			"name": "Record",
 			"item": [
 				{
-					"name": "Add Trade",
+					"name": "Add Record",
 					"event": [
 						{
 							"listen": "prerequest",
@@ -1163,7 +1163,7 @@
 					"response": []
 				},
 				{
-					"name": "View Trade",
+					"name": "View Record",
 					"event": [
 						{
 							"listen": "test",
@@ -1219,7 +1219,7 @@
 					"response": []
 				},
 				{
-					"name": "Edit Trade",
+					"name": "Edit Record",
 					"event": [
 						{
 							"listen": "prerequest",

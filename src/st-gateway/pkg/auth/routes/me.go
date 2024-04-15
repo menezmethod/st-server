@@ -4,11 +4,11 @@ import (
 	"context"
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt"
+	"github.com/menezmethod/st-server/src/st-gateway/configs"
+	"github.com/menezmethod/st-server/src/st-gateway/pkg/auth/pb"
+	"github.com/menezmethod/st-server/src/st-gateway/pkg/util"
 	"log"
 	"net/http"
-	"st-gateway/configs"
-	"st-gateway/pkg/auth/pb"
-	"st-gateway/pkg/util"
 	"strings"
 )
 

@@ -8,13 +8,12 @@ import "google/protobuf/timestamp.proto";
 
 service JournalService {
   rpc CreateJournal(CreateJournalRequest) returns (CreateJournalResponse) {}
-  rpc DeleteJournal(DeleteJournalRequest) returns (DeleteJournalResponse) {}
+  rpc RemoveJournal(DeleteJournalRequest) returns (DeleteJournalResponse) {}
   rpc UpdateJournal(UpdateJournalRequest) returns (UpdateJournalResponse) {}
-  rpc FindAllJournals(FindAllJournalsRequest) returns (FindAllJournalsResponse) {}
-  rpc FindOneJournal(FindOneJournalRequest) returns (FindOneJournalResponse) {}
+  rpc ListJournals(FindAllJournalsRequest) returns (FindAllJournalsResponse) {}
+  rpc GetJournal(FindOneJournalRequest) returns (FindOneJournalResponse) {}
 }
 
-// Requests
 message CreateJournalRequest {
   uint64 id = 1;
   string created_by = 2;
@@ -47,7 +46,6 @@ message DeleteJournalRequest {
   repeated string id = 1;
 }
 
-// Responses
 message CreateJournalResponse {
   string timestamp = 1;
   string level = 2;

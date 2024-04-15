@@ -3,9 +3,9 @@ package routes
 import (
 	"context"
 	"github.com/gin-gonic/gin"
+	"github.com/menezmethod/st-server/src/st-gateway/pkg/auth/pb"
+	"github.com/menezmethod/st-server/src/st-gateway/pkg/util"
 	"net/http"
-	"st-gateway/pkg/auth/pb"
-	"st-gateway/pkg/util"
 )
 
 func FindAllUsers(ctx *gin.Context, c pb.AuthServiceClient) {

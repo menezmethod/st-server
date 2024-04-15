@@ -7,10 +7,10 @@ import "google/protobuf/timestamp.proto";
 
 service JournalService {
   rpc CreateJournal(CreateJournalRequest) returns (CreateJournalResponse) {}
-  rpc DeleteJournal(DeleteJournalRequest) returns (DeleteJournalResponse) {}
+  rpc RemoveJournal(DeleteJournalRequest) returns (DeleteJournalResponse) {}
   rpc UpdateJournal(UpdateJournalRequest) returns (UpdateJournalResponse) {}
-  rpc FindAllJournals(FindAllJournalsRequest) returns (FindAllJournalsResponse) {}
-  rpc FindOneJournal(FindOneJournalRequest) returns (FindOneJournalResponse) {}
+  rpc ListJournals(FindAllJournalsRequest) returns (FindAllJournalsResponse) {}
+  rpc GetJournal(FindOneJournalRequest) returns (FindOneJournalResponse) {}
 }
 
 message CreateJournalRequest {

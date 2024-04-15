@@ -3,16 +3,16 @@ package routes_test
 import (
 	"bytes"
 	"encoding/json"
+	"github.com/menezmethod/st-server/src/st-gateway/pkg/auth/routes"
 	"net/http"
 	"net/http/httptest"
-	"st-gateway/pkg/auth/routes"
 
 	"github.com/gin-gonic/gin"
 	"github.com/golang/mock/gomock"
+	"github.com/menezmethod/st-server/src/st-gateway/pkg/auth/pb"
+	"github.com/menezmethod/st-server/src/st-gateway/pkg/auth/pb/mock"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
-	"st-gateway/pkg/auth/pb"
-	"st-gateway/pkg/auth/pb/mock"
 )
 
 var _ = Describe("Register Route", func() {

@@ -2,11 +2,11 @@ package routes
 
 import (
 	"context"
+	"github.com/menezmethod/st-server/src/st-gateway/pkg/util"
 	"net/http"
-	"st-gateway/pkg/util"
 
 	"github.com/gin-gonic/gin"
-	"st-gateway/pkg/auth/pb"
+	"github.com/menezmethod/st-server/src/st-gateway/pkg/auth/pb"
 )
 
 type LoginRequestBody struct {
