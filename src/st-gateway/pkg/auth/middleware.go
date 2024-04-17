@@ -47,7 +47,12 @@ func (c *MiddlewareConfig) AuthRequired(ctx *gin.Context) {
 		return
 	}
 
-	ctx.Set("userId", res.UserId)
+	if res.GetUserId() == 0 {
+		respondWithError(ctx, http.StatusUnauthorized, "Failed to authenticate", "User ID is zero or not set")
+		return
+	}
+
+	ctx.Set("userID", res.GetUserId())
 	ctx.Next()
 }
 

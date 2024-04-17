@@ -1,7 +1,6 @@
 package main
 
 import (
-	"github.com/menezmethod/st-server/src/st-gateway/pkg/record"
 	"log"
 
 	"github.com/gin-gonic/gin"
@@ -11,6 +10,7 @@ import (
 	"github.com/menezmethod/st-server/src/st-gateway/pkg/auth"
 	"github.com/menezmethod/st-server/src/st-gateway/pkg/helper"
 	"github.com/menezmethod/st-server/src/st-gateway/pkg/journal"
+	"github.com/menezmethod/st-server/src/st-gateway/pkg/record"
 )
 
 func main() {

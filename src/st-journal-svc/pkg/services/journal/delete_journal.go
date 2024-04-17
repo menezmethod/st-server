@@ -3,12 +3,15 @@ package journal
 import (
 	"context"
 	"fmt"
+	"net/http"
+	"strconv"
+
+	"github.com/uptrace/bun"
+	"go.uber.org/zap"
+
 	"github.com/menezmethod/st-server/src/st-journal-svc/pkg/models"
 	"github.com/menezmethod/st-server/src/st-journal-svc/pkg/pb"
 	"github.com/menezmethod/st-server/src/st-journal-svc/pkg/utils"
-	"github.com/uptrace/bun"
-	"go.uber.org/zap"
-	"net/http"
 )
 
 func (s *Server) RemoveJournal(ctx context.Context, req *pb.DeleteJournalRequest) (*pb.DeleteJournalResponse, error) {
@@ -18,6 +21,39 @@ func (s *Server) RemoveJournal(ctx context.Context, req *pb.DeleteJournalRequest
 		response := createDeleteJournalResponse(http.StatusBadRequest, "No ID provided for deletion", "Request must include at least one ID to delete a journal", 0)
 		utils.LogResponse(s.Logger, "RemoveJournal", response, http.StatusBadRequest)
 		return response, nil
+	}
+
+	var journal models.Journal
+	if err := s.H.DB.NewSelect().Model(&journal).Where("ID IN (?)", req.Id).Scan(ctx); err != nil {
+		s.Logger.Error("Failed to get journal", zap.Strings("IDs", req.Id), zap.Error(err))
+		response := createDeleteJournalResponse(http.StatusInternalServerError, "Failed to get journal", "An internal error occurred", 0)
+		utils.LogResponse(s.Logger, "RemoveJournal", response, http.StatusInternalServerError)
+		return response, nil
+	}
+
+	authRes, err := s.AuthServiceClient.FindOneUser(ctx, &pb.FindOneUserRequest{Id: journal.CreatedBy})
+	if err != nil {
+		s.Logger.Error("Failed to get user from auth service", zap.String("UserID", strconv.FormatUint(journal.CreatedBy, 10)), zap.Error(err))
+		response := createDeleteJournalResponse(http.StatusInternalServerError, "Failed to get user from auth service", "An internal error occurred", 0)
+		utils.LogResponse(s.Logger, "RemoveJournal", response, http.StatusInternalServerError)
+		return response, nil
+	}
+
+	if authRes.Data.Role != "ADMIN" {
+		count, err := s.H.DB.NewSelect().Model(&models.Journal{}).Where("ID IN (?)", req.Id).Where("CreatedBy = ?", authRes.Data.Id).Count(ctx)
+		if err != nil {
+			s.Logger.Error("Failed to check journal ownership", zap.Strings("IDs", req.Id), zap.Error(err))
+			response := createDeleteJournalResponse(http.StatusInternalServerError, "Failed to check journal ownership", "An internal error occurred", 0)
+			utils.LogResponse(s.Logger, "RemoveJournal", response, http.StatusInternalServerError)
+			return response, nil
+		}
+		if count != len(req.Id) {
+			errorMsg := "Unauthorized to delete one or more journals"
+			s.Logger.Error(errorMsg, zap.Strings("IDs", req.Id), zap.String("UserID", strconv.FormatUint(authRes.Data.Id, 10)))
+			response := createDeleteJournalResponse(http.StatusForbidden, "Unauthorized to delete one or more journals", errorMsg, 0)
+			utils.LogResponse(s.Logger, "RemoveJournal", response, http.StatusForbidden)
+			return response, nil
+		}
 	}
 
 	result, err := s.H.DB.NewDelete().Model((*models.Journal)(nil)).Where("id IN (?)", bun.In(req.Id)).Exec(ctx)

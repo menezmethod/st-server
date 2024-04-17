@@ -2,11 +2,15 @@ package routes
 
 import (
 	"context"
-	"github.com/gin-gonic/gin"
-	"github.com/menezmethod/st-server/src/st-gateway/pkg/journal/pb"
-	"github.com/menezmethod/st-server/src/st-gateway/pkg/util"
+	"google.golang.org/grpc/metadata"
 	"net/http"
 	"strconv"
+
+	"github.com/gin-gonic/gin"
+
+	authPb "github.com/menezmethod/st-server/src/st-gateway/pkg/auth/pb"
+	"github.com/menezmethod/st-server/src/st-gateway/pkg/journal/pb"
+	"github.com/menezmethod/st-server/src/st-gateway/pkg/util"
 )
 
 type UpdateJournalRequestBody struct {
@@ -15,11 +19,11 @@ type UpdateJournalRequestBody struct {
 	Description     string   `json:"description"`
 	StartDate       string   `json:"startDate"`
 	EndDate         string   `json:"endDate"`
-	CreatedBy       string   `json:"createdBy"`
+	CreatedBy       uint64   `json:"createdBy"`
 	UsersSubscribed []uint64 `json:"subscribed"`
 }
 
-func UpdateJournal(ctx *gin.Context, c pb.JournalServiceClient) {
+func UpdateJournal(ctx *gin.Context, c pb.JournalServiceClient, user *authPb.User) {
 	id, err := strconv.ParseInt(ctx.Param("id"), 10, 32)
 
 	b := UpdateJournalRequestBody{}
@@ -29,13 +33,18 @@ func UpdateJournal(ctx *gin.Context, c pb.JournalServiceClient) {
 		return
 	}
 
-	res, err := c.UpdateJournal(context.Background(), &pb.UpdateJournalRequest{
+	md := metadata.New(map[string]string{
+		"user-id": strconv.FormatUint(user.Id, 10),
+	})
+	mdCtx := metadata.NewOutgoingContext(context.Background(), md)
+
+	res, err := c.UpdateJournal(mdCtx, &pb.UpdateJournalRequest{
 		Id:              uint64(id),
 		Name:            b.Name,
 		Description:     b.Description,
 		StartDate:       b.StartDate,
 		EndDate:         b.EndDate,
-		CreatedBy:       b.CreatedBy,
+		CreatedBy:       user.Id,
 		UsersSubscribed: b.UsersSubscribed,
 	})
 

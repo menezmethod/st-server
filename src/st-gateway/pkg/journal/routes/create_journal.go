@@ -3,6 +3,7 @@ package routes
 import (
 	"context"
 	"github.com/gin-gonic/gin"
+	authPb "github.com/menezmethod/st-server/src/st-gateway/pkg/auth/pb"
 	"github.com/menezmethod/st-server/src/st-gateway/pkg/journal/pb"
 	"github.com/menezmethod/st-server/src/st-gateway/pkg/util"
 	"net/http"
@@ -13,11 +14,11 @@ type CreateJournalRequestBody struct {
 	Description     string   `json:"description"`
 	StartDate       string   `json:"startDate"`
 	EndDate         string   `json:"endDate"`
-	CreatedBy       string   `json:"createdBy"`
+	CreatedBy       uint64   `json:"createdBy"`
 	UsersSubscribed []uint64 `json:"usersSubscribed"`
 }
 
-func CreateJournal(ctx *gin.Context, c pb.JournalServiceClient) {
+func CreateJournal(ctx *gin.Context, c pb.JournalServiceClient, user *authPb.User) {
 	b := CreateJournalRequestBody{}
 
 	if err := ctx.BindJSON(&b); err != nil {
@@ -30,7 +31,7 @@ func CreateJournal(ctx *gin.Context, c pb.JournalServiceClient) {
 		Description:     b.Description,
 		StartDate:       b.StartDate,
 		EndDate:         b.EndDate,
-		CreatedBy:       b.CreatedBy,
+		CreatedBy:       user.Id,
 		UsersSubscribed: b.UsersSubscribed,
 	})
 

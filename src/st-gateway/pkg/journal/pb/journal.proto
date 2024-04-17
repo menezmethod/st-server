@@ -15,7 +15,7 @@ service JournalService {
 
 message CreateJournalRequest {
   uint64 id = 1;
-  string created_by = 2;
+  uint64 created_by = 2;
   google.protobuf.Timestamp createdAt = 3;
   string start_date = 4;
   string end_date = 5;
@@ -26,7 +26,7 @@ message CreateJournalRequest {
 
 message UpdateJournalRequest {
   uint64 id = 1;
-  string created_by = 2;
+  uint64 created_by = 2;
   google.protobuf.Timestamp createdAt = 3;
   string start_date = 4;
   string end_date = 5;
@@ -90,6 +90,6 @@ message Journal {
   string startDate = 4;
   string endDate = 5;
   google.protobuf.Timestamp createdAt = 6;
-  string createdBy = 7;
+  uint64 created_by = 7;
   repeated uint64 usersSubscribed = 8;
 }

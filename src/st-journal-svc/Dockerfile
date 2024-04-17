@@ -22,9 +22,11 @@ COPY --from=builder /go/src/st-server/src/st-journal-svc/pkg/db/journal.yml /app
 
 ARG PORT
 ARG DB_URL
+ARG AUTH_SVC_URL
 
 ENV PORT=:${PORT} \
-    DB_URL=${DB_URL}
+    DB_URL=${DB_URL} \
+    AUTH_SVC_URL=${AUTH_SVC_URL}
 
 EXPOSE 50052
 

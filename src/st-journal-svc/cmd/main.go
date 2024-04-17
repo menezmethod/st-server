@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/menezmethod/st-server/src/st-journal-svc/pkg/auth"
 	"log"
 	"net"
 	"net/http"
@@ -33,7 +34,7 @@ func main() {
 	h := initDB(c.DBUrl)
 	grpcServer := initGRPCServer()
 
-	registerServices(grpcServer, h, logger)
+	registerServices(grpcServer, h, logger, c)
 	startPrometheusMetrics()
 
 	lis := startListener(c.Port, logger)
@@ -71,16 +72,20 @@ func initGRPCServer() *grpc.Server {
 	)
 }
 
-func registerServices(grpcServer *grpc.Server, h db.DB, logger *zap.Logger) {
+func registerServices(grpcServer *grpc.Server, h db.DB, logger *zap.Logger, config *config.Config) {
+	authServiceClient := auth.InitAuthServiceClient(config)
+
 	pb.RegisterJournalServiceServer(grpcServer, &journal.Server{
-		H:         h,
-		Logger:    logger,
-		Validator: validator.New(),
+		H:                 h,
+		Logger:            logger,
+		Validator:         validator.New(),
+		AuthServiceClient: authServiceClient,
 	})
 	pb.RegisterRecordServiceServer(grpcServer, &record.Server{
-		H:         h,
-		Logger:    logger,
-		Validator: validator.New(),
+		H:                 h,
+		Logger:            logger,
+		Validator:         validator.New(),
+		AuthServiceClient: authServiceClient,
 	})
 }
 

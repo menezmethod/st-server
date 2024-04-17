@@ -16,10 +16,11 @@ import (
 )
 
 type Server struct {
-	H db.DB
+	AuthServiceClient pb.AuthServiceClient
+	H                 db.DB
+	Logger            *zap.Logger
+	Validator         *validator.Validate
 	pb.JournalServiceServer
-	Logger    *zap.Logger
-	Validator *validator.Validate
 }
 
 func (s *Server) CreateJournal(ctx context.Context, req *pb.CreateJournalRequest) (*pb.CreateJournalResponse, error) {
@@ -41,20 +42,21 @@ func (s *Server) CreateJournal(ctx context.Context, req *pb.CreateJournalRequest
 	var resp *pb.CreateJournalResponse
 	if errorMsg != "" {
 		log.Error("Validation failed for CreateJournal", zap.String("error", errorMsg))
-		resp = createJournalResponse(log, journal, http.StatusBadRequest, errorMsg)
-	} else if _, err := s.H.DB.NewInsert().Model(&journal).Exec(ctx); err != nil {
-		log.Error("Failed to insert journal", zap.Error(err))
-		resp = createJournalResponse(log, journal, http.StatusInternalServerError, "Failed to insert journal")
+		resp = createJournalResponse(journal, http.StatusBadRequest, errorMsg)
 	} else {
-		log.Info("Journal created successfully", zap.Any("journal", journal))
-		resp = createJournalResponse(log, journal, http.StatusCreated, "")
+		if _, err := s.H.DB.NewInsert().Model(&journal).Exec(ctx); err != nil {
+			log.Error("Failed to insert journal", zap.Error(err))
+			resp = createJournalResponse(journal, http.StatusInternalServerError, "Failed to insert journal")
+		} else {
+			log.Info("Journal created successfully", zap.Any("journal", journal))
+			resp = createJournalResponse(journal, http.StatusCreated, "")
+		}
 	}
 
 	utils.LogResponse(s.Logger, "CreateJournal", resp, int(resp.Status))
 
 	return resp, nil
 }
-
 func populateJournalFromRequest(req *pb.CreateJournalRequest) models.Journal {
 	return models.Journal{
 		Name:            req.GetName(),
@@ -67,7 +69,7 @@ func populateJournalFromRequest(req *pb.CreateJournalRequest) models.Journal {
 	}
 }
 
-func createJournalResponse(logger *zap.Logger, journal models.Journal, status int, message string) *pb.CreateJournalResponse {
+func createJournalResponse(journal models.Journal, status int, message string) *pb.CreateJournalResponse {
 	return &pb.CreateJournalResponse{
 		Timestamp: time.Now().Format(time.RFC1123),
 		Level:     utils.GetStatusLevel(status),

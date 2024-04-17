@@ -19,10 +19,11 @@ import (
 )
 
 type Server struct {
-	H db.DB
+	AuthServiceClient pb.AuthServiceClient
+	H                 db.DB
+	Logger            *zap.Logger
+	Validator         *validator.Validate
 	pb.RecordServiceServer
-	Logger    *zap.Logger
-	Validator *validator.Validate
 }
 
 func (s *Server) CreateRecord(ctx context.Context, req *pb.CreateRecordRequest) (*pb.CreateRecordResponse, error) {

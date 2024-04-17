@@ -1,0 +1,16 @@
+# VSCode
+.vscode/
+
+# IntelliJ and other JetBrains IDEs
+.idea/
+*.iml
+
+# Temporary Build Files
+build/
+tmp/
+
+# Profile data
+profile.out
+
+# Dependency directories (remove the comment below to include it)
+vendor/

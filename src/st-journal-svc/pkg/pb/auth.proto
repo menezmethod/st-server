@@ -1,0 +1,32 @@
+syntax = "proto3";
+
+package auth;
+
+option go_package = "/pkg/pb";
+
+service AuthService {
+  rpc FindOneUser(FindOneUserRequest) returns (FindOneUserResponse) {}
+}
+
+message FindOneUserRequest {
+  uint64 id = 1;
+}
+
+message FindOneUserResponse {
+  uint64 status = 1;
+  string error = 2;
+  User data = 3;
+}
+
+message User {
+  uint64 id = 1;
+  string email = 2;
+  string password = 3;
+  string firstName = 4;
+  string lastName = 5;
+  string bio = 6;
+  string role = 7;
+  string token = 8;
+  string createdAt = 9;
+}
+
