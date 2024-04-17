@@ -3,20 +3,18 @@ package routes
 import (
 	"context"
 	"github.com/gin-gonic/gin"
+	authPb "github.com/menezmethod/st-server/src/st-gateway/pkg/auth/pb"
 	"github.com/menezmethod/st-server/src/st-gateway/pkg/journal/pb"
 	"github.com/menezmethod/st-server/src/st-gateway/pkg/util"
 	"net/http"
 )
 
-func ListJournals(ctx *gin.Context, c pb.JournalServiceClient) {
-	var id []uint64
-
-	id = append(id, 1)
-
-	res, err := c.ListJournals(context.Background(), &pb.FindAllJournalsRequest{})
+func ListJournals(ctx *gin.Context, c pb.JournalServiceClient, user *authPb.User) {
+	mdCtx := util.NewContextWithUserID(context.Background(), user.Id)
+	res, err := c.ListJournals(mdCtx, &pb.FindAllJournalsRequest{})
 
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "An internal error occurred"})
+		util.HandleError(ctx, "An internal error occurred", http.StatusInternalServerError)
 		return
 	}
 

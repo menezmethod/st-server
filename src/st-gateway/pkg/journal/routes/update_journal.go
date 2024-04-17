@@ -2,7 +2,6 @@ package routes
 
 import (
 	"context"
-	"google.golang.org/grpc/metadata"
 	"net/http"
 	"strconv"
 
@@ -33,11 +32,7 @@ func UpdateJournal(ctx *gin.Context, c pb.JournalServiceClient, user *authPb.Use
 		return
 	}
 
-	md := metadata.New(map[string]string{
-		"user-id": strconv.FormatUint(user.Id, 10),
-	})
-	mdCtx := metadata.NewOutgoingContext(context.Background(), md)
-
+	mdCtx := util.NewContextWithUserID(context.Background(), user.Id)
 	res, err := c.UpdateJournal(mdCtx, &pb.UpdateJournalRequest{
 		Id:              uint64(id),
 		Name:            b.Name,

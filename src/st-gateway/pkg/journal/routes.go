@@ -2,12 +2,14 @@ package journal
 
 import (
 	"fmt"
+	authPb "github.com/menezmethod/st-server/src/st-gateway/pkg/auth/pb"
+	"github.com/menezmethod/st-server/src/st-gateway/pkg/journal/pb"
+	"github.com/menezmethod/st-server/src/st-gateway/pkg/util"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 	"github.com/menezmethod/st-server/src/st-gateway/configs"
 	"github.com/menezmethod/st-server/src/st-gateway/pkg/auth"
-	authPb "github.com/menezmethod/st-server/src/st-gateway/pkg/auth/pb"
 	"github.com/menezmethod/st-server/src/st-gateway/pkg/journal/routes"
 )
 
@@ -49,48 +51,31 @@ func RegisterJournalRoutes(r *gin.Engine, config *configs.Config, authSvc *auth.
 	return svc
 }
 
-func GetUserFromContext(ctx *gin.Context) (*authPb.User, error) {
-	userID, exists := ctx.Get("userID")
-	if !exists {
-		return nil, fmt.Errorf("user ID not found in context")
+func (svc *ServiceClient) journalHandler(ctx *gin.Context, routeFunc func(*gin.Context, pb.JournalServiceClient, *authPb.User)) {
+	user, err := util.GetUserFromContext(ctx)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
 	}
-
-	userIDUint, ok := userID.(uint64)
-	if !ok {
-		return nil, fmt.Errorf("invalid user ID type: expected uint64, got %T", userID)
-	}
-
-	return &authPb.User{
-		Id: userIDUint,
-	}, nil
+	routeFunc(ctx, svc.JournalClient, user)
 }
 
 func (svc *ServiceClient) ListJournals(ctx *gin.Context) {
-	routes.ListJournals(ctx, svc.JournalClient)
+	svc.journalHandler(ctx, routes.ListJournals)
 }
 
 func (svc *ServiceClient) GetJournal(ctx *gin.Context) {
-	routes.FineOneJournal(ctx, svc.JournalClient)
+	svc.journalHandler(ctx, routes.FineOneJournal)
 }
 
 func (svc *ServiceClient) CreateJournal(ctx *gin.Context) {
-	user, err := GetUserFromContext(ctx)
-	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-	routes.CreateJournal(ctx, svc.JournalClient, user)
+	svc.journalHandler(ctx, routes.CreateJournal)
 }
 
 func (svc *ServiceClient) UpdateJournal(ctx *gin.Context) {
-	user, err := GetUserFromContext(ctx)
-	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-	routes.UpdateJournal(ctx, svc.JournalClient, user)
+	svc.journalHandler(ctx, routes.UpdateJournal)
 }
 
 func (svc *ServiceClient) RemoveJournal(ctx *gin.Context) {
-	routes.RemoveJournal(ctx, svc.JournalClient)
+	svc.journalHandler(ctx, routes.RemoveJournal)
 }
