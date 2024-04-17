@@ -2,11 +2,12 @@ package journal
 
 import (
 	"context"
+	"net/http"
+	"strconv"
+
 	"go.uber.org/zap"
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/protobuf/types/known/timestamppb"
-	"net/http"
-	"strconv"
 
 	"github.com/menezmethod/st-server/src/st-journal-svc/pkg/models"
 	"github.com/menezmethod/st-server/src/st-journal-svc/pkg/pb"
@@ -15,12 +16,13 @@ import (
 func mapJournalToPBJournal(journal models.Journal) *pb.Journal {
 	return &pb.Journal{
 		Id:              journal.ID,
-		Name:            journal.Name,
-		Description:     journal.Description,
-		StartDate:       journal.StartDate,
-		EndDate:         journal.EndDate,
-		CreatedBy:       journal.CreatedBy,
 		CreatedAt:       timestamppb.New(journal.CreatedAt),
+		CreatedBy:       journal.CreatedBy,
+		Description:     journal.Description,
+		EndDate:         journal.EndDate,
+		LastUpdatedBy:   journal.LastUpdatedBy,
+		Name:            journal.Name,
+		StartDate:       journal.StartDate,
 		UsersSubscribed: journal.UsersSubscribed,
 	}
 }

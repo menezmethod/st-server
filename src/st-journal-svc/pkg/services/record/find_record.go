@@ -2,76 +2,113 @@ package record
 
 import (
 	"context"
-	"github.com/menezmethod/st-server/src/st-journal-svc/pkg/models"
-	"github.com/menezmethod/st-server/src/st-journal-svc/pkg/pb"
-
-	"google.golang.org/protobuf/types/known/timestamppb"
 	"net/http"
+	"strconv"
 
 	"go.uber.org/zap"
+	"google.golang.org/grpc/metadata"
+	"google.golang.org/protobuf/types/known/timestamppb"
+
+	"github.com/menezmethod/st-server/src/st-journal-svc/pkg/models"
+	"github.com/menezmethod/st-server/src/st-journal-svc/pkg/pb"
 )
 
-func mapModelTradeToPBTrade(trade models.Record) *pb.Record {
+func mapModelRecordToPBRecord(record models.Record) *pb.Record {
 	return &pb.Record{
-		Id:              trade.ID,
-		BaseInstrument:  trade.BaseInstrument,
-		QuoteInstrument: trade.QuoteInstrument,
-		Comments:        trade.Comments,
-		Direction:       trade.Direction,
-		EntryPrice:      trade.EntryPrice,
-		ExitPrice:       trade.ExitPrice,
-		Journal:         trade.Journal,
-		Market:          trade.Market,
-		Outcome:         trade.Outcome,
-		Quantity:        trade.Quantity,
-		StopLoss:        trade.StopLoss,
-		Strategy:        trade.Strategy,
-		TakeProfit:      trade.TakeProfit,
-		TimeExecuted:    trade.TimeExecuted,
-		TimeClosed:      trade.TimeClosed,
-		CreatedAt:       timestamppb.New(trade.CreatedAt),
-		CreatedBy:       trade.CreatedBy,
+		BaseInstrument:  record.BaseInstrument,
+		Comments:        record.Comments,
+		CreatedAt:       timestamppb.New(record.CreatedAt),
+		CreatedBy:       record.CreatedBy,
+		Direction:       record.Direction,
+		EntryPrice:      record.EntryPrice,
+		ExitPrice:       record.ExitPrice,
+		Id:              record.ID,
+		Journal:         record.Journal,
+		LastUpdatedBy:   record.LastUpdatedBy,
+		Market:          record.Market,
+		Outcome:         record.Outcome,
+		Quantity:        record.Quantity,
+		QuoteInstrument: record.QuoteInstrument,
+		StopLoss:        record.StopLoss,
+		Strategy:        record.Strategy,
+		TakeProfit:      record.TakeProfit,
+		TimeClosed:      record.TimeClosed,
+		TimeExecuted:    record.TimeExecuted,
 	}
 }
 
-func (s *Server) ListRecords(ctx context.Context, _ *pb.FindAllRecordsRequest) (*pb.FindAllRecordsResponse, error) {
-	s.Logger.Debug("Received request to find all trades")
+func (s *Server) GetRecord(ctx context.Context, req *pb.FindOneRecordRequest) (*pb.FindOneRecordResponse, error) {
+	log := s.Logger.With(zap.Int64("requestId", int64(req.Id)))
+	log.Debug("Received GetRecord request")
 
-	var modelTrades []models.Record
-	if err := s.H.DB.NewSelect().Model(&modelTrades).Scan(ctx); err != nil {
-		s.Logger.Error("Failed to retrieve trades", zap.Error(err))
-		return &pb.FindAllRecordsResponse{
-			Status: http.StatusNotFound,
-			Error:  err.Error(),
+	md, ok := metadata.FromIncomingContext(ctx)
+	if !ok {
+		log.Warn("No metadata received with request")
+		return &pb.FindOneRecordResponse{
+			Status: http.StatusBadRequest,
+			Error:  "No metadata received with request",
 		}, nil
 	}
 
-	pbTrades := make([]*pb.Record, len(modelTrades))
-	for i, trade := range modelTrades {
-		pbTrades[i] = mapModelTradeToPBTrade(trade)
+	userIDStrs, ok := md["user-id"]
+	if !ok || len(userIDStrs) == 0 {
+		log.Warn("User ID not provided in metadata")
+		return &pb.FindOneRecordResponse{
+			Status: http.StatusUnauthorized,
+			Error:  "User ID not provided in metadata",
+		}, nil
 	}
 
-	s.Logger.Info("Successfully found trades", zap.Int("count", len(pbTrades)))
-	return &pb.FindAllRecordsResponse{
-		Status: http.StatusOK,
-		Data:   pbTrades,
-	}, nil
-}
-func (s *Server) GetRecord(ctx context.Context, req *pb.FindOneRecordRequest) (*pb.FindOneRecordResponse, error) {
-	s.Logger.Debug("Received request to find trade with ID", zap.Uint64("ID", req.Id))
+	loggedInUserID, err := strconv.ParseUint(userIDStrs[0], 10, 64)
+	if err != nil {
+		log.Error("Invalid user ID format", zap.Error(err))
+		return &pb.FindOneRecordResponse{
+			Status: http.StatusUnauthorized,
+			Error:  "Invalid user ID format",
+		}, nil
+	}
 
-	var trade models.Record
-	if err := s.H.DB.NewSelect().Model(&trade).Where("id = ?", req.Id).Scan(ctx); err != nil {
-		s.Logger.Error("Failed to find trade", zap.Uint64("ID", req.Id), zap.Error(err))
+	log.Info("Authenticated user", zap.Uint64("UserID", loggedInUserID))
+
+	authRes, err := s.AuthServiceClient.FindOneUser(ctx, &pb.FindOneUserRequest{Id: loggedInUserID})
+	if err != nil {
+		log.Error("Failed to get user from auth service", zap.Error(err))
+		return &pb.FindOneRecordResponse{
+			Status: http.StatusInternalServerError,
+			Error:  "Failed to get user from auth service",
+		}, nil
+	}
+
+	if authRes == nil || authRes.Data == nil {
+		log.Error("Invalid response from auth service")
+		return &pb.FindOneRecordResponse{
+			Status: http.StatusInternalServerError,
+			Error:  "Invalid response from auth service",
+		}, nil
+	}
+
+	log.Info("User role retrieved", zap.String("Role", authRes.Data.Role))
+
+	var record models.Record
+	if err := s.H.DB.NewSelect().Model(&record).Where("id = ?", req.Id).Scan(ctx); err != nil {
+		log.Error("Error retrieving record", zap.Error(err))
 		return &pb.FindOneRecordResponse{
 			Status: http.StatusNotFound,
 			Error:  err.Error(),
 		}, nil
 	}
 
-	s.Logger.Info("Successfully found trade", zap.Uint64("ID", trade.ID))
+	if record.CreatedBy != loggedInUserID && authRes.Data.Role != "ADMIN" {
+		log.Error("Unauthorized attempt to access record", zap.Uint64("RecordID", record.ID), zap.Uint64("AttemptedByUserID", loggedInUserID))
+		return &pb.FindOneRecordResponse{
+			Status: http.StatusForbidden,
+			Error:  "Unauthorized to access this record",
+		}, nil
+	}
+
+	log.Info("Successfully retrieved record")
 	return &pb.FindOneRecordResponse{
 		Status: http.StatusOK,
-		Data:   mapModelTradeToPBTrade(trade),
+		Data:   mapModelRecordToPBRecord(record),
 	}, nil
 }

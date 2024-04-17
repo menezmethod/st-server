@@ -3,14 +3,17 @@ package routes
 import (
 	"context"
 	"errors"
-	"github.com/gin-gonic/gin"
-	"github.com/menezmethod/st-server/src/st-gateway/pkg/record/pb"
-	"github.com/menezmethod/st-server/src/st-gateway/pkg/util"
 	"net/http"
 	"strings"
+
+	"github.com/gin-gonic/gin"
+
+	authPb "github.com/menezmethod/st-server/src/st-gateway/pkg/auth/pb"
+	"github.com/menezmethod/st-server/src/st-gateway/pkg/record/pb"
+	"github.com/menezmethod/st-server/src/st-gateway/pkg/util"
 )
 
-func RemoveRecord(ctx *gin.Context, c pb.RecordServiceClient) {
+func RemoveRecord(ctx *gin.Context, c pb.RecordServiceClient, user *authPb.User) {
 	id, err := strings.Split(ctx.Param("id"), ","), errors.New("no id")
 
 	if ctx.Param("id") == "" {
@@ -18,12 +21,13 @@ func RemoveRecord(ctx *gin.Context, c pb.RecordServiceClient) {
 		return
 	}
 
-	res, err := c.RemoveRecord(context.Background(), &pb.DeleteRecordRequest{
+	mdCtx := util.NewContextWithUserID(context.Background(), user.Id)
+	res, err := c.RemoveRecord(mdCtx, &pb.DeleteRecordRequest{
 		Id: id,
 	})
 
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "An internal error occurred"})
+		util.RespondWithStatus(ctx, http.StatusInternalServerError, gin.H{"error": "An internal error occurred"})
 		return
 	}
 

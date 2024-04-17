@@ -16,7 +16,7 @@ func ValidateJournal(journal *models.Journal) string {
 	return ""
 }
 
-func ValidateTrade(trade *models.Record) string {
+func ValidateRecord(trade *models.Record) string {
 	if trade.EntryPrice <= 0 {
 		return "Entry Price must be greater than 0"
 	}

@@ -1,110 +1,138 @@
 - model: Record
   rows:
-    - base_instrument: EUR
-      quote_instrument: JPY
-      comments: Identified a potential breakout opportunity on the EUR/JPY pair following a period of consolidation. Entered long position with a tight stop loss and conservative take profit target.
-      created_by: System
-      direction: Long
-      entry_price: 119.25
-      exit_price: 124.10
-      journal: 1
-      market: Forex
-      outcome: Win
-      quantity: 100000
-      stop_loss: 117.50
-      strategy: Breakout
-      take_profit: 125.00
-      time_executed: 2021-03-10T10:30:00.000Z
-      time_closed: 2021-04-10T15:45:00.000Z
-      created_at: 2021-04-10T15:45:00.000Z
-
-    - base_instrument: BTC
+    - base_instrument: SPY
       quote_instrument: USD
-      comments: Entered long position on BTC/USD following confirmation of a bullish trend on the daily timeframe. Managed risk with a trailing stop loss and scaled out of the position as price approached key resistance levels.
-      created_by: System
+      comments: |
+        Entered long position in SPY (S&P 500 ETF) at the start of the trading session based on bullish pre-market sentiment and strong overnight futures. Took partial profits at key resistance levels and trailed stop to lock in gains. Closed remaining position before the end of the session as market momentum began to slow and volatility increased.
+      created_by: 1
       direction: Long
-      entry_price: 30125.50
-      exit_price: 35250.75
+      entry_price: 420.50
+      exit_price: 424.20
       journal: 1
-      market: Crypto
+      market: Equities
       outcome: Win
-      quantity: 1.5
-      stop_loss: 29000.00
-      strategy: Trend Following
-      take_profit: 36000.00
-      time_executed: 2021-06-15T09:00:00.000Z
-      time_closed: 2021-07-01T14:00:00.000Z
-      created_at: 2021-07-01T14:00:00.000Z
+      quantity: 500
+      stop_loss: 418.00
+      strategy: Momentum
+      take_profit: 425.00
+      time_executed: 2022-06-15T09:35:00.000Z
+      time_closed: 2022-06-15T15:55:00.000Z
+      created_at: 2022-06-15T15:55:00.000Z
 
-    - base_instrument: AAPL
+    - base_instrument: EURUSD
       quote_instrument: USD
-      comments: Shorted AAPL ahead of earnings report due to weak market sentiment and disappointing revenue guidance. Despite initial profit, price rallied following the report, hitting the stop loss.
-      created_by: System
+      comments: |
+        Shorted EUR/USD following a hawkish statement from the Federal Reserve, indicating potential interest rate hikes. The bearish sentiment was confirmed by a breakdown below key support levels on the 1-hour chart. Managed the trade using a tight stop loss, but was stopped out as the pair reversed sharply following unexpected comments from the European Central Bank.
+      created_by: 2
       direction: Short
-      entry_price: 150.25
-      exit_price: 140.50
-      journal: 1
-      market: Stock
+      entry_price: 1.18500
+      exit_price: 1.19100
+      journal: 2
+      market: Forex
       outcome: Loss
-      quantity: 100
-      stop_loss: 155.00
-      strategy: Earnings Report
-      take_profit: 130.00
-      time_executed: 2022-01-28T13:20:00.000Z
-      time_closed: 2022-02-05T16:00:00.000Z
-      created_at: 2022-02-05T16:00:00.000Z
+      quantity: 100000
+      stop_loss: 1.19200
+      strategy: Fundamental Analysis
+      take_profit: 1.17500
+      time_executed: 2022-03-16T14:30:00.000Z
+      time_closed: 2022-03-16T16:45:00.000Z
+      created_at: 2022-03-16T16:45:00.000Z
 
-    - base_instrument: GOLD
+    - base_instrument: ETH
       quote_instrument: USD
-      comments: Opened long position in gold as a hedge against rising inflation expectations. Managed the trade using a trailing stop loss and took profit as price approached key psychological level.
-      created_by: System
+      comments: |
+        Opened a long position in ETH/USD following a bullish breakout on the 4-hour chart, supported by strong buying volume and positive news sentiment around the Ethereum network upgrade. Managed the trade using a wide stop loss to allow for volatility, but price stalled at a key resistance level and began to retrace. Closed the position at breakeven to avoid further drawdown.
+      created_by: 3
       direction: Long
-      entry_price: 1805.00
-      exit_price: 1852.50
-      journal: 1
-      market: Commodities
+      entry_price: 1850.00
+      exit_price: 1850.00
+      journal: 3
+      market: Crypto
+      outcome: Breakeven
+      quantity: 2.5
+      stop_loss: 1750.00
+      strategy: Breakout
+      take_profit: 2000.00
+      time_executed: 2023-12-10T12:15:00.000Z
+      time_closed: 2023-12-11T08:30:00.000Z
+      created_at: 2023-12-11T08:30:00.000Z
+
+    - base_instrument: QQQ
+      quote_instrument: USD
+      comments: |
+        Shorted QQQ (Nasdaq 100 ETF) following a bearish engulfing candle on the daily chart, indicating potential weakness in tech stocks. Managed the trade using a trailing stop loss to capitalize on further downside momentum. Closed half of the position at the initial take profit target and let the remainder run until the market showed signs of bottoming out.
+      created_by: 4
+      direction: Short
+      entry_price: 320.00
+      exit_price: 305.50
+      journal: 4
+      market: Equities
       outcome: Win
-      quantity: 25
-      stop_loss: 1780.00
-      strategy: Inflation Hedge
-      take_profit: 1900.00
-      time_executed: 2022-05-20T11:00:00.000Z
-      time_closed: 2022-06-10T10:30:00.000Z
-      created_at: 2022-06-10T10:30:00.000Z
+      quantity: 250
+      stop_loss: 325.00
+      strategy: Technical Analysis
+      take_profit: 300.00
+      time_executed: 2023-10-05T11:00:00.000Z
+      time_closed: 2023-10-12T14:30:00.000Z
+      created_at: 2023-10-12T14:30:00.000Z
+
+    - base_instrument: TLT
+      quote_instrument: USD
+      comments: |
+        Entered long position in TLT (20+ Year Treasury Bond ETF) as a defensive play during a period of market uncertainty. The trade was supported by falling yields and a flight to safety in the bond market. Managed the position using a trailing stop loss and took profits at key resistance levels. Closed the trade as market sentiment began to shift and yields started to rise.
+      created_by: 5
+      direction: Long
+      entry_price: 135.50
+      exit_price: 139.20
+      journal: 5
+      market: Bonds
+      outcome: Win
+      quantity: 1000
+      stop_loss: 133.00
+      strategy: Defensive
+      take_profit: 140.00
+      time_executed: 2022-12-01T09:45:00.000Z
+      time_closed: 2022-12-08T15:30:00.000Z
+      created_at: 2022-12-08T15:30:00.000Z
 
 - model: Journal
   rows:
-    - name: Equities Summer Volatility
-      created_at: 2022-06-01T10:00:00.000Z
+    - name: Summer Volatility in Equities
+      created_at: 2022-06-01T08:00:00.000Z
       created_by: 1
-      description: A comprehensive journal analyzing the impact of summer volatility on the equities market. Includes detailed trade records, market observations, and insights on sector rotations and risk management strategies.
-      start_date: 2022-06-01T10:00:00.000Z
-      end_date: 2022-09-01T10:00:00.000Z
+      description: |
+        An in-depth analysis of trading opportunities and risk management strategies during the volatile summer months in the equities market. Includes detailed trade records, market observations, and insights on sector rotations and the impact of geopolitical events on market sentiment.
+      start_date: 2022-06-01T08:00:00.000Z
+      end_date: 2022-09-01T16:00:00.000Z
 
-    - name: Forex Geopolitical Reactions
-      created_at: 2022-01-15T08:00:00.000Z
+    - name: Navigating Central Bank Policies in Forex
+      created_at: 2022-01-01T10:00:00.000Z
       created_by: 2
-      description: An in-depth journal tracking forex trades in response to major geopolitical events. Covers analysis of market sentiment, risk events, and the effectiveness of various trading strategies during periods of heightened uncertainty.
-      start_date: 2022-01-01T08:00:00.000Z
-      end_date: 2022-12-31T20:00:00.000Z
+      description: |
+        A comprehensive journal tracking forex trades in response to central bank policy changes and forward guidance. Covers analysis of interest rate differentials, currency correlations, and the effectiveness of various trading strategies during periods of heightened uncertainty in the global economy.
+      start_date: 2022-01-01T10:00:00.000Z
+      end_date: 2022-12-31T18:00:00.000Z
 
-    - name: Navigating the Crypto Winter
-      created_at: 2023-12-05T09:30:00.000Z
+    - name: The Future of Crypto- Ethereum 2.0 and Beyond
+      created_at: 2023-11-15T12:00:00.000Z
       created_by: 3
-      description: A detailed account of trading strategies and market analysis during the prolonged bear market in cryptocurrencies. Includes insights on identifying accumulation phases, managing risk in a volatile market, and preparing for the next potential bull run.
-      start_date: 2023-12-01T00:00:00.000Z
-      end_date: 2024-03-01T00:00:00.000Z
+      description: |
+        A forward-looking journal analyzing the potential impact of the Ethereum 2.0 upgrade and other developments in the crypto space. Includes trade ideas, market analysis, and insights on the evolving regulatory landscape and the adoption of cryptocurrencies by institutional investors.
+      start_date: 2023-11-15T12:00:00.000Z
+      end_date: 2024-05-31T16:00:00.000Z
 
-    - name: Advanced Options Strategies
-      created_at: 2023-05-20T14:30:00.000Z
+    - name: Navigating Market Volatility with Options Strategies
+      created_at: 2023-09-01T09:00:00.000Z
       created_by: 4
-      description: A comprehensive journal exploring advanced options trading strategies and the use of derivatives to hedge against market volatility. Covers trade selection criteria, risk management techniques, and the impact of market events on options pricing.
-      start_date: 2023-05-01T09:00:00.000Z
-      end_date: 2023-11-01T17:00:00.000Z
+      description: |
+        A comprehensive journal exploring the use of options strategies to manage risk and capitalize on market volatility. Covers trade selection criteria, the impact of implied volatility on options pricing, and the effectiveness of various spreads and combinations in different market conditions.
+      start_date: 2023-09-01T09:00:00.000Z
+      end_date: 2024-02-29T16:00:00.000Z
 
-    - name: Navigating the Bond Market
-      created_at: 2022-11-10T16:45:00.000Z
+    - name: The Role of Bonds in a Balanced Portfolio
+      created_at: 2022-11-01T11:30:00.000Z
       created_by: 5
-      description: An in-depth analysis of trends and opportunities in the bond market, with a focus on the impact of interest rate changes and central bank policies. Includes detailed trade records, market commentary, and insights on portfolio construction and risk management.
-      start_date: 2022-11-01T08:30:00.000Z
-      end_date: 2023-02-01T15:00:00.000Z
+      description: |
+        An in-depth analysis of the role of bonds in a diversified investment portfolio, with a focus on risk management, income generation, and capital preservation. Includes detailed trade records, market commentary, and insights on the impact of interest rate changes and credit events on bond prices and yields.
+      start_date: 2022-11-01T11:30:00.000Z
+      end_date: 2023-04-30T16:00:00.000Z

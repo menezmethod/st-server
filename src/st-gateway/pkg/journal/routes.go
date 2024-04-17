@@ -2,15 +2,16 @@ package journal
 
 import (
 	"fmt"
-	authPb "github.com/menezmethod/st-server/src/st-gateway/pkg/auth/pb"
-	"github.com/menezmethod/st-server/src/st-gateway/pkg/journal/pb"
-	"github.com/menezmethod/st-server/src/st-gateway/pkg/util"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+
 	"github.com/menezmethod/st-server/src/st-gateway/configs"
 	"github.com/menezmethod/st-server/src/st-gateway/pkg/auth"
+	authPb "github.com/menezmethod/st-server/src/st-gateway/pkg/auth/pb"
+	"github.com/menezmethod/st-server/src/st-gateway/pkg/journal/pb"
 	"github.com/menezmethod/st-server/src/st-gateway/pkg/journal/routes"
+	"github.com/menezmethod/st-server/src/st-gateway/pkg/util"
 )
 
 func RegisterJournalRoutes(r *gin.Engine, config *configs.Config, authSvc *auth.ServiceClient) *ServiceClient {

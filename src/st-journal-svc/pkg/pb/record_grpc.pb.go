@@ -19,11 +19,11 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	RecordService_CreateRecord_FullMethodName = "/journal.RecordService/CreateRecord"
-	RecordService_UpdateRecord_FullMethodName = "/journal.RecordService/UpdateRecord"
-	RecordService_GetRecord_FullMethodName    = "/journal.RecordService/GetRecord"
-	RecordService_ListRecords_FullMethodName  = "/journal.RecordService/ListRecords"
-	RecordService_RemoveRecord_FullMethodName = "/journal.RecordService/RemoveRecord"
+	RecordService_CreateRecord_FullMethodName = "/record.RecordService/CreateRecord"
+	RecordService_UpdateRecord_FullMethodName = "/record.RecordService/UpdateRecord"
+	RecordService_GetRecord_FullMethodName    = "/record.RecordService/GetRecord"
+	RecordService_ListRecords_FullMethodName  = "/record.RecordService/ListRecords"
+	RecordService_RemoveRecord_FullMethodName = "/record.RecordService/RemoveRecord"
 )
 
 // RecordServiceClient is the client API for RecordService service.
@@ -228,7 +228,7 @@ func _RecordService_RemoveRecord_Handler(srv interface{}, ctx context.Context, d
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var RecordService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "journal.RecordService",
+	ServiceName: "record.RecordService",
 	HandlerType: (*RecordServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{

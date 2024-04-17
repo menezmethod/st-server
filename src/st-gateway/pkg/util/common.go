@@ -3,12 +3,13 @@ package util
 import (
 	"context"
 	"fmt"
-	authPb "github.com/menezmethod/st-server/src/st-gateway/pkg/auth/pb"
-	"google.golang.org/grpc/metadata"
 	"net/http"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
+	"google.golang.org/grpc/metadata"
+
+	authPb "github.com/menezmethod/st-server/src/st-gateway/pkg/auth/pb"
 )
 
 func HandleError(ctx *gin.Context, errMsg string, statusCode int) {

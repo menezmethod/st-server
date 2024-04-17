@@ -2,10 +2,12 @@ package routes
 
 import (
 	"context"
-	"github.com/menezmethod/st-server/src/st-gateway/pkg/record/pb"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+
+	authPb "github.com/menezmethod/st-server/src/st-gateway/pkg/auth/pb"
+	"github.com/menezmethod/st-server/src/st-gateway/pkg/record/pb"
 	"github.com/menezmethod/st-server/src/st-gateway/pkg/util"
 )
 
@@ -28,7 +30,7 @@ type CreateRecordRequestBody struct {
 	TimeExecuted    string  `json:"timeExecuted"`
 }
 
-func CreateRecord(ctx *gin.Context, c pb.RecordServiceClient) {
+func CreateRecord(ctx *gin.Context, c pb.RecordServiceClient, user *authPb.User) {
 	b := CreateRecordRequestBody{}
 
 	if err := ctx.BindJSON(&b); err != nil {
@@ -41,9 +43,10 @@ func CreateRecord(ctx *gin.Context, c pb.RecordServiceClient) {
 		return
 	}
 
-	res, err := c.CreateRecord(context.Background(), &pb.CreateRecordRequest{
+	mdCtx := util.NewContextWithUserID(context.Background(), user.Id)
+	res, err := c.CreateRecord(mdCtx, &pb.CreateRecordRequest{
 		Comments:        b.Comments,
-		CreatedBy:       b.CreatedBy,
+		CreatedBy:       user.Id,
 		Direction:       b.Direction,
 		EntryPrice:      b.EntryPrice,
 		ExitPrice:       b.ExitPrice,
@@ -61,7 +64,7 @@ func CreateRecord(ctx *gin.Context, c pb.RecordServiceClient) {
 	})
 
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "An internal error occurred"})
+		util.RespondWithStatus(ctx, http.StatusInternalServerError, gin.H{"error": "An internal error occurred"})
 		return
 	}
 

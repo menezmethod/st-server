@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package journal;
+package record;
 
 option go_package = "./pkg/record/pb";
 
@@ -31,7 +31,7 @@ message CreateRecordRequest {
   string strategy = 14;
   string timeClosed = 15;
   google.protobuf.Timestamp createdAt = 16;
-  string createdBy = 17;
+  uint64 createdBy = 17;
 }
 
 message UpdateRecordRequest {
@@ -52,7 +52,7 @@ message UpdateRecordRequest {
   string strategy = 15;
   string timeClosed = 16;
   google.protobuf.Timestamp createdAt = 17;
-  string createdBy = 18;
+  uint64 lastUpdatedBy = 18;
 }
 
 message FindOneRecordRequest {
@@ -121,5 +121,6 @@ message Record {
   string strategy = 15;
   string timeClosed = 16;
   google.protobuf.Timestamp createdAt = 17;
-  string createdBy = 18;
+  uint64 createdBy = 18;
+  uint64 lastUpdatedBy = 19;
 }

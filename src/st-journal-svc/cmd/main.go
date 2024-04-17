@@ -74,6 +74,7 @@ func initGRPCServer() *grpc.Server {
 
 func registerServices(grpcServer *grpc.Server, h db.DB, logger *zap.Logger, config *config.Config) {
 	authServiceClient := auth.InitAuthServiceClient(config)
+	logger.Info("AuthServiceClient initialized successfully")
 
 	pb.RegisterJournalServiceServer(grpcServer, &journal.Server{
 		H:                 h,
@@ -81,12 +82,15 @@ func registerServices(grpcServer *grpc.Server, h db.DB, logger *zap.Logger, conf
 		Validator:         validator.New(),
 		AuthServiceClient: authServiceClient,
 	})
+	logger.Info("JournalService registered successfully")
+
 	pb.RegisterRecordServiceServer(grpcServer, &record.Server{
 		H:                 h,
 		Logger:            logger,
 		Validator:         validator.New(),
 		AuthServiceClient: authServiceClient,
 	})
+	logger.Info("RecordService registered successfully")
 }
 
 func startPrometheusMetrics() {

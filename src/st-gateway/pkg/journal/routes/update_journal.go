@@ -18,7 +18,6 @@ type UpdateJournalRequestBody struct {
 	Description     string   `json:"description"`
 	StartDate       string   `json:"startDate"`
 	EndDate         string   `json:"endDate"`
-	CreatedBy       uint64   `json:"createdBy"`
 	UsersSubscribed []uint64 `json:"subscribed"`
 }
 
@@ -39,12 +38,12 @@ func UpdateJournal(ctx *gin.Context, c pb.JournalServiceClient, user *authPb.Use
 		Description:     b.Description,
 		StartDate:       b.StartDate,
 		EndDate:         b.EndDate,
-		CreatedBy:       user.Id,
+		LastUpdatedBy:   user.Id,
 		UsersSubscribed: b.UsersSubscribed,
 	})
 
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "An internal error occurred"})
+		util.RespondWithStatus(ctx, http.StatusInternalServerError, gin.H{"error": "An internal error occurred"})
 		return
 	}
 

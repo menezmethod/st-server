@@ -2,11 +2,13 @@ package routes
 
 import (
 	"context"
+	"net/http"
+
 	"github.com/gin-gonic/gin"
+
 	authPb "github.com/menezmethod/st-server/src/st-gateway/pkg/auth/pb"
 	"github.com/menezmethod/st-server/src/st-gateway/pkg/journal/pb"
 	"github.com/menezmethod/st-server/src/st-gateway/pkg/util"
-	"net/http"
 )
 
 type CreateJournalRequestBody struct {
@@ -26,7 +28,8 @@ func CreateJournal(ctx *gin.Context, c pb.JournalServiceClient, user *authPb.Use
 		return
 	}
 
-	res, err := c.CreateJournal(context.Background(), &pb.CreateJournalRequest{
+	mdCtx := util.NewContextWithUserID(context.Background(), user.Id)
+	res, err := c.CreateJournal(mdCtx, &pb.CreateJournalRequest{
 		Name:            b.Name,
 		Description:     b.Description,
 		StartDate:       b.StartDate,
@@ -36,7 +39,7 @@ func CreateJournal(ctx *gin.Context, c pb.JournalServiceClient, user *authPb.Use
 	})
 
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "An internal error occurred"})
+		util.RespondWithStatus(ctx, http.StatusInternalServerError, gin.H{"error": "An internal error occurred"})
 		return
 	}
 

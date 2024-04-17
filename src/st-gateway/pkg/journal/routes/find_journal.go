@@ -2,12 +2,14 @@ package routes
 
 import (
 	"context"
+	"net/http"
+	"strconv"
+
 	"github.com/gin-gonic/gin"
+
 	authPb "github.com/menezmethod/st-server/src/st-gateway/pkg/auth/pb"
 	"github.com/menezmethod/st-server/src/st-gateway/pkg/journal/pb"
 	"github.com/menezmethod/st-server/src/st-gateway/pkg/util"
-	"net/http"
-	"strconv"
 )
 
 func FineOneJournal(ctx *gin.Context, c pb.JournalServiceClient, user *authPb.User) {
@@ -29,7 +31,7 @@ func FineOneJournal(ctx *gin.Context, c pb.JournalServiceClient, user *authPb.Us
 	})
 
 	if err != nil {
-		util.HandleError(ctx, "An internal error occurred", http.StatusInternalServerError)
+		util.RespondWithStatus(ctx, http.StatusInternalServerError, gin.H{"error": "An internal error occurred"})
 		return
 	}
 

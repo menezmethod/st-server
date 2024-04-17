@@ -5,15 +5,16 @@ import (
 )
 
 type Record struct {
-	ID              uint64    `json:"id" bun:",pk,autoincrement"`
 	BaseInstrument  string    `json:"baseInstrument" validate:"required"`
 	Comments        string    `json:"comments" validate:"max=500"`
 	CreatedAt       time.Time `json:"createdAt"`
-	CreatedBy       string    `json:"createdBy" validate:"required"`
+	CreatedBy       uint64    `json:"createdBy" validate:"required"`
 	Direction       string    `json:"direction" validate:"required,oneof=BUY SHORT"`
 	EntryPrice      float32   `json:"entryPrice" validate:"gt=0"`
 	ExitPrice       float32   `json:"exitPrice" validate:"gte=0"`
+	ID              uint64    `json:"id" bun:",pk,autoincrement"`
 	Journal         uint64    `json:"journal" validate:"required"`
+	LastUpdatedBy   uint64    `json:"lastUpdatedBy"`
 	Market          string    `json:"market" validate:"required"`
 	Outcome         string    `json:"outcome" validate:"omitempty,oneof=WIN LOSS BREAK-EVEN"`
 	Quantity        float32   `json:"quantity" validate:"gt=0"`

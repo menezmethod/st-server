@@ -78,7 +78,7 @@ func populateJournalFromEditRequest(req *pb.UpdateJournalRequest) models.Journal
 		Description:     req.GetDescription(),
 		StartDate:       req.GetStartDate(),
 		EndDate:         req.GetEndDate(),
-		CreatedBy:       req.GetCreatedBy(),
+		LastUpdatedBy:   req.GetLastUpdatedBy(),
 		UsersSubscribed: req.GetUsersSubscribed(),
 	}
 }
@@ -102,7 +102,7 @@ func createUpdateJournalResponse(journal models.Journal, status uint64, errorMes
 				Description:     journal.Description,
 				StartDate:       journal.StartDate,
 				EndDate:         journal.EndDate,
-				CreatedBy:       journal.CreatedBy,
+				LastUpdatedBy:   journal.LastUpdatedBy,
 				UsersSubscribed: journal.UsersSubscribed,
 			}
 		}

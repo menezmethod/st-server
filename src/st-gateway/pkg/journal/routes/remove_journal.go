@@ -2,12 +2,14 @@ package routes
 
 import (
 	"context"
+	"net/http"
+	"strings"
+
 	"github.com/gin-gonic/gin"
+
 	authPb "github.com/menezmethod/st-server/src/st-gateway/pkg/auth/pb"
 	"github.com/menezmethod/st-server/src/st-gateway/pkg/journal/pb"
 	"github.com/menezmethod/st-server/src/st-gateway/pkg/util"
-	"net/http"
-	"strings"
 )
 
 func RemoveJournal(ctx *gin.Context, c pb.JournalServiceClient, user *authPb.User) {
@@ -23,7 +25,7 @@ func RemoveJournal(ctx *gin.Context, c pb.JournalServiceClient, user *authPb.Use
 	res, err := c.RemoveJournal(mdCtx, &pb.DeleteJournalRequest{Id: ids})
 
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "An internal error occurred"})
+		util.RespondWithStatus(ctx, http.StatusInternalServerError, gin.H{"error": "An internal error occurred"})
 		return
 	}
 

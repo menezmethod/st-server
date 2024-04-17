@@ -2,11 +2,16 @@ package record
 
 import (
 	"fmt"
+	"net/http"
+
 	"github.com/gin-gonic/gin"
-	"github.com/menezmethod/st-server/src/st-gateway/pkg/record/routes"
 
 	"github.com/menezmethod/st-server/src/st-gateway/configs"
 	"github.com/menezmethod/st-server/src/st-gateway/pkg/auth"
+	authPb "github.com/menezmethod/st-server/src/st-gateway/pkg/auth/pb"
+	"github.com/menezmethod/st-server/src/st-gateway/pkg/record/pb"
+	"github.com/menezmethod/st-server/src/st-gateway/pkg/record/routes"
+	"github.com/menezmethod/st-server/src/st-gateway/pkg/util"
 )
 
 func RegisterRecordRoutes(r *gin.Engine, config *configs.Config, authSvc *auth.ServiceClient) *ServiceClient {
@@ -44,21 +49,30 @@ func RegisterRecordRoutes(r *gin.Engine, config *configs.Config, authSvc *auth.S
 			protectedGroup.DELETE(e.path, e.handler)
 		}
 	}
-	return nil
+	return svc
+}
+
+func (svc *ServiceClient) recordHandler(ctx *gin.Context, routeFunc func(*gin.Context, pb.RecordServiceClient, *authPb.User)) {
+	user, err := util.GetUserFromContext(ctx)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	routeFunc(ctx, svc.RecordClient, user)
 }
 
 func (svc *ServiceClient) ListRecords(ctx *gin.Context) {
-	routes.ListRecords(ctx, svc.RecordClient)
+	svc.recordHandler(ctx, routes.ListRecords)
 }
 func (svc *ServiceClient) GetRecord(ctx *gin.Context) {
-	routes.FineOneRecord(ctx, svc.RecordClient)
+	svc.recordHandler(ctx, routes.FineOneRecord)
 }
 func (svc *ServiceClient) CreateRecord(ctx *gin.Context) {
-	routes.CreateRecord(ctx, svc.RecordClient)
+	svc.recordHandler(ctx, routes.CreateRecord)
 }
 func (svc *ServiceClient) UpdateRecord(ctx *gin.Context) {
-	routes.UpdateRecord(ctx, svc.RecordClient)
+	svc.recordHandler(ctx, routes.UpdateRecord)
 }
 func (svc *ServiceClient) RemoveRecord(ctx *gin.Context) {
-	routes.RemoveRecord(ctx, svc.RecordClient)
+	svc.recordHandler(ctx, routes.RemoveRecord)
 }
