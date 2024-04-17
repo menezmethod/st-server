@@ -7,26 +7,26 @@ import (
 	"os"
 	"time"
 
+	"github.com/menezmethod/st-server/src/st-auth-svc/pkg/models"
 	"github.com/uptrace/bun"
 	"github.com/uptrace/bun/dbfixture"
 	"github.com/uptrace/bun/dialect/pgdialect"
 	"github.com/uptrace/bun/driver/pgdriver"
 	"go.uber.org/zap"
-	"st-auth-svc/pkg/models"
 )
 
-type Handler struct {
+type DB struct {
 	*bun.DB
 	logger *zap.Logger
 }
 
-func InitDB(url string, logger *zap.Logger) Handler {
+func InitDB(url string, logger *zap.Logger) DB {
 	if url == "" {
 		logger.Fatal("Database URL is not provided")
 	}
 
 	db := connectDB(url, logger)
-	handler := Handler{DB: db, logger: logger}
+	handler := DB{DB: db, logger: logger}
 
 	if !handler.checkUserDataExists() {
 		handler.ensureFixturesLoaded(db)
@@ -66,14 +66,14 @@ func connectDB(url string, logger *zap.Logger) *bun.DB {
 	return db
 }
 
-func (h Handler) ensureFixturesLoaded(db *bun.DB) {
+func (h DB) ensureFixturesLoaded(db *bun.DB) {
 	if err := h.loadFixtures(db); err != nil {
 		h.logger.Fatal("Failed to load database fixtures", zap.Error(err))
 	}
 	h.logger.Info("Database fixtures loaded successfully")
 }
 
-func (h Handler) checkUserDataExists() bool {
+func (h DB) checkUserDataExists() bool {
 	var count int
 	count, err := h.NewSelect().Model((*models.User)(nil)).Limit(1).Count(context.Background())
 	if err != nil {
@@ -83,7 +83,7 @@ func (h Handler) checkUserDataExists() bool {
 	return count > 0
 }
 
-func (h Handler) loadFixtures(db *bun.DB) error {
+func (h DB) loadFixtures(db *bun.DB) error {
 	fixture := dbfixture.New(db, dbfixture.WithRecreateTables())
 	err := fixture.Load(context.Background(), os.DirFS("./pkg/db"), "user.yml")
 	if err != nil {

@@ -2,11 +2,14 @@ package routes
 
 import (
 	"context"
-	"github.com/gin-gonic/gin"
 	"net/http"
-	"st-gateway/pkg/journal/pb"
-	"st-gateway/pkg/util"
 	"strconv"
+
+	"github.com/gin-gonic/gin"
+
+	authPb "github.com/menezmethod/st-server/src/st-gateway/pkg/auth/pb"
+	"github.com/menezmethod/st-server/src/st-gateway/pkg/journal/pb"
+	"github.com/menezmethod/st-server/src/st-gateway/pkg/util"
 )
 
 type UpdateJournalRequestBody struct {
@@ -15,11 +18,10 @@ type UpdateJournalRequestBody struct {
 	Description     string   `json:"description"`
 	StartDate       string   `json:"startDate"`
 	EndDate         string   `json:"endDate"`
-	CreatedBy       string   `json:"createdBy"`
 	UsersSubscribed []uint64 `json:"subscribed"`
 }
 
-func UpdateJournal(ctx *gin.Context, c pb.JournalServiceClient) {
+func UpdateJournal(ctx *gin.Context, c pb.JournalServiceClient, user *authPb.User) {
 	id, err := strconv.ParseInt(ctx.Param("id"), 10, 32)
 
 	b := UpdateJournalRequestBody{}
@@ -29,18 +31,19 @@ func UpdateJournal(ctx *gin.Context, c pb.JournalServiceClient) {
 		return
 	}
 
-	res, err := c.UpdateJournal(context.Background(), &pb.UpdateJournalRequest{
+	mdCtx := util.NewContextWithUserID(context.Background(), user.Id)
+	res, err := c.UpdateJournal(mdCtx, &pb.UpdateJournalRequest{
 		Id:              uint64(id),
 		Name:            b.Name,
 		Description:     b.Description,
 		StartDate:       b.StartDate,
 		EndDate:         b.EndDate,
-		CreatedBy:       b.CreatedBy,
+		LastUpdatedBy:   user.Id,
 		UsersSubscribed: b.UsersSubscribed,
 	})
 
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "An internal error occurred"})
+		util.RespondWithStatus(ctx, http.StatusInternalServerError, gin.H{"error": "An internal error occurred"})
 		return
 	}
 

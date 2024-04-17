@@ -2,10 +2,10 @@ package services
 
 import (
 	"context"
+	"github.com/menezmethod/st-server/src/st-auth-svc/pkg/models"
+	"github.com/menezmethod/st-server/src/st-auth-svc/pkg/pb"
 	"go.uber.org/zap"
 	"net/http"
-	"st-auth-svc/pkg/models"
-	"st-auth-svc/pkg/pb"
 )
 
 func (s *Server) FindAllUsers(ctx context.Context, _ *pb.FindAllUsersRequest) (*pb.FindAllUsersResponse, error) {

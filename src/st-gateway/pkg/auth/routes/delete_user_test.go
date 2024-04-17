@@ -4,14 +4,14 @@ import (
 	"errors"
 	"github.com/gin-gonic/gin"
 	"github.com/golang/mock/gomock"
+	"github.com/menezmethod/st-server/src/st-gateway/pkg/auth/routes"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 	"net/http"
 	"net/http/httptest"
-	"st-gateway/pkg/auth/routes"
 
-	"st-gateway/pkg/auth/pb"
-	"st-gateway/pkg/auth/pb/mock"
+	"github.com/menezmethod/st-server/src/st-gateway/pkg/auth/pb"
+	"github.com/menezmethod/st-server/src/st-gateway/pkg/auth/pb/mock"
 )
 
 var _ = Describe("DeleteUser Route", func() {

@@ -1,0 +1,50 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.journalDb.deployment.name }}
+  labels:
+    app: {{ .Values.journalDb.deployment.name }}
+spec:
+  replicas: {{ .Values.journalDb.deployment.replicas }}
+  selector:
+    matchLabels:
+      app: {{ .Values.journalDb.deployment.name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.journalDb.deployment.name }}
+    spec:
+      containers:
+        - name: {{ .Values.journalDb.deployment.name }}
+          image: {{ .Values.journalDb.deployment.image }}
+          env:
+            - name: POSTGRES_USER
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ .Values.journalDb.configMap.name }}
+                  key: POSTGRES_USER
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.journalDb.secret.name }}
+                  key: POSTGRES_PASSWORD
+            - name: POSTGRES_DB
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ .Values.journalDb.configMap.name }}
+                  key: POSTGRES_DB
+          ports:
+            - containerPort: {{ .Values.journalDb.deployment.port }}
+          volumeMounts:
+            - name: journal-db-storage
+              mountPath: {{ .Values.journalDb.storage.mountPath }}
+            - name: init-scripts
+              mountPath: /docker-entrypoint-initdb.d/change-port.sh
+              subPath: change-port.sh
+      volumes:
+        - name: journal-db-storage
+          persistentVolumeClaim:
+            claimName: {{ .Values.journalDb.pvc.name }}
+        - name: init-scripts
+          configMap:
+            name: {{ .Values.journalDb.configMap.name }}

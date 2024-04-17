@@ -2,10 +2,10 @@ package services
 
 import (
 	"context"
+	"github.com/menezmethod/st-server/src/st-auth-svc/pkg/pb"
+	"github.com/menezmethod/st-server/src/st-auth-svc/pkg/utils"
 	"go.uber.org/zap"
 	"net/http"
-	"st-auth-svc/pkg/pb"
-	"st-auth-svc/pkg/utils"
 	"time"
 )
 

@@ -1,0 +1,56 @@
+deployment:
+  name: "st-auth-svc"
+
+app:
+  label: "st-auth-svc"
+
+replicaCount: 1
+
+serviceAccount:
+  name: "st-trader-ksa"
+
+image:
+  repository: "st-auth-svc"
+  tag: "latest"
+  pullPolicy: "IfNotPresent"
+
+container:
+  name: "st-auth-svc"
+  port: 50051
+
+service:
+  name: "st-auth-svc"
+  port: 80
+  type: "LoadBalancer"
+  metricsPort: 9093
+
+resources:
+  requests:
+    cpu: "100m"
+    memory: "100Mi"
+  limits:
+    cpu: "200m"
+    memory: "200Mi"
+
+authDb:
+  configMap:
+    name: "auth-db-config"
+    user: "root"
+    db: "auth_db"
+  secret:
+    name: "auth-db-secret"
+    passwordKey: "POSTGRES_PASSWORD"
+  deployment:
+    name: "auth-db"
+    image: "postgres:alpine"
+    replicas: 1
+    port: 5432
+  pvc:
+    name: "auth-db-pvc"
+    accessMode: "ReadWriteOnce"
+    size: "5Gi"
+  storage:
+    mountPath: "/var/lib/postgresql/data"
+  service:
+    name: "auth-db"
+    port: 5432

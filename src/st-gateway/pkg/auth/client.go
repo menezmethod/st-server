@@ -1,16 +1,15 @@
 package auth
 
 import (
+	"github.com/menezmethod/st-server/src/st-gateway/configs"
+	"github.com/menezmethod/st-server/src/st-gateway/pkg/auth/pb"
+	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 	"log"
-	"st-gateway/configs"
-
-	"google.golang.org/grpc"
-	"st-gateway/pkg/auth/pb"
 )
 
 type ServiceClient struct {
-	Client pb.AuthServiceClient
+	AuthServiceClient pb.AuthServiceClient
 }
 
 func InitServiceClient(c *configs.Config) pb.AuthServiceClient {

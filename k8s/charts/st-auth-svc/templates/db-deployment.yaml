@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.authDb.deployment.name }}
+  labels:
+    app: {{ .Values.authDb.deployment.name }}
+spec:
+  replicas: {{ .Values.authDb.deployment.replicas }}
+  selector:
+    matchLabels:
+      app: {{ .Values.authDb.deployment.name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.authDb.deployment.name }}
+    spec:
+      containers:
+        - name: {{ .Values.authDb.deployment.name }}
+          image: {{ .Values.authDb.deployment.image }}
+          env:
+            - name: POSTGRES_USER
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ .Values.authDb.configMap.name }}
+                  key: POSTGRES_USER
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.authDb.secret.name }}
+                  key: POSTGRES_PASSWORD
+            - name: POSTGRES_DB
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ .Values.authDb.configMap.name }}
+                  key: POSTGRES_DB
+          ports:
+            - containerPort: {{ .Values.authDb.deployment.port }}
+          volumeMounts:
+            - name: auth-db-storage
+              mountPath: {{ .Values.authDb.storage.mountPath }}
+      volumes:
+        - name: auth-db-storage
+          persistentVolumeClaim:
+            claimName: {{ .Values.authDb.pvc.name }}

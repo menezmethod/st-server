@@ -5,19 +5,19 @@ import (
 	"errors"
 	"fmt"
 	"github.com/go-playground/validator/v10"
+	"github.com/menezmethod/st-server/src/st-auth-svc/pkg/db"
 	"go.uber.org/zap"
 	"net/http"
-	"st-auth-svc/pkg/db"
 	"strings"
 	"time"
 
-	"st-auth-svc/pkg/models"
-	"st-auth-svc/pkg/pb"
-	"st-auth-svc/pkg/utils"
+	"github.com/menezmethod/st-server/src/st-auth-svc/pkg/models"
+	"github.com/menezmethod/st-server/src/st-auth-svc/pkg/pb"
+	"github.com/menezmethod/st-server/src/st-auth-svc/pkg/utils"
 )
 
 type Server struct {
-	H   db.Handler
+	H   db.DB
 	Jwt utils.JwtWrapper
 	pb.UnimplementedAuthServiceServer
 	Logger    *zap.Logger

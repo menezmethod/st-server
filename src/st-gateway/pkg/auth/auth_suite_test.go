@@ -2,9 +2,9 @@ package auth_test
 
 import (
 	"context"
+	"github.com/menezmethod/st-server/src/st-gateway/pkg/auth/pb"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
-	"st-gateway/pkg/auth/pb"
 	"testing"
 	"time"
 
