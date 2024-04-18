@@ -74,6 +74,7 @@ dmypy.json
 .pyre/
 /models/
 .idea
+vendor/
 
 # Original
 *.exe

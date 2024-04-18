@@ -1,20 +1,19 @@
+# Detect executables
 PROTOC_GEN_GO := $(shell which protoc-gen-go)
 PROTOC_GEN_GO_GRPC := $(shell which protoc-gen-go-grpc)
-PROTOC_GEN_GO_GRPC_MOCK := $(shell which protoc-gen-go-grpc-mock)
+GOPATH := $(shell go env GOPATH)
 
-.PHONY: all proto_gateway proto_auth proto_journal build_gateway build_auth build_journal install_deps run_auth run_journal run_gateway test help
+# Define phony targets
+.PHONY: all install_deps check_protoc_plugins proto generate_protos build run test help
 
-all: install_deps proto_gateway proto_auth proto_journal build_gateway build_auth build_journal
+# Default target
+all: install_deps proto build
 
+# Install dependencies
 install_deps:
 	go mod download
 
-prepare_mock_dirs:
-	@mkdir -p ./pkg/auth/pb/mock
-	@mkdir -p ./pkg/journal/pb/mock
-	@mkdir -p ./st-auth-svc/pkg/pb/mock
-	@mkdir -p ./st-journal-svc/pkg/pb/mock
-
+# Check if protoc plugins are installed
 check_protoc_plugins:
 ifndef PROTOC_GEN_GO
 	$(error "protoc-gen-go is not installed")
@@ -22,21 +21,29 @@ endif
 ifndef PROTOC_GEN_GO_GRPC
 	$(error "protoc-gen-go-grpc is not installed")
 endif
-ifndef PROTOC_GEN_GO_GRPC_MOCK
-	$(error "protoc-gen-go-grpc-mock is not installed")
-endif
 
-proto_gw_auth: check_protoc_plugins prepare_mock_dirs
-	protoc pkg/auth/pb/*.proto --go_out=. --go-grpc_out=. --go-grpc-mock_out=pkg/auth/pb/mock
+# Generate protobuf files for different services
+proto: check_protoc_plugins proto_gateway proto_auth proto_journal generate_protos
 
-proto_gw_journal: check_protoc_plugins prepare_mock_dirs
-	protoc pkg/journal/pb/*.proto --go_out=. --go-grpc_out=. --go-grpc-mock_out=pkg/journal/pb/mock
+proto_gateway:
+	PATH="$(PATH):$(GOPATH)/bin" protoc src/st-gateway/versions/v1/auth/auth.proto \
+	src/st-gateway/versions/v1/helper/helper.proto \
+	src/st-gateway/versions/v1/journal/journal.proto \
+	src/st-gateway/versions/v1/record/record.proto \
+	--proto_path=src/st-gateway/versions/v1 \
+	--proto_path=. \
+	--go_out=paths=source_relative:src/st-gateway/pkg/pb \
+	--go-grpc_out=paths=source_relative:src/st-gateway/pkg/pb \
+	--grpc-gateway_out=paths=source_relative:src/st-gateway/pkg/pb
 
-proto_auth: check_protoc_plugins prepare_mock_dirs
-	protoc st-auth-svc/pkg/pb/*.proto --go_out=. --go-grpc_out=. --go-grpc-mock_out=st-auth-svc/pkg/pb/mock
+proto_auth:
+	PATH="$(PATH):$(GOPATH)/bin" protoc st-auth-svc/pkg/pb/*.proto --go_out=. --go-grpc_out=.
 
-proto_journal: check_protoc_plugins prepare_mock_dirs
-	protoc st-journal-svc/pkg/pb/*.proto --go_out=. --go-grpc_out=. --go-grpc-mock_out=st-journal-svc/pkg/pb/mock
+proto_journal:
+	PATH="$(PATH):$(GOPATH)/bin" protoc st-journal-svc/pkg/pb/*.proto --go_out=. --go-grpc_out=.
+
+# Build executables for each service
+build: build_gateway build_auth build_journal
 
 build_gateway:
 	go build -o ./bin/gateway ./src/st-gateway/cmd/main.go
@@ -47,6 +54,9 @@ build_auth:
 build_journal:
 	go build -o ./bin/journal ./src/st-journal-svc/cmd/main.go
 
+# Run services
+run: run_auth run_journal run_gateway
+
 run_auth:
 	./bin/auth
 
@@ -56,20 +66,16 @@ run_journal:
 run_gateway:
 	./bin/gateway
 
+# Run tests across all go files
 test:
 	go test ./...
 
+# Display help
 help:
 	@echo "Available commands:"
-	@echo "  install_deps  - Install all dependencies"
-	@echo "  proto         - Generate gRPC code for all services"
-	@echo "  build         - Build all services"
-	@echo "  run           - Run all services"
-	@echo "  test          - Run tests"
-	@echo "  help          - Show this help message"
-
-proto: proto_gw_auth proto_gw_journal proto_auth proto_journal
-
-build: build_gateway build_auth build_journal
-
-run: run_auth run_journal run_gateway
+	@echo "  install_deps    - Install all dependencies"
+	@echo "  proto           - Generate gRPC code for all services"
+	@echo "  build           - Build all services"
+	@echo "  run             - Run all services"
+	@echo "  test            - Run tests"
+	@echo "  help            - Show this help message"

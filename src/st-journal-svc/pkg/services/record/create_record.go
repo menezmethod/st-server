@@ -3,6 +3,7 @@ package record
 import (
 	"context"
 	"fmt"
+	"google.golang.org/protobuf/types/known/timestamppb"
 	"net/http"
 	"time"
 
@@ -94,6 +95,7 @@ func createRecordResponse(record models.Record, status uint64, errorMessage stri
 		if record.ID != 0 {
 			response.Data = &pb.Record{
 				Id:              record.ID,
+				CreatedAt:       timestamppb.New(record.CreatedAt),
 				BaseInstrument:  record.BaseInstrument,
 				Comments:        record.Comments,
 				Direction:       record.Direction,
