@@ -2,12 +2,28 @@ syntax = "proto3";
 
 package helper;
 
-service STHelper {
-  rpc AnalyzeFinancialData (FinancialRequest) returns (FinancialResponse) {}
-  rpc GetStockQuote (StockQuoteRequest) returns (StockQuoteResponse) {}
-  rpc GetHistoricalStockData (HistoricalStockDataRequest) returns (HistoricalStockDataResponse) {}
-}
+option go_package = "github.com/menezmethod/st-server/src/st-gateway/versions/v1/helper";
 
+import "google/api/annotations.proto";
+
+service STHelper {
+  rpc AnalyzeFinancialData(FinancialRequest) returns (FinancialResponse) {
+    option (google.api.http) = {
+      post: "/v1/financial/analyze"
+      body: "*"
+    };
+  }
+  rpc GetStockQuote(StockQuoteRequest) returns (StockQuoteResponse) {
+    option (google.api.http) = {
+      get: "/v1/stock/quote/{symbol}/{provider}"
+    };
+  }
+  rpc GetHistoricalStockData(HistoricalStockDataRequest) returns (HistoricalStockDataResponse) {
+    option (google.api.http) = {
+      get: "/v1/stock/historical/{symbol}?start_date={start_date}&end_date={end_date}&provider={provider}"
+    };
+  }
+}
 message FinancialRequest {
   string userId = 1;
   string financial_data = 2;
@@ -65,3 +81,4 @@ message HistoricalStockDataResponse {
   repeated float change = 9;
   repeated float change_percent = 10;
 }
+

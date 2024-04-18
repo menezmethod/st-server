@@ -1,0 +1,120 @@
+syntax = "proto3";
+
+package journal;
+
+option go_package = "github.com/menezmethod/st-server/src/st-gateway/versions/v1/journal";
+
+import "google/api/annotations.proto";
+import "google/protobuf/timestamp.proto";
+
+service JournalService {
+  rpc CreateJournal(CreateJournalRequest) returns (CreateJournalResponse) {
+    option (google.api.http) = {
+      post: "/v1/journals"
+      body: "*"
+    };
+  }
+  rpc RemoveJournal(DeleteJournalRequest) returns (DeleteJournalResponse) {
+    option (google.api.http) = {
+      delete: "/v1/journals/{id}"
+    };
+  }
+  rpc UpdateJournal(UpdateJournalRequest) returns (UpdateJournalResponse) {
+    option (google.api.http) = {
+      patch: "/v1/journals/{id}"
+      body: "*"
+    };
+  }
+  rpc ListJournals(FindAllJournalsRequest) returns (FindAllJournalsResponse) {
+    option (google.api.http) = {
+      get: "/v1/journals"
+    };
+  }
+  rpc GetJournal(FindOneJournalRequest) returns (FindOneJournalResponse) {
+    option (google.api.http) = {
+      get: "/v1/journal/{id}"
+    };
+  }
+}
+
+message CreateJournalRequest {
+  uint64 id = 1;
+  uint64 createdBy = 2;
+  google.protobuf.Timestamp createdAt = 3;
+  string startDate = 4;
+  string endDate = 5;
+  string name = 6;
+  string description = 7;
+  repeated uint64 usersSubscribed = 8;
+}
+
+message UpdateJournalRequest {
+  uint64 id = 1;
+  google.protobuf.Timestamp createdAt = 2;
+  string startDate = 3;
+  string endDate = 4;
+  string name = 5;
+  string description = 6;
+  repeated uint64 usersSubscribed = 7;
+  uint64 lastUpdatedBy = 8;
+}
+
+message FindAllJournalsRequest {}
+
+message FindOneJournalRequest {
+  uint64 id = 1;
+}
+
+message DeleteJournalRequest {
+  repeated string id = 1;
+}
+
+message CreateJournalResponse {
+  string timestamp = 1;
+  string level = 2;
+  string message = 3;
+  uint64 status = 4;
+  Journal journal = 5;
+  string error = 6;
+}
+
+message UpdateJournalResponse {
+  string timestamp = 1;
+  string level = 2;
+  string message = 3;
+  uint64 status = 4;
+  Journal data = 5;
+  string error = 6;
+}
+
+message FindAllJournalsResponse {
+  uint64 status = 1;
+  string error = 2;
+  repeated Journal data = 3;
+}
+
+message FindOneJournalResponse {
+  uint64 status = 1;
+  string error = 2;
+  Journal data = 3;
+}
+
+message DeleteJournalResponse {
+  uint64 status = 1;
+  string message = 2;
+  string level = 3;
+  string error = 4;
+  uint64 rowsAffected = 5;
+}
+
+message Journal {
+  uint64 id = 1;
+  string name = 2;
+  string description = 3;
+  string startDate = 4;
+  string endDate = 5;
+  google.protobuf.Timestamp createdAt = 6;
+  uint64 createdBy = 7;
+  repeated uint64 usersSubscribed = 8;
+  uint64 lastUpdatedBy = 9;
+}

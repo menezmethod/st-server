@@ -3,6 +3,7 @@ package journal
 import (
 	"context"
 	"fmt"
+	"google.golang.org/protobuf/types/known/timestamppb"
 	"net/http"
 	"time"
 
@@ -76,12 +77,13 @@ func createJournalResponse(journal models.Journal, status int, message string) *
 		Message:   message,
 		Status:    uint64(status),
 		Journal: &pb.Journal{
+			CreatedAt:       timestamppb.New(journal.CreatedAt),
+			CreatedBy:       journal.CreatedBy,
+			Description:     journal.Description,
+			EndDate:         journal.EndDate,
 			Id:              journal.ID,
 			Name:            journal.Name,
-			Description:     journal.Description,
 			StartDate:       journal.StartDate,
-			EndDate:         journal.EndDate,
-			CreatedBy:       journal.CreatedBy,
 			UsersSubscribed: journal.UsersSubscribed,
 		},
 	}

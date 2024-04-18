@@ -1,3 +1,5 @@
+import configparser
+
 import grpc
 import logging
 from openbb import obb
@@ -10,10 +12,11 @@ import helper_pb2_grpc
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
-obb.account.login(
-    pat="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9"
-        ".eyJhdXRoX3Rva2VuIjoiUFhVUW9KMEd0U0RvOVY2ZEFqZDNvaFBDN0JEbDROYkxhWkFKMnhuZiIsImV4cCI6MTg5MTk5MDM0NH0"
-        ".x2RSeBKj7Mn-qnwj9mQY_mVXzZtMbFoC6ubR17M3ufw")
+config = configparser.ConfigParser()
+config.read('config.ini')
+obb_pat = config['DEFAULT']['OPENBB_PAT']
+
+obb.account.login(pat=obb_pat)
 
 
 class OllamaModelLoader:
@@ -136,26 +139,29 @@ class FinancialAnalysisService(helper_pb2_grpc.STHelperServicer):
 
     def GetStockQuote(self, request, context):
         try:
-            logger.info(f"Fetching stock quote for {request.ticker}")
+            logger.info(f"Fetching stock quote for {request.symbol}")
             provider = request.provider or "fmp"
-            quote = obb.equity.price.quote(symbol=request.ticker, provider=provider)
-            stock_quote = self.create_stock_quote_response(quote)
-            logger.info(f"Stock quote fetched successfully for {request.ticker}")
+            quote = obb.equity.price.quote(symbol=request.symbol, provider=provider)
+            stock_quote = self.create_stock_quote_response(quote, request.provider)
+            logger.info(f"Stock quote fetched successfully for {request.symbol}")
             return stock_quote
         except Exception as e:
-            error_msg = f"Failed to fetch stock data for {request.ticker}: {str(e)}"
+            error_msg = f"Failed to fetch stock data for {request.symbol}: {str(e)}"
             logger.error(error_msg)
             context.set_details(error_msg)
             context.set_code(grpc.StatusCode.INTERNAL)
             return helper_pb2.StockQuoteResponse()
 
-    def create_stock_quote_response(self, quote):
+    def create_stock_quote_response(self, quote, provider):
         logger.info("Creating stock quote response")
         quote_dict = quote.to_dict()
         stock_data = {key: value[0] if isinstance(value, list) else value for key, value in quote_dict.items()}
         earnings_announcement = stock_data.get('earnings_announcement', None)
         earnings_announcement_str = earnings_announcement.strftime(
             '%Y-%m-%d %H:%M:%S') if earnings_announcement else ''
+
+        market_cap_key = 'marketCap' if provider == 'yfinance' else 'market_cap'
+        market_cap = int(stock_data.get(market_cap_key, 0))
 
         return helper_pb2.StockQuoteResponse(
             symbol=stock_data['symbol'],
@@ -171,7 +177,7 @@ class FinancialAnalysisService(helper_pb2_grpc.STHelperServicer):
             changePercent=stock_data.get('change_percent', 0),
             yearHigh=stock_data.get('year_high', 0),
             yearLow=stock_data.get('year_low', 0),
-            marketCap=int(stock_data['market_cap']),
+            marketCap=market_cap,
             sharesOutstanding=stock_data.get('shares_outstanding', 0),
             pe=stock_data.get('pe', 0),
             earningsAnnouncement=earnings_announcement_str,

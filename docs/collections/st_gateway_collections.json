@@ -2,7 +2,7 @@
 	"info": {
 		"_postman_id": "cb77579b-7c72-4d7b-9279-b545e586b9af",
 		"name": "ST Server Gateway",
-		"description": "In the \"Journal\" section, the endpoints allow for the creation of new journal entries, viewing of individual or all journal entries, editing existing journal entries, and deletion of one or multiple journal entries at once.\n\nThe \"Record\" section offers a similar set of functionalities but is focused on trade records. It includes endpoints for adding new trade records, viewing all trades or a single trade's details, editing trades, and deleting multiple trade records simultaneously.",
+		"description": "In the \"Journal\" section, the endpoints allow for the creation of new journal entries, viewing of individual or all journal entries, editing existing journal entries, and deletion of one or multiple journal entries at once.\n\nThe \"Trade\" section offers a similar set of functionalities but is focused on trade records. It includes endpoints for adding new trade records, viewing all trades or a single trade's details, editing trades, and deleting multiple trade records simultaneously.",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "18112029"
 	},
@@ -17,9 +17,18 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"Response status code is 201\", function () {",
-									"    pm.response.to.have.status(201); ",
+									"pm.test(\"Response status code is 200\", function () {",
+									"    pm.response.to.have.status(200); ",
 									"});",
+									"",
+									"const jsonData = pm.response.json();",
+									"",
+									"if (jsonData.data && jsonData.data.token) {",
+									"    pm.environment.set(\"auth_token\", jsonData.data.token);",
+									"    pm.test(\"Token is set in environment\", function () {",
+									"        pm.expect(pm.environment.get(\"auth_token\")).to.eql(jsonData.data.token);",
+									"    });",
+									"}",
 									"",
 									"pm.test(\"Response has the required fields\", function () {",
 									"    const responseData = pm.response.json();",
@@ -31,15 +40,6 @@
 									"    pm.expect(responseData).to.have.property(\"status\");",
 									"    pm.expect(responseData).to.have.nested.property(\"data.token\");",
 									"});",
-									"",
-									"const jsonData = pm.response.json();",
-									"",
-									"if (jsonData.data && jsonData.data.token) {",
-									"    pm.environment.set(\"auth_token\", jsonData.data.token);",
-									"    pm.test(\"Token is set in environment\", function () {",
-									"        pm.expect(pm.environment.get(\"auth_token\")).to.eql(jsonData.data.token);",
-									"    });",
-									"}",
 									"",
 									"pm.test(\"Response has the required fields\", function () {",
 									"    const responseData = pm.response.json();",
@@ -72,21 +72,6 @@
 							"listen": "prerequest",
 							"script": {
 								"exec": [
-									"// Parse the current request body",
-									"let requestBody = JSON.parse(pm.request.body.raw);",
-									"",
-									"// Generate a past date",
-									"let pastDate = new Date();",
-									"pastDate.setDate(pastDate.getDate() - Math.floor(Math.random() * 100)); // Adjust the range as needed",
-									"requestBody.timeExecuted = pastDate.toISOString();",
-									"",
-									"// Generate a future date",
-									"let futureDate = new Date();",
-									"futureDate.setDate(futureDate.getDate() + Math.floor(Math.random() * 100)); // Adjust the range as needed",
-									"requestBody.timeClosed = futureDate.toISOString();",
-									"",
-									"// Update the request body",
-									"pm.request.body.raw = JSON.stringify(requestBody);",
 									""
 								],
 								"type": "text/javascript",
@@ -138,21 +123,6 @@
 							"listen": "prerequest",
 							"script": {
 								"exec": [
-									"// Parse the current request body",
-									"let requestBody = JSON.parse(pm.request.body.raw);",
-									"",
-									"// Generate a past date",
-									"let pastDate = new Date();",
-									"pastDate.setDate(pastDate.getDate() - Math.floor(Math.random() * 100)); // Adjust the range as needed",
-									"requestBody.timeExecuted = pastDate.toISOString();",
-									"",
-									"// Generate a future date",
-									"let futureDate = new Date();",
-									"futureDate.setDate(futureDate.getDate() + Math.floor(Math.random() * 100)); // Adjust the range as needed",
-									"requestBody.timeClosed = futureDate.toISOString();",
-									"",
-									"// Update the request body",
-									"pm.request.body.raw = JSON.stringify(requestBody);",
 									""
 								],
 								"type": "text/javascript",
@@ -294,22 +264,28 @@
 							"listen": "prerequest",
 							"script": {
 								"exec": [
-									"// Parse the current request body",
 									"let requestBody = JSON.parse(pm.request.body.raw);",
 									"",
-									"// Generate a past date",
 									"let pastDate = new Date();",
-									"pastDate.setDate(pastDate.getDate() - Math.floor(Math.random() * 100)); // Adjust the range as needed",
+									"pastDate.setDate(pastDate.getDate() - Math.floor(Math.random() * 100));",
 									"requestBody.timeExecuted = pastDate.toISOString();",
 									"",
-									"// Generate a future date",
 									"let futureDate = new Date();",
-									"futureDate.setDate(futureDate.getDate() + Math.floor(Math.random() * 100)); // Adjust the range as needed",
+									"futureDate.setDate(futureDate.getDate() + Math.floor(Math.random() * 100)); ",
 									"requestBody.timeClosed = futureDate.toISOString();",
 									"",
-									"// Update the request body",
 									"pm.request.body.raw = JSON.stringify(requestBody);",
-									""
+									"",
+									"function getRandomInt(min, max) {",
+									"    return Math.floor(Math.random() * (max - min + 1)) + min;",
+									"}",
+									"",
+									"var randomIntBetween2And15 = getRandomInt(2, 15);",
+									"var randomIntBetween2And20 = getRandomInt(2, 20);",
+									"",
+									"",
+									"pm.environment.set(\"randomIntBetween2And15\", randomIntBetween2And15);",
+									"pm.environment.set(\"randomIntBetween2And20\", randomIntBetween2And20);"
 								],
 								"type": "text/javascript",
 								"packages": {}
@@ -615,19 +591,6 @@
 							"listen": "prerequest",
 							"script": {
 								"exec": [
-									"// Function to generate a random integer between min and max (inclusive)",
-									"function getRandomInt(min, max) {",
-									"    return Math.floor(Math.random() * (max - min + 1)) + min;",
-									"}",
-									"",
-									"// Generate a random integer between 2 and 15",
-									"var randomIntBetween2And15 = getRandomInt(2, 15);",
-									"var randomIntBetween2And20 = getRandomInt(2, 20);",
-									"",
-									"",
-									"// Set the generated value as an environment or global variable",
-									"pm.environment.set(\"randomIntBetween2And15\", randomIntBetween2And15);",
-									"pm.environment.set(\"randomIntBetween2And20\", randomIntBetween2And20);",
 									""
 								],
 								"type": "text/javascript",
@@ -754,7 +717,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"name\": \"{{$randomCurrencyCode}}/{{$randomCurrencyCode}}\",\n    \"description\": \"{{$randomCurrencyName}}\",\n    \"createdAt\": \"{{now}}\",\n    \"startDate\": \"{{randomDatePast}}\",\n    \"endDate\": \"{{randomDateFuture}}\"\n}\n",
+							"raw": "{\n    \"name\": \"{{$randomCurrencyCode}}/{{$randomCurrencyCode}}\",\n    \"description\": \"{{$randomCurrencyName}}\",\n    \"startDate\": \"{{randomDatePast}}\",\n    \"endDate\": \"{{randomDateFuture}}\"\n}\n",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -762,14 +725,14 @@
 							}
 						},
 						"url": {
-							"raw": "{{url}}:{{port}}/{{v}}/journal",
+							"raw": "{{url}}:{{port}}/{{v}}/journals",
 							"host": [
 								"{{url}}"
 							],
 							"port": "{{port}}",
 							"path": [
 								"{{v}}",
-								"journal"
+								"journals"
 							]
 						}
 					},
@@ -782,8 +745,8 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"Response status code is 201\", function () {",
-									"  pm.expect(pm.response.code).to.equal(201);",
+									"pm.test(\"Response status code is 200\", function () {",
+									"  pm.expect(pm.response.code).to.equal(200);",
 									"});"
 								],
 								"type": "text/javascript",
@@ -837,8 +800,8 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"Response status code is 201\", function () {",
-									"    pm.response.to.have.status(201);",
+									"pm.test(\"Response status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
 									"});"
 								],
 								"type": "text/javascript",
@@ -893,21 +856,30 @@
 							"listen": "prerequest",
 							"script": {
 								"exec": [
-									"// Parse the current request body",
 									"let requestBody = JSON.parse(pm.request.body.raw);",
 									"",
-									"// Generate a past date",
 									"let pastDate = new Date();",
-									"pastDate.setDate(pastDate.getDate() - Math.floor(Math.random() * 100)); // Adjust the range as needed",
+									"pastDate.setDate(pastDate.getDate() - Math.floor(Math.random() * 100));",
 									"requestBody.timeExecuted = pastDate.toISOString();",
 									"",
-									"// Generate a future date",
 									"let futureDate = new Date();",
-									"futureDate.setDate(futureDate.getDate() + Math.floor(Math.random() * 100)); // Adjust the range as needed",
+									"futureDate.setDate(futureDate.getDate() + Math.floor(Math.random() * 100)); ",
 									"requestBody.timeClosed = futureDate.toISOString();",
 									"",
-									"// Update the request body",
 									"pm.request.body.raw = JSON.stringify(requestBody);",
+									"",
+									"function getRandomInt(min, max) {",
+									"    return Math.floor(Math.random() * (max - min + 1)) + min;",
+									"}",
+									"",
+									"var randomIntBetween2And15 = getRandomInt(2, 15);",
+									"var randomIntBetween2And20 = getRandomInt(2, 20);",
+									"",
+									"pm.environment.set(\"randomDatePast\", pastDate.toISOString());",
+									"pm.environment.set(\"randomDateFuture\", futureDate.toISOString());",
+									"",
+									"pm.environment.set(\"randomIntBetween2And15\", randomIntBetween2And15);",
+									"pm.environment.set(\"randomIntBetween2And20\", randomIntBetween2And20);",
 									""
 								],
 								"type": "text/javascript",
@@ -918,8 +890,8 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"Response status code is 201\", function () {",
-									"  pm.expect(pm.response.code).to.equal(201);",
+									"pm.test(\"Response status code is 200\", function () {",
+									"  pm.expect(pm.response.code).to.equal(200);",
 									"});"
 								],
 								"type": "text/javascript",
@@ -950,15 +922,15 @@
 							}
 						},
 						"url": {
-							"raw": "{{url}}:{{port}}/{{v}}/journal/1",
+							"raw": "{{url}}:{{port}}/{{v}}/journals/4",
 							"host": [
 								"{{url}}"
 							],
 							"port": "{{port}}",
 							"path": [
 								"{{v}}",
-								"journal",
-								"1"
+								"journals",
+								"4"
 							]
 						}
 					},
@@ -983,19 +955,6 @@
 							"listen": "prerequest",
 							"script": {
 								"exec": [
-									"// Function to generate a random integer between min and max (inclusive)",
-									"function getRandomInt(min, max) {",
-									"    return Math.floor(Math.random() * (max - min + 1)) + min;",
-									"}",
-									"",
-									"// Generate a random integer between 2 and 15",
-									"var randomIntBetween2And15 = getRandomInt(2, 15);",
-									"var randomIntBetween2And20 = getRandomInt(2, 20);",
-									"",
-									"",
-									"// Set the generated value as an environment or global variable",
-									"pm.environment.set(\"randomIntBetween2And15\", randomIntBetween2And15);",
-									"pm.environment.set(\"randomIntBetween2And20\", randomIntBetween2And20);",
 									""
 								],
 								"type": "text/javascript",
@@ -1026,14 +985,14 @@
 							}
 						},
 						"url": {
-							"raw": "{{url}}:{{port}}/{{v}}/journal/{{randomIntBetween2And15}},{{randomIntBetween2And20}}",
+							"raw": "{{url}}:{{port}}/{{v}}/journals/{{randomIntBetween2And15}},{{randomIntBetween2And20}}",
 							"host": [
 								"{{url}}"
 							],
 							"port": "{{port}}",
 							"path": [
 								"{{v}}",
-								"journal",
+								"journals",
 								"{{randomIntBetween2And15}},{{randomIntBetween2And20}}"
 							]
 						}
@@ -1086,7 +1045,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"timeExecuted\": \"{{randomDatePast}}\",\n    \"market\": \"Forex\",\n    \"stopLoss\": {{$randomPrice}},\n    \"entryPrice\": {{$randomPrice}},\n    \"exitPrice\": {{$randomPrice}},\n    \"journal\": 1,\n    \"quantity\": {{$randomInt}},\n    \"direction\": \"SHORT\",\n    \"baseInstrument\": \"{{$randomCurrencyCode}}\",\n    \"quoteInstrument\": \"{{$randomCurrencyCode}}\",\n    \"takeProfit\": {{$randomPrice}},\n    \"comments\": \"Sacrificed all of my {{$randomBankAccountName}} balance.\",\n    \"createdBy\": \"Postman\",\n    \"strategy\": \"{{$randomBs}}\",\n    \"timeClosed\": \"{{randomDateFuture}}\"\n}\n",
+							"raw": "{\n    \"timeExecuted\": \"{{start_date}}\",\n    \"market\": \"Forex\",\n    \"stopLoss\": {{$randomPrice}},\n    \"entryPrice\": {{$randomPrice}},\n    \"exitPrice\": {{$randomPrice}},\n    \"journal\": 1,\n    \"quantity\": {{$randomInt}},\n    \"direction\": \"SHORT\",\n    \"baseInstrument\": \"{{$randomCurrencyCode}}\",\n    \"quoteInstrument\": \"{{$randomCurrencyCode}}\",\n    \"takeProfit\": {{$randomPrice}},\n    \"comments\": \"Sacrificed all of my {{$randomBankAccountName}} balance.\",\n    \"strategy\": \"{{$randomBs}}\",\n    \"timeClosed\": \"{{start_date}}\"\n}\n",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -1094,28 +1053,28 @@
 							}
 						},
 						"url": {
-							"raw": "{{url}}:{{port}}/{{v}}/trade",
+							"raw": "{{url}}:{{port}}/{{v}}/record",
 							"host": [
 								"{{url}}"
 							],
 							"port": "{{port}}",
 							"path": [
 								"{{v}}",
-								"trade"
+								"record"
 							]
 						}
 					},
 					"response": []
 				},
 				{
-					"name": "View Trades",
+					"name": "View Records",
 					"event": [
 						{
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"Response status code is 201\", function () {",
-									"  pm.expect(pm.response.code).to.equal(201);",
+									"pm.test(\"Response status code is 200\", function () {",
+									"  pm.expect(pm.response.code).to.equal(200);",
 									"});"
 								],
 								"type": "text/javascript",
@@ -1149,14 +1108,14 @@
 							}
 						},
 						"url": {
-							"raw": "{{url}}:{{port}}/{{v}}/trades",
+							"raw": "{{url}}:{{port}}/{{v}}/records",
 							"host": [
 								"{{url}}"
 							],
 							"port": "{{port}}",
 							"path": [
 								"{{v}}",
-								"trades"
+								"records"
 							]
 						}
 					},
@@ -1169,8 +1128,8 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"Response status code is 201\", function () {",
-									"  pm.expect(pm.response.code).to.equal(201);",
+									"pm.test(\"Response status code is 200\", function () {",
+									"  pm.expect(pm.response.code).to.equal(200);",
 									"});"
 								],
 								"type": "text/javascript",
@@ -1204,14 +1163,14 @@
 							}
 						},
 						"url": {
-							"raw": "{{url}}:{{port}}/{{v}}/trade/2",
+							"raw": "{{url}}:{{port}}/{{v}}/records/2",
 							"host": [
 								"{{url}}"
 							],
 							"port": "{{port}}",
 							"path": [
 								"{{v}}",
-								"trade",
+								"records",
 								"2"
 							]
 						}
@@ -1235,8 +1194,8 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"Response status code is 201\", function () {",
-									"  pm.response.to.have.status(201);",
+									"pm.test(\"Response status code is 200\", function () {",
+									"  pm.response.to.have.status(200);",
 									"});"
 								],
 								"type": "text/javascript",
@@ -1267,22 +1226,22 @@
 							}
 						},
 						"url": {
-							"raw": "{{url}}:{{port}}/{{v}}/trade/7",
+							"raw": "{{url}}:{{port}}/{{v}}/records/3",
 							"host": [
 								"{{url}}"
 							],
 							"port": "{{port}}",
 							"path": [
 								"{{v}}",
-								"trade",
-								"7"
+								"records",
+								"3"
 							]
 						}
 					},
 					"response": []
 				},
 				{
-					"name": "Delete Trades",
+					"name": "Delete Records",
 					"event": [
 						{
 							"listen": "test",
@@ -1330,15 +1289,394 @@
 							}
 						},
 						"url": {
-							"raw": "{{url}}:{{port}}/{{v}}/trade/{{randomIntBetween2And15}},{{randomIntBetween2And20}}",
+							"raw": "{{url}}:{{port}}/{{v}}/records/{{randomIntBetween2And15}},{{randomIntBetween2And20}}",
 							"host": [
 								"{{url}}"
 							],
 							"port": "{{port}}",
 							"path": [
 								"{{v}}",
-								"trade",
+								"records",
 								"{{randomIntBetween2And15}},{{randomIntBetween2And20}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "AI",
+			"item": [
+				{
+					"name": "Analyze Transactions #1",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{auth_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"userId\": \"user123\",\n    \"financialData\": \"Transactions:\\n\\n- 2023-05-01: Bought 100 shares of ABC stock at $50 per share\\n\\n- 2023-05-05: Sold 50 shares of ABC stock at $55 per share\\n\\n- 2023-05-10: Bought 200 shares of XYZ stock at $30 per share\\n\\n- 2023-05-15: Spent $1,000 on online shopping\\n\\n- 2023-05-20: Received a dividend of $500 from ABC stock\\n\\n- 2023-05-25: Bought 100 shares of DEF stock at $40 per share\\n\\n- 2023-05-30: Spent $2,000 on a vacation\\n\\nTrades:\\n\\n- 2023-06-01: Sold 100 shares of XYZ stock at $35 per share\\n\\n- 2023-06-05: Bought 50 shares of GHI stock at $60 per share\\n\\n- 2023-06-10: Sold 75 shares of DEF stock at $45 per share\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}:{{port}}/{{v}}/financial/analyze",
+							"host": [
+								"{{url}}"
+							],
+							"port": "{{port}}",
+							"path": [
+								"{{v}}",
+								"financial",
+								"analyze"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Analyze Transactions #2",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{auth_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"userId\": \"user123\",\n    \"financialData\": \"Transactions:\\n\\n- 2023-08-01: Bought 120 shares of XYZ stock at $50 per share\\n\\n- 2023-08-05: Sold 60 shares of XYZ stock at $55 per share\\n\\n- 2023-08-10: Bought 200 shares of ABC stock at $30 per share\\n\\n- 2023-08-15: Spent $1,000 on home improvements\\n\\n- 2023-08-20: Received a dividend of $300 from XYZ stock\\n\\n- 2023-08-25: Bought 100 shares of DEF stock at $45 per share\\n\\n- 2023-08-30: Spent $2,500 on a luxury retreat\\n\\nTrades:\\n\\n- 2023-09-01: Sold 100 shares of ABC stock at $35 per share\\n\\n- 2023-09-05: Bought 50 shares of GHI stock at $65 per share\\n\\n- 2023-09-10: Sold 75 shares of DEF stock at $50 per share\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}:{{port}}/{{v}}/financial/analyze",
+							"host": [
+								"{{url}}"
+							],
+							"port": "{{port}}",
+							"path": [
+								"{{v}}",
+								"financial",
+								"analyze"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Analyze Transactions #3",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{auth_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"userId\": \"user123\",\n    \"financialData\": \"Transactions:\\n\\n- 2023-09-01: Bought 70 shares of JKL stock at $45 per share\\n\\n- 2023-09-05: Sold 35 shares of JKL stock at $50 per share\\n\\n- 2023-09-10: Bought 180 shares of MNO stock at $20 per share\\n\\n- 2023-09-15: Spent $750 on sports gear\\n\\n- 2023-09-20: Received a dividend of $250 from JKL stock\\n\\n- 2023-09-25: Bought 110 shares of PQR stock at $40 per share\\n\\n- 2023-09-30: Spent $1,800 on a holiday\\n\\nTrades:\\n\\n- 2023-10-01: Sold 180 shares of MNO stock at $25 per share\\n\\n- 2023-10-05: Bought 40 shares of STU stock at $60 per share\\n\\n- 2023-10-10: Sold 80 shares of PQR stock at $45 per share\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}:{{port}}/{{v}}/financial/analyze",
+							"host": [
+								"{{url}}"
+							],
+							"port": "{{port}}",
+							"path": [
+								"{{v}}",
+								"financial",
+								"analyze"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Analyze Transactions #4",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{auth_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"userId\": \"user123\",\n    \"financialData\": \"Transactions:\\n\\n- 2023-10-01: Bought 100 shares of VWX stock at $55 per share\\n\\n- 2023-10-05: Sold 50 shares of VWX stock at $60 per share\\n\\n- 2023-10-10: Bought 220 shares of YZA stock at $35 per share\\n\\n- 2023-10-15: Spent $1,200 on gadgets\\n\\n- 2023-10-20: Received a dividend of $400 from VWX stock\\n\\n- 2023-10-25: Bought 85 shares of BCD stock at $50 per share\\n\\n- 2023-10-30: Spent $2,000 on a cruise\\n\\nTrades:\\n\\n- 2023-11-01: Sold 220 shares of YZA stock at $40 per share\\n\\n- 2023-11-05: Bought 55 shares of EFG stock at $70 per share\\n\\n- 2023-11-10: Sold 60 shares of BCD stock at $55 per share\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}:{{port}}/{{v}}/financial/analyze",
+							"host": [
+								"{{url}}"
+							],
+							"port": "{{port}}",
+							"path": [
+								"{{v}}",
+								"financial",
+								"analyze"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Analyze Transactions #5",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{auth_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"userId\": \"user123\",\n    \"financialData\": \"Transactions: - 2023-11-01: Bought 500 shares of XYZ stock at $100 per share\\n- 2023-11-05: Sold 250 shares of XYZ stock at $80 per share\\n- 2023-11-10: Bought 1000 shares of ABC stock at $50 per share\\n- 2023-11-15: Spent $5,000 on a luxury watch\\n- 2023-11-20: Received a dividend of $100 from XYZ stock\\n- 2023-11-25: Bought 800 shares of DEF stock at $30 per share\\n- 2023-11-30: Spent $10,000 on a gambling trip\\nTrades: - 2023-12-01: Sold 1000 shares of ABC stock at $40 per share\\n- 2023-12-05: Bought 600 shares of GHI stock at $80 per share\\n- 2023-12-10: Sold 500 shares of DEF stock at $25 per share\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}:{{port}}/{{v}}/financial/analyze",
+							"host": [
+								"{{url}}"
+							],
+							"port": "{{port}}",
+							"path": [
+								"{{v}}",
+								"financial",
+								"analyze"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Stock Ticker",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"// Randomize the provider",
+									"const providerArray = pm.globals.get(\"providerList\").split(\",\");",
+									"const randomProviderIndex = Math.floor(Math.random() * providerArray.length);",
+									"pm.globals.set(\"provider\", providerArray[randomProviderIndex]);",
+									"",
+									"// Randomize the stock symbol",
+									"const stockArray = pm.globals.get(\"stockList\").split(\",\");",
+									"const randomIndex = Math.floor(Math.random() * stockArray.length);",
+									"pm.globals.set(\"symbol\", stockArray[randomIndex]);",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{auth_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"ticker\": \"A\",\n    \"provider\": \"fmp\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}:{{port}}/{{v}}/stock/quote/{{symbol}}?provider={{provider}}",
+							"host": [
+								"{{url}}"
+							],
+							"port": "{{port}}",
+							"path": [
+								"{{v}}",
+								"stock",
+								"quote",
+								"{{symbol}}"
+							],
+							"query": [
+								{
+									"key": "provider",
+									"value": "{{provider}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Historical Stock Data",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"function randomDate(start, end) {",
+									"    // Generates a random date between 'start' and 'end'",
+									"    return new Date(start.getTime() + Math.random() * (end.getTime() - start.getTime()));",
+									"}",
+									"",
+									"// Set the start date to one year ago from today",
+									"const startDateOld = new Date();",
+									"startDateOld.setFullYear(startDateOld.getFullYear() - 1);",
+									"",
+									"// Set the end date to today",
+									"const endDateOld = new Date();",
+									"",
+									"// Generate a random start date between one year ago and today",
+									"let startDate = randomDate(startDateOld, endDateOld);",
+									"",
+									"// Format the start date as YYYY-MM-DD",
+									"const formattedStartDate = `${startDate.getFullYear()}-${String(startDate.getMonth() + 1).padStart(2, '0')}-${String(startDate.getDate()).padStart(2, '0')}`;",
+									"",
+									"pm.globals.set(\"start_date\", formattedStartDate);",
+									"",
+									"// Set the recent end date to 30 days from today",
+									"const endDateRecent = new Date();",
+									"endDateRecent.setDate(endDateRecent.getDate() + 30);",
+									"",
+									"let endDate;",
+									"",
+									"// Generate a random end date that is after the start date and within 30 days from today",
+									"do {",
+									"    endDate = randomDate(startDate, endDateRecent);",
+									"} while (endDate <= startDate);",
+									"",
+									"// Format the end date as YYYY-MM-DD (Remove time and timezone)",
+									"const formattedEndDate = `${endDate.getFullYear()}-${String(endDate.getMonth() + 1).padStart(2, '0')}-${String(endDate.getDate()).padStart(2, '0')}`;",
+									"",
+									"pm.globals.set(\"end_date\", formattedEndDate);",
+									"",
+									"// Retrieve the stock list from global variables and pick a random stock symbol",
+									"const stockArray = pm.globals.get(\"stockList\").split(\",\");",
+									"const randomIndex = Math.floor(Math.random() * stockArray.length);",
+									"pm.globals.set(\"symbol\", stockArray[randomIndex]);",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{auth_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"symbol\": \"GOOGL\",\n    \"start_date\": \"2023-01-01T00:00:00Z\",\n    \"end_date\": \"2023-04-01T00:00:00Z\",\n    \"provider\": \"fmp\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}:{{port}}/{{v}}/stock/historical/{{symbol}}?start_date={{start_date}}&end_date={{end_date}}&provider=fmp",
+							"host": [
+								"{{url}}"
+							],
+							"port": "{{port}}",
+							"path": [
+								"{{v}}",
+								"stock",
+								"historical",
+								"{{symbol}}"
+							],
+							"query": [
+								{
+									"key": "start_date",
+									"value": "{{start_date}}"
+								},
+								{
+									"key": "end_date",
+									"value": "{{end_date}}"
+								},
+								{
+									"key": "provider",
+									"value": "fmp"
+								}
 							]
 						}
 					},
