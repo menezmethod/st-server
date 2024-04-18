@@ -2,10 +2,11 @@ package record
 
 import (
 	"context"
-	"go.uber.org/zap"
 	"net/http"
 	"strconv"
 	"time"
+
+	"go.uber.org/zap"
 
 	"google.golang.org/grpc/metadata"
 
@@ -45,7 +46,7 @@ func updateRecordFieldsFromRequest(req *pb.UpdateRecordRequest, record *models.R
 	record.TimeExecuted = req.GetTimeExecuted()
 }
 
-func createUpdateRecordResponse(record models.Record, status uint64, errorMessage string) *pb.UpdateRecordResponse {
+func createUpdateRecordResponse(record *models.Record, status uint64, errorMessage string) *pb.UpdateRecordResponse {
 	timestamp := time.Now().Format(time.RFC3339)
 	response := &pb.UpdateRecordResponse{
 		Timestamp: timestamp,
@@ -89,19 +90,19 @@ func (s *Server) UpdateRecord(ctx context.Context, req *pb.UpdateRecordRequest) 
 	md, ok := metadata.FromIncomingContext(ctx)
 	if !ok {
 		s.Logger.Warn("No metadata received with request")
-		return createUpdateRecordResponse(models.Record{}, http.StatusBadRequest, "no metadata received with request"), nil
+		return createUpdateRecordResponse(&models.Record{}, http.StatusBadRequest, "no metadata received with request"), nil
 	}
 
 	userIDStrs, ok := md["user-id"]
 	if !ok || len(userIDStrs) == 0 {
 		s.Logger.Warn("User ID not provided in metadata")
-		return createUpdateRecordResponse(models.Record{}, http.StatusUnauthorized, "user-id not provided in metadata"), nil
+		return createUpdateRecordResponse(&models.Record{}, http.StatusUnauthorized, "user-id not provided in metadata"), nil
 	}
 
 	loggedInUserID, err := strconv.ParseUint(userIDStrs[0], 10, 64)
 	if err != nil {
 		s.Logger.Error("Invalid user ID format", zap.Error(err))
-		return createUpdateRecordResponse(models.Record{}, http.StatusUnauthorized, err.Error()), nil
+		return createUpdateRecordResponse(&models.Record{}, http.StatusUnauthorized, err.Error()), nil
 	}
 
 	s.Logger.Info("Authenticated user", zap.Uint64("UserID", loggedInUserID))
@@ -109,12 +110,12 @@ func (s *Server) UpdateRecord(ctx context.Context, req *pb.UpdateRecordRequest) 
 	authRes, err := s.AuthServiceClient.FindOneUser(ctx, &pb.FindOneUserRequest{Id: loggedInUserID})
 	if err != nil {
 		s.Logger.Error("Failed to get user from auth service", zap.Error(err))
-		return createUpdateRecordResponse(models.Record{}, http.StatusInternalServerError, err.Error()), nil
+		return createUpdateRecordResponse(&models.Record{}, http.StatusInternalServerError, err.Error()), nil
 	}
 
 	if authRes == nil || authRes.Data == nil {
 		s.Logger.Error("Invalid response from auth service")
-		return createUpdateRecordResponse(models.Record{}, http.StatusInternalServerError, "invalid response from auth service"), nil
+		return createUpdateRecordResponse(&models.Record{}, http.StatusInternalServerError, "invalid response from auth service"), nil
 	}
 
 	s.Logger.Info("User role retrieved", zap.String("Role", authRes.Data.Role))
@@ -122,27 +123,27 @@ func (s *Server) UpdateRecord(ctx context.Context, req *pb.UpdateRecordRequest) 
 	var existingRecord models.Record
 	if err := s.H.DB.NewSelect().Model(&existingRecord).Where("ID = ?", req.GetId()).Scan(ctx); err != nil {
 		s.Logger.Error("Failed to retrieve record from database", zap.Error(err))
-		return createUpdateRecordResponse(models.Record{}, http.StatusInternalServerError, "failed to retrieve record"), nil
+		return createUpdateRecordResponse(&models.Record{}, http.StatusInternalServerError, "failed to retrieve record"), nil
 	}
 
 	if existingRecord.CreatedBy != loggedInUserID && authRes.Data.Role != "ADMIN" {
 		s.Logger.Error("Unauthorized attempt to update record", zap.Uint64("RecordID", req.GetId()), zap.Uint64("AttemptedByUserID", loggedInUserID))
-		return createUpdateRecordResponse(models.Record{}, http.StatusForbidden, "unauthorized to update this record"), nil
+		return createUpdateRecordResponse(&models.Record{}, http.StatusForbidden, "unauthorized to update this record"), nil
 	}
 
-	record := models.Record{}
-	updateRecordFieldsFromRequest(req, &record)
-	determineOutcome(req, &record)
+	record := &models.Record{}
+	updateRecordFieldsFromRequest(req, record)
+	determineOutcome(req, record)
 
-	errorMsg := utils.ValidateRecord(&record)
+	errorMsg := utils.ValidateRecord(record)
 	if errorMsg != "" {
 		s.Logger.Error("Validation failed for UpdateRecord", zap.String("error", errorMsg))
-		return createUpdateRecordResponse(models.Record{}, http.StatusBadRequest, errorMsg), nil
+		return createUpdateRecordResponse(&models.Record{}, http.StatusBadRequest, errorMsg), nil
 	}
 
 	if _, err := s.H.DB.NewUpdate().Model(&record).Where("ID = ?", record.ID).Exec(ctx); err != nil {
 		s.Logger.Error("Failed to update record in database", zap.Error(err))
-		return createUpdateRecordResponse(models.Record{}, http.StatusInternalServerError, "failed to update record"), nil
+		return createUpdateRecordResponse(&models.Record{}, http.StatusInternalServerError, "failed to update record"), nil
 	}
 
 	s.Logger.Info("Record updated successfully", zap.Uint64("RecordID", record.ID))

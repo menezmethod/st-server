@@ -21,7 +21,12 @@ import (
 
 func main() {
 	logger := initLogger()
-	defer logger.Sync()
+	defer func(logger *zap.Logger) {
+		err := logger.Sync()
+		if err != nil {
+			logger.Error("Failed to sync logger", zap.Error(err))
+		}
+	}(logger)
 
 	c := loadConfig(logger)
 
@@ -37,7 +42,7 @@ func main() {
 	startPrometheusServer(reg)
 
 	if err := grpcServer.Serve(lis); err != nil {
-		log.Fatalln("Failed to serve:", zap.Error(err))
+		log.Println("Failed to serve:", zap.Error(err))
 	}
 }
 

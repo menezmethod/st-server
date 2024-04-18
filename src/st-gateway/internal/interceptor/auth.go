@@ -14,7 +14,7 @@ type AuthFunc func(token string) (userID string, err error)
 
 // AuthInterceptor creates a new HTTP request modifier for authentication
 func AuthInterceptor(authFunc AuthFunc, logger *zap.Logger) func(ctx context.Context, req *http.Request) metadata.MD {
-	return func(ctx context.Context, req *http.Request) metadata.MD {
+	return func(_ context.Context, req *http.Request) metadata.MD {
 		authHeader := req.Header.Get("Authorization")
 		if authHeader == "" {
 			logger.Warn("No authorization header in request")

@@ -27,7 +27,7 @@ func InitDB(url string) DB {
 	db := connectDB(url)
 	handler := DB{db}
 
-	if !handler.checkDataExists(&models.Record{}, "journal.yml") {
+	if !handler.checkDataExists(&models.Record{}) {
 		handler.ensureFixturesLoaded("journal.yml")
 	} else {
 		log.Println("Existing data detected, skipping fixtures.")
@@ -75,7 +75,7 @@ func (h DB) ensureFixturesLoaded(fixtureFile string) {
 	log.Println("Database fixtures loaded successfully")
 }
 
-func (h DB) checkDataExists(model interface{}, fixtureFile string) bool {
+func (h DB) checkDataExists(model interface{}) bool {
 	count, err := h.NewSelect().Model(model).Limit(1).Count(context.Background())
 	if err != nil {
 		log.Printf("Failed to check for existing data: %v", err)

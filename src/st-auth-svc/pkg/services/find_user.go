@@ -2,10 +2,11 @@ package services
 
 import (
 	"context"
+	"net/http"
+
 	"github.com/menezmethod/st-server/src/st-auth-svc/pkg/models"
 	"github.com/menezmethod/st-server/src/st-auth-svc/pkg/pb"
 	"go.uber.org/zap"
-	"net/http"
 )
 
 func (s *Server) FindAllUsers(ctx context.Context, _ *pb.FindAllUsersRequest) (*pb.FindAllUsersResponse, error) {
@@ -21,7 +22,8 @@ func (s *Server) FindAllUsers(ctx context.Context, _ *pb.FindAllUsersRequest) (*
 		}, nil
 	}
 
-	for _, user := range userModel {
+	for i := range userModel {
+		user := &userModel[i]
 		users = append(users, &pb.User{
 			Id:        user.Id,
 			Email:     user.Email,

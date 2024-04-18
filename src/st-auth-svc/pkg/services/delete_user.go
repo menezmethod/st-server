@@ -3,12 +3,13 @@ package services
 import (
 	"context"
 	"fmt"
+	"net/http"
+	"strings"
+
 	"github.com/menezmethod/st-server/src/st-auth-svc/pkg/models"
 	"github.com/menezmethod/st-server/src/st-auth-svc/pkg/pb"
 	"github.com/menezmethod/st-server/src/st-auth-svc/pkg/utils"
 	"go.uber.org/zap"
-	"net/http"
-	"strings"
 )
 
 func (s *Server) DeleteUser(ctx context.Context, req *pb.DeleteUserRequest) (*pb.DeleteUserResponse, error) {
@@ -48,7 +49,7 @@ func (s *Server) DeleteUser(ctx context.Context, req *pb.DeleteUserRequest) (*pb
 	}
 
 	if rowsAffected == 0 {
-		errMessage := fmt.Sprintf("No matching users found for provided IDs.")
+		errMessage := "No matching users found for provided IDs."
 		errLevel := "WARNING"
 		response := generateDeleteUserResponse(http.StatusBadRequest, errLevel, errMessage, "Ensure the provided IDs are correct.", 0)
 		utils.LogResponse(s.Logger, "DeleteUser", response, http.StatusBadRequest)
@@ -60,12 +61,12 @@ func (s *Server) DeleteUser(ctx context.Context, req *pb.DeleteUserRequest) (*pb
 	return response, nil
 }
 
-func generateDeleteUserResponse(status int, level, message, error string, rowsAffected int64) *pb.DeleteUserResponse {
+func generateDeleteUserResponse(status int, level, message, userError string, rowsAffected int64) *pb.DeleteUserResponse {
 	return &pb.DeleteUserResponse{
 		Status:       uint64(status),
 		Level:        level,
 		Message:      message,
-		Error:        error,
+		Error:        userError,
 		RowsAffected: uint64(rowsAffected),
 	}
 }

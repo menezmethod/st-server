@@ -2,6 +2,7 @@ package utils
 
 import (
 	"errors"
+
 	"go.uber.org/zap"
 	"golang.org/x/crypto/bcrypt"
 )

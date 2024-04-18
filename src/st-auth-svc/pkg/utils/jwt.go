@@ -14,14 +14,14 @@ type JwtWrapper struct {
 	ExpirationHours uint64
 }
 
-type jwtClaims struct {
+type JWTClaims struct {
 	jwt.StandardClaims
 	Id    uint64
 	Email string
 }
 
-func (w *JwtWrapper) GenerateToken(user models.User) (string, error) {
-	claims := &jwtClaims{
+func (w *JwtWrapper) GenerateToken(user *models.User) (string, error) {
+	claims := &JWTClaims{
 		Id:    user.Id,
 		Email: user.Email,
 		StandardClaims: jwt.StandardClaims{
@@ -39,15 +39,15 @@ func (w *JwtWrapper) GenerateToken(user models.User) (string, error) {
 	return signedToken, nil
 }
 
-func (w *JwtWrapper) ValidateToken(signedToken string) (*jwtClaims, error) {
-	token, err := jwt.ParseWithClaims(signedToken, &jwtClaims{}, func(token *jwt.Token) (interface{}, error) {
+func (w *JwtWrapper) ValidateToken(signedToken string) (*JWTClaims, error) {
+	token, err := jwt.ParseWithClaims(signedToken, &JWTClaims{}, func(_ *jwt.Token) (interface{}, error) {
 		return []byte(w.SecretKey), nil
 	})
 	if err != nil {
 		return nil, err
 	}
 
-	claims, ok := token.Claims.(*jwtClaims)
+	claims, ok := token.Claims.(*JWTClaims)
 	if !ok || !token.Valid {
 		return nil, errors.New("invalid token claims")
 	}

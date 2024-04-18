@@ -2,6 +2,7 @@ package utils
 
 import (
 	"encoding/json"
+
 	"github.com/menezmethod/st-server/src/st-journal-svc/pkg/models"
 	"go.uber.org/zap"
 )

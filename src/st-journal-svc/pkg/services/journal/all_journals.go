@@ -83,8 +83,8 @@ func (s *Server) ListJournals(ctx context.Context, _ *pb.FindAllJournalsRequest)
 	}
 
 	journals := make([]*pb.Journal, len(modelJournals))
-	for i, journal := range modelJournals {
-		journals[i] = mapJournalToPBJournal(journal)
+	for i := 0; i < len(modelJournals); i++ {
+		journals[i] = mapJournalToPBJournal(&modelJournals[i])
 	}
 
 	s.Logger.Info("Successfully retrieved journals", zap.Int("count", len(journals)))

@@ -2,9 +2,10 @@ package utils
 
 import (
 	"encoding/json"
-	"go.uber.org/zap"
 	"regexp"
 	"strings"
+
+	"go.uber.org/zap"
 )
 
 func censorSensitiveData(resp interface{}) interface{} {

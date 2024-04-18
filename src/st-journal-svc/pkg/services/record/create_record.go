@@ -3,12 +3,12 @@ package record
 import (
 	"context"
 	"fmt"
-	"google.golang.org/protobuf/types/known/timestamppb"
 	"net/http"
 	"time"
 
 	"github.com/go-playground/validator/v10"
 	"go.uber.org/zap"
+	"google.golang.org/protobuf/types/known/timestamppb"
 
 	"github.com/menezmethod/st-server/src/st-journal-svc/pkg/db"
 	"github.com/menezmethod/st-server/src/st-journal-svc/pkg/models"
@@ -42,14 +42,14 @@ func (s *Server) CreateRecord(ctx context.Context, req *pb.CreateRecordRequest) 
 	var resp *pb.CreateRecordResponse
 	if errorMsg != "" {
 		log.Error("Validation failed for CreateRecord", zap.String("error", errorMsg))
-		resp = createRecordResponse(record, http.StatusBadRequest, errorMsg)
+		resp = createRecordResponse(&record, http.StatusBadRequest, errorMsg)
 	} else {
 		if _, err := s.H.DB.NewInsert().Model(&record).Exec(ctx); err != nil {
 			log.Error("Failed to insert record", zap.Error(err))
-			resp = createRecordResponse(record, http.StatusInternalServerError, "Failed to insert record")
+			resp = createRecordResponse(&record, http.StatusInternalServerError, "Failed to insert record")
 		} else {
 			log.Info("Record created successfully", zap.Any("record", record))
-			resp = createRecordResponse(record, http.StatusCreated, "")
+			resp = createRecordResponse(&record, http.StatusCreated, "")
 		}
 	}
 
@@ -80,7 +80,7 @@ func populateRecordFromRequest(req *pb.CreateRecordRequest) models.Record {
 	}
 }
 
-func createRecordResponse(record models.Record, status uint64, errorMessage string) *pb.CreateRecordResponse {
+func createRecordResponse(record *models.Record, status uint64, errorMessage string) *pb.CreateRecordResponse {
 	timestamp := time.Now().Format(time.RFC3339)
 	response := &pb.CreateRecordResponse{
 		Timestamp: timestamp,

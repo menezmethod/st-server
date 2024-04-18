@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"github.com/menezmethod/st-server/src/st-gateway/internal/auth"
 	"log"
 	"net/http"
 	"strconv"
@@ -15,6 +14,7 @@ import (
 	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/status"
 
+	"github.com/menezmethod/st-server/src/st-gateway/internal/auth"
 	"github.com/menezmethod/st-server/src/st-gateway/internal/interceptor"
 	"github.com/menezmethod/st-server/src/st-gateway/pkg/config"
 	"github.com/menezmethod/st-server/src/st-gateway/pkg/middleware"
@@ -115,13 +115,13 @@ func createAuthFunc(authServiceClient pbAuth.AuthServiceClient) func(string) (st
 }
 
 func registerServiceHandlers(ctx context.Context, mux *runtime.ServeMux, cfg *config.Config, opts []grpc.DialOption, logger *zap.Logger) {
-	registerHandler(ctx, mux, cfg.AuthSvcUrl, opts, pbAuth.RegisterAuthServiceHandlerFromEndpoint, utils.AuthServiceName, logger)
-	registerHandler(ctx, mux, cfg.JournalSvcUrl, opts, pbJournal.RegisterJournalServiceHandlerFromEndpoint, utils.JournalServiceName, logger)
-	registerHandler(ctx, mux, cfg.HelperSvcUrl, opts, pbHelper.RegisterSTHelperHandlerFromEndpoint, utils.HelperServiceName, logger)
-	registerHandler(ctx, mux, cfg.JournalSvcUrl, opts, pbRecord.RegisterRecordServiceHandlerFromEndpoint, utils.RecordServiceName, logger)
+	registerHandler(ctx, mux, cfg.AuthSvcUrl, opts, pbAuth.RegisterAuthServiceHandlerFromEndpoint, logger)
+	registerHandler(ctx, mux, cfg.JournalSvcUrl, opts, pbJournal.RegisterJournalServiceHandlerFromEndpoint, logger)
+	registerHandler(ctx, mux, cfg.HelperSvcUrl, opts, pbHelper.RegisterSTHelperHandlerFromEndpoint, logger)
+	registerHandler(ctx, mux, cfg.JournalSvcUrl, opts, pbRecord.RegisterRecordServiceHandlerFromEndpoint, logger)
 }
 
-func registerHandler(ctx context.Context, mux *runtime.ServeMux, endpoint string, opts []grpc.DialOption, registerFunc func(ctx context.Context, mux *runtime.ServeMux, endpoint string, opts []grpc.DialOption) error, serviceName string, logger *zap.Logger) {
+func registerHandler(ctx context.Context, mux *runtime.ServeMux, endpoint string, opts []grpc.DialOption, registerFunc func(ctx context.Context, mux *runtime.ServeMux, endpoint string, opts []grpc.DialOption) error, logger *zap.Logger) {
 	if err := registerFunc(ctx, mux, endpoint, opts); err != nil {
 		logger.Fatal(utils.LogFailedToRegister, zap.Error(err))
 	}
