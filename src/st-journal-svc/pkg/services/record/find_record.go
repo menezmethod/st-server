@@ -13,7 +13,7 @@ import (
 	"github.com/menezmethod/st-server/src/st-journal-svc/pkg/pb"
 )
 
-func mapModelRecordToPBRecord(record models.Record) *pb.Record {
+func mapModelRecordToPBRecord(record *models.Record) *pb.Record {
 	return &pb.Record{
 		BaseInstrument:  record.BaseInstrument,
 		Comments:        record.Comments,
@@ -109,6 +109,6 @@ func (s *Server) GetRecord(ctx context.Context, req *pb.FindOneRecordRequest) (*
 	log.Info("Successfully retrieved record")
 	return &pb.FindOneRecordResponse{
 		Status: http.StatusOK,
-		Data:   mapModelRecordToPBRecord(record),
+		Data:   mapModelRecordToPBRecord(&record),
 	}, nil
 }

@@ -3,9 +3,10 @@ package journal
 import (
 	"context"
 	"fmt"
-	"google.golang.org/protobuf/types/known/timestamppb"
 	"net/http"
 	"time"
+
+	"google.golang.org/protobuf/types/known/timestamppb"
 
 	"github.com/go-playground/validator/v10"
 	"go.uber.org/zap"
@@ -38,7 +39,7 @@ func (s *Server) CreateJournal(ctx context.Context, req *pb.CreateJournalRequest
 	log.Debug("Received CreateJournal request")
 
 	journal := populateJournalFromRequest(req)
-	errorMsg := utils.ValidateJournal(&journal)
+	errorMsg := utils.ValidateJournal(journal)
 
 	var resp *pb.CreateJournalResponse
 	if errorMsg != "" {
@@ -58,8 +59,8 @@ func (s *Server) CreateJournal(ctx context.Context, req *pb.CreateJournalRequest
 
 	return resp, nil
 }
-func populateJournalFromRequest(req *pb.CreateJournalRequest) models.Journal {
-	return models.Journal{
+func populateJournalFromRequest(req *pb.CreateJournalRequest) *models.Journal {
+	return &models.Journal{
 		Name:            req.GetName(),
 		Description:     req.GetDescription(),
 		CreatedAt:       time.Now(),
@@ -70,7 +71,7 @@ func populateJournalFromRequest(req *pb.CreateJournalRequest) models.Journal {
 	}
 }
 
-func createJournalResponse(journal models.Journal, status int, message string) *pb.CreateJournalResponse {
+func createJournalResponse(journal *models.Journal, status int, message string) *pb.CreateJournalResponse {
 	return &pb.CreateJournalResponse{
 		Timestamp: time.Now().Format(time.RFC1123),
 		Level:     utils.GetStatusLevel(status),

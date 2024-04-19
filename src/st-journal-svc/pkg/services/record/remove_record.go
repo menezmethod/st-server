@@ -52,15 +52,15 @@ func (s *Server) RemoveRecord(ctx context.Context, req *pb.DeleteRecordRequest) 
 	s.Logger.Info("User role retrieved", zap.String("Role", authRes.Data.Role))
 
 	var recordsToDelete []models.Record
-	if err := s.H.DB.NewSelect().Model(&recordsToDelete).Where("ID IN (?)", bun.In(req.Id)).Scan(ctx); err != nil {
-		s.Logger.Error("Failed to retrieve records from database", zap.Error(err))
+	if errDelete := s.H.DB.NewSelect().Model(&recordsToDelete).Where("ID IN (?)", bun.In(req.Id)).Scan(ctx); errDelete != nil {
+		s.Logger.Error("Failed to retrieve records from database", zap.Error(errDelete))
 		return createDeleteRecordResponse(http.StatusInternalServerError, "Failed to retrieve records", "failed to retrieve records", 0), nil
 	}
 
 	if authRes.Data.Role != "ADMIN" {
-		for _, record := range recordsToDelete {
-			if record.CreatedBy != loggedInUserID {
-				s.Logger.Error("Unauthorized attempt to delete record", zap.Uint64("RecordID", record.ID), zap.Uint64("AttemptedByUserID", loggedInUserID))
+		for i := 0; i < len(recordsToDelete); i++ {
+			if recordsToDelete[i].CreatedBy != loggedInUserID {
+				s.Logger.Error("Unauthorized attempt to delete record", zap.Uint64("RecordID", recordsToDelete[i].ID), zap.Uint64("AttemptedByUserID", loggedInUserID))
 				return createDeleteRecordResponse(http.StatusForbidden, "Unauthorized to delete one or more records", "unauthorized to delete one or more records", 0), nil
 			}
 		}

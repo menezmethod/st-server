@@ -4,13 +4,14 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/go-playground/validator/v10"
-	"github.com/menezmethod/st-server/src/st-auth-svc/pkg/db"
-	"go.uber.org/zap"
 	"net/http"
 	"strings"
 	"time"
 
+	"github.com/go-playground/validator/v10"
+	"go.uber.org/zap"
+
+	"github.com/menezmethod/st-server/src/st-auth-svc/pkg/db"
 	"github.com/menezmethod/st-server/src/st-auth-svc/pkg/models"
 	"github.com/menezmethod/st-server/src/st-auth-svc/pkg/pb"
 	"github.com/menezmethod/st-server/src/st-auth-svc/pkg/utils"
@@ -65,7 +66,7 @@ func (s *Server) Login(ctx context.Context, req *pb.LoginRequest) (*pb.LoginResp
 		return response, nil
 	}
 
-	token, err := s.Jwt.GenerateToken(user)
+	token, err := s.Jwt.GenerateToken(&user)
 	if err != nil {
 		response := s.generateLoginResponse(http.StatusInternalServerError, "Failed to generate token", "", "")
 		return response, err

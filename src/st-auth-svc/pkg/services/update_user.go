@@ -3,11 +3,12 @@ package services
 import (
 	"context"
 	"fmt"
+	"net/http"
+	"time"
+
 	"github.com/menezmethod/st-server/src/st-auth-svc/pkg/models"
 	"github.com/menezmethod/st-server/src/st-auth-svc/pkg/pb"
 	"github.com/menezmethod/st-server/src/st-auth-svc/pkg/utils"
-	"net/http"
-	"time"
 )
 
 func (s *Server) UpdateUser(ctx context.Context, req *pb.UpdateUserRequest) (*pb.UpdateUserResponse, error) {

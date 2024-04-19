@@ -13,7 +13,7 @@ import (
 	"github.com/menezmethod/st-server/src/st-journal-svc/pkg/pb"
 )
 
-func mapJournalToPBJournal(journal models.Journal) *pb.Journal {
+func mapJournalToPBJournal(journal *models.Journal) *pb.Journal {
 	return &pb.Journal{
 		Id:              journal.ID,
 		CreatedAt:       timestamppb.New(journal.CreatedAt),
@@ -99,6 +99,6 @@ func (s *Server) GetJournal(ctx context.Context, req *pb.FindOneJournalRequest) 
 	log.Info("Successfully retrieved journal")
 	return &pb.FindOneJournalResponse{
 		Status: http.StatusOK,
-		Data:   mapJournalToPBJournal(journal),
+		Data:   mapJournalToPBJournal(&journal),
 	}, nil
 }

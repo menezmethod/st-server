@@ -83,8 +83,8 @@ func (s *Server) ListRecords(ctx context.Context, _ *pb.FindAllRecordsRequest) (
 	}
 
 	records := make([]*pb.Record, len(modelRecords))
-	for i, record := range modelRecords {
-		records[i] = mapModelRecordToPBRecord(record)
+	for i := 0; i < len(modelRecords); i++ {
+		records[i] = mapModelRecordToPBRecord(&modelRecords[i])
 	}
 
 	s.Logger.Info("Successfully retrieved records", zap.Int("count", len(records)))

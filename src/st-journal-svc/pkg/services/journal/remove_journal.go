@@ -3,11 +3,12 @@ package journal
 import (
 	"context"
 	"fmt"
+	"net/http"
+	"strconv"
+
 	"github.com/uptrace/bun"
 	"go.uber.org/zap"
 	"google.golang.org/grpc/metadata"
-	"net/http"
-	"strconv"
 
 	"github.com/menezmethod/st-server/src/st-journal-svc/pkg/models"
 	"github.com/menezmethod/st-server/src/st-journal-svc/pkg/pb"
@@ -51,15 +52,15 @@ func (s *Server) RemoveJournal(ctx context.Context, req *pb.DeleteJournalRequest
 	s.Logger.Info("User role retrieved", zap.String("Role", authRes.Data.Role))
 
 	var journalsToDelete []models.Journal
-	if err := s.H.DB.NewSelect().Model(&journalsToDelete).Where("ID IN (?)", bun.In(req.Id)).Scan(ctx); err != nil {
-		s.Logger.Error("Failed to retrieve journals from database", zap.Error(err))
+	if errDel := s.H.DB.NewSelect().Model(&journalsToDelete).Where("ID IN (?)", bun.In(req.Id)).Scan(ctx); errDel != nil {
+		s.Logger.Error("Failed to retrieve journals from database", zap.Error(errDel))
 		return createDeleteJournalResponse(http.StatusInternalServerError, "Failed to retrieve journals", "failed to retrieve journals", 0), nil
 	}
 
 	if authRes.Data.Role != "ADMIN" {
-		for _, journal := range journalsToDelete {
-			if journal.CreatedBy != loggedInUserID {
-				s.Logger.Error("Unauthorized attempt to delete journal", zap.Uint64("JournalID", journal.ID), zap.Uint64("AttemptedByUserID", loggedInUserID))
+		for i := 0; i < len(journalsToDelete); i++ {
+			if journalsToDelete[i].CreatedBy != loggedInUserID {
+				s.Logger.Error("Unauthorized attempt to delete journal", zap.Uint64("JournalID", journalsToDelete[i].ID), zap.Uint64("AttemptedByUserID", loggedInUserID))
 				return createDeleteJournalResponse(http.StatusForbidden, "Unauthorized to delete one or more journals", "unauthorized to delete one or more journals", 0), nil
 			}
 		}

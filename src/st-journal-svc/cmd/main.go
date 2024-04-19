@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"github.com/menezmethod/st-server/src/st-journal-svc/pkg/auth"
 	"log"
 	"net"
 	"net/http"
@@ -14,6 +13,7 @@ import (
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
 
+	"github.com/menezmethod/st-server/src/st-journal-svc/pkg/auth"
 	"github.com/menezmethod/st-server/src/st-journal-svc/pkg/config"
 	"github.com/menezmethod/st-server/src/st-journal-svc/pkg/db"
 	"github.com/menezmethod/st-server/src/st-journal-svc/pkg/pb"
@@ -72,8 +72,8 @@ func initGRPCServer() *grpc.Server {
 	)
 }
 
-func registerServices(grpcServer *grpc.Server, h db.DB, logger *zap.Logger, config *config.Config) {
-	authServiceClient := auth.InitAuthServiceClient(config)
+func registerServices(grpcServer *grpc.Server, h db.DB, logger *zap.Logger, appConfig *config.Config) {
+	authServiceClient := auth.InitAuthServiceClient(appConfig)
 	logger.Info("AuthServiceClient initialized successfully")
 
 	pb.RegisterJournalServiceServer(grpcServer, &journal.Server{

@@ -83,11 +83,11 @@ func (h DB) checkUserDataExists() bool {
 	return count > 0
 }
 
-func (h DB) loadFixtures(db *bun.DB) error {
+func (_ DB) loadFixtures(db *bun.DB) error {
 	fixture := dbfixture.New(db, dbfixture.WithRecreateTables())
 	err := fixture.Load(context.Background(), os.DirFS("./pkg/db"), "user.yml")
 	if err != nil {
-		return fmt.Errorf("failed to load database fixtures: %w", zap.Error(err))
+		return fmt.Errorf("failed to load database fixtures: %w", err)
 	}
 	return nil
 }

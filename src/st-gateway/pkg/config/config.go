@@ -1,8 +1,9 @@
 package config
 
 import (
-	"github.com/spf13/viper"
 	"log"
+
+	"github.com/spf13/viper"
 )
 
 type Config struct {
@@ -19,8 +20,8 @@ func LoadConfig() (config Config, err error) {
 	requiredVars := []string{"AUTH_SVC_URL", "PORT", "JWT_SECRET_KEY", "JOURNAL_SVC_URL", "HELPER_SVC_URL", "API_VERSION"}
 
 	for _, v := range requiredVars {
-		if err := viper.BindEnv(v); err != nil {
-			return Config{}, err
+		if errBind := viper.BindEnv(v); errBind != nil {
+			return Config{}, errBind
 		}
 	}
 

@@ -20,6 +20,9 @@ func (s *Server) Register(ctx context.Context, req *pb.RegisterRequest) (*pb.Reg
 
 	s.Logger.Debug("Received Register request")
 	hashedPassword, err := utils.HashPassword(s.Logger, req.Password, 10)
+	if err != nil {
+		s.Logger.Error("Failed to hash password: %v")
+	}
 
 	user := models.User{
 		Email:     req.Email,
@@ -30,9 +33,9 @@ func (s *Server) Register(ctx context.Context, req *pb.RegisterRequest) (*pb.Reg
 		CreatedAt: time.Now(),
 	}
 
-	if err := s.Validator.Struct(user); err != nil {
+	if errVal := s.Validator.Struct(user); errVal != nil {
 		var validationErrors validator.ValidationErrors
-		if errors.As(err, &validationErrors) {
+		if errors.As(errVal, &validationErrors) {
 			errMsgs := make([]string, 0)
 			for _, e := range validationErrors {
 				errMsg := fmt.Sprintf("%s is invalid or missing for field %s", e.ActualTag(), e.Field())
@@ -50,17 +53,17 @@ func (s *Server) Register(ctx context.Context, req *pb.RegisterRequest) (*pb.Reg
 
 	user.Password = hashedPassword
 
-	if exists, err := s.userExists(ctx, user.Email); err != nil {
-		return s.generateRegisterResponse(http.StatusInternalServerError, "User existence check failed", err.Error(), nil, ""), err
+	if exists, errExists := s.userExists(ctx, user.Email); errExists != nil {
+		return s.generateRegisterResponse(http.StatusInternalServerError, "User existence check failed", errExists.Error(), nil, ""), errExists
 	} else if exists {
 		return s.generateRegisterResponse(http.StatusConflict, "User already exists", "UserRegistrationConflict", nil, ""), nil
 	}
 
-	if err := s.createUser(ctx, &user); err != nil {
-		return s.generateRegisterResponse(http.StatusInternalServerError, "Failed to create user", err.Error(), nil, ""), err
+	if errCreate := s.createUser(ctx, &user); errCreate != nil {
+		return s.generateRegisterResponse(http.StatusInternalServerError, "Failed to create user", errCreate.Error(), nil, ""), errCreate
 	}
 
-	token, err := s.Jwt.GenerateToken(user)
+	token, err := s.Jwt.GenerateToken(&user)
 	if err != nil {
 		return s.generateRegisterResponse(http.StatusInternalServerError, "Token generation failed", err.Error(), nil, ""), err
 	}
