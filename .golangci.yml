@@ -1,0 +1,62 @@
+linters-settings:
+  depguard:
+    rules:
+      logger:
+        deny:
+          - pkg: "github.com/sirupsen/logrus"
+            desc: logging is allowed only by logutils.Log.
+          - pkg: "github.com/pkg/errors"
+            desc: Should be replaced by standard lib errors package.
+          - pkg: "github.com/instana/testify"
+            desc: It's a fork of github.com/stretchr/testify.
+        files:
+          - "!**/pkg/logutils/**.go"
+  gocritic:
+    enabled-tags:
+      - diagnostic
+      - experimental
+      - opinionated
+      - performance
+      - style
+    disabled-checks:
+      - dupImport
+      - ifElseChain
+      - octalLiteral
+      - whyNoLint
+  govet:
+    settings:
+      printf:
+        funcs:
+          - (github.com/golangci/golangci-lint/pkg/logutils.Log).Infof
+          - (github.com/golangci/golangci-lint/pkg/logutils.Log).Warnf
+          - (github.com/golangci/golangci-lint/pkg/logutils.Log).Errorf
+          - (github.com/golangci/golangci-lint/pkg/logutils.Log).Fatalf
+    enable:
+      - nilness
+      - shadow
+  goimports:
+    local-prefixes: github.com/golangci/golangci-lint
+  revive:
+    rules:
+      - name: indent-error-flow
+      - name: unused-parameter
+      - name: unused-receiver
+
+linters:
+  disable-all: true
+  enable:
+    - depguard
+    - gocritic
+    - govet
+    - goimports
+    - revive
+
+issues:
+  exclude-dirs:
+    - test/testdata_etc
+    - internal/cache
+    - internal/renameio
+    - internal/robustio
+
+run:
+  timeout: 5m
