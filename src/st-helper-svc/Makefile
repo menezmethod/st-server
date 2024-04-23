@@ -1,22 +1,18 @@
 .PHONY: all proto server clean
 
+# Variables
+PROTO_FILE := ./protos/helper.proto
+OUTPUT_DIR := .
+INCLUDE_PATH := /Volumes/MenezSSD/Projects/st-server
+
+# Targets
 all: proto server
 
-# Path to the proto file
-PROTO_FILE=./protos/helper.proto
-
-# Generate Python and gRPC code from proto file
 proto:
-	python -m grpc_tools.protoc \
-		-I./protos \
-		--python_out=. \
-		--grpc_python_out=. \
-		$(PROTO_FILE)
+	python -m grpc_tools.protoc -I./protos -I$(INCLUDE_PATH) --python_out=$(OUTPUT_DIR) --grpc_python_out=$(OUTPUT_DIR) $(PROTO_FILE)
 
-# Run the gRPC server
 server:
-	python -m st_helper.server
+	python server.py
 
-# Clean generated files
 clean:
-	rm -f *_pb2.py *_pb2_grpc.py
+	rm -f $(OUTPUT_DIR)/*_pb2.py $(OUTPUT_DIR)/*_pb2_grpc.py

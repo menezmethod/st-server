@@ -4,6 +4,7 @@ package helper;
 
 option go_package = "github.com/menezmethod/st-server/src/st-gateway/versions/v1/helper";
 
+import "protoc-gen-openapiv2/options/annotations.proto";
 import "google/api/annotations.proto";
 
 service STHelper {
@@ -20,16 +21,22 @@ service STHelper {
   }
   rpc GetHistoricalStockData(HistoricalStockDataRequest) returns (HistoricalStockDataResponse) {
     option (google.api.http) = {
-      get: "/v1/stock/historical/{symbol}?start_date={start_date}&end_date={end_date}&provider={provider}"
+      get: "/v1/stock/historical/{symbol}/{start_date}/{end_date}/{provider}"
     };
   }
 }
+
 message FinancialRequest {
   string userId = 1;
   string financial_data = 2;
 }
 
 message FinancialResponse {
+  option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_schema) = {
+    json_schema: {
+      type: STRING,
+    }
+  };
   string suggestions = 1;
 }
 

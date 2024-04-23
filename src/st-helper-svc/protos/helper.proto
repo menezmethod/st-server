@@ -2,6 +2,8 @@ syntax = "proto3";
 
 package helper;
 
+import "protoc-gen-openapiv2/options/annotations.proto";
+
 service STHelper {
   rpc AnalyzeFinancialData (FinancialRequest) returns (FinancialResponse) {}
   rpc GetStockQuote (StockQuoteRequest) returns (StockQuoteResponse) {}
@@ -14,6 +16,11 @@ message FinancialRequest {
 }
 
 message FinancialResponse {
+  option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_schema) = {
+    json_schema: {
+      type: STRING,
+    }
+  };
   string suggestions = 1;
 }
 

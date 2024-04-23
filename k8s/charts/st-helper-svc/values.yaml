@@ -23,11 +23,7 @@ service:
 resources:
   requests:
     cpu: "100m"
-    memory: "1Gi"
+    memory: "500Mi"
   limits:
     cpu: "200m"
-    memory: "4Gi"
-
-ollamaService:
-  host: "0.0.0.0"
-  port: 11434
+    memory: "2Gi"

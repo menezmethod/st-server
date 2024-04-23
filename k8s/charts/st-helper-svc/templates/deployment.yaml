@@ -20,11 +20,6 @@ spec:
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
             - containerPort: {{ .Values.container.port }}
-          env:
-            - name: OLLAMA_HOST
-              value: {{ .Values.ollamaService.host }}
-            - name: OLLAMA_PORT
-              value: "{{ .Values.ollamaService.port }}"
           resources:
             requests:
               cpu: {{ .Values.resources.requests.cpu }}
