@@ -2,10 +2,12 @@ from concurrent import futures
 
 import grpc
 from grpc_reflection.v1alpha import reflection
+from openbb import obb
 
 import helper_pb2
 import helper_pb2_grpc
-from financial_analysis import FinancialAnalysisService
+from config.config import OBB_PAT
+from financial_analysis_service import FinancialAnalysisService
 
 
 def serve():
@@ -33,4 +35,5 @@ def serve():
 
 
 if __name__ == '__main__':
+    obb.account.login(pat=OBB_PAT, remember_me=True)
     serve()

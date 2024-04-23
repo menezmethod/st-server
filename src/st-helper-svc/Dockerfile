@@ -12,8 +12,6 @@ COPY requirements.txt ./
 
 RUN pip install --no-cache-dir -r requirements.txt
 
-COPY . .
-
 FROM python:3.11-slim
 
 WORKDIR /app
@@ -22,12 +20,11 @@ RUN apt-get update && apt-get install -y \
     libssl-dev \
     libffi-dev
 
-RUN pip install grpcio
-RUN pip install grpcio-reflection
-RUN pip install openbb
-RUN pip install crewai
+COPY --from=builder /usr/local/lib/python3.11/site-packages /usr/local/lib/python3.11/site-packages
 
-COPY --from=builder /app /app
+COPY . .
+
+RUN pip install --no-cache-dir grpcio grpcio-tools protoc-gen-openapiv2 grpcio-reflection openbb crewai langchain-groq
 
 ARG PORT=50053
 ENV PORT=${PORT}
@@ -36,4 +33,4 @@ EXPOSE ${PORT}
 
 ENV PYTHONUNBUFFERED=1
 
-CMD ["python", "server.py"]
+CMD ["python", "main.py"]

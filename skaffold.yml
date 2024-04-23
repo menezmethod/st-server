@@ -55,15 +55,7 @@ build:
           - src: 'src/st-gateway/**/*.go'
             strip: 'src/st-gateway/'
             dest: ./
-#    - image: ollama
-#      context: ./src/ollama
-#      docker:
-#        dockerfile: src/ollama/Dockerfile
-#      sync:
-#        manual:
-#          - src: 'src/ollama/**/*'
-#            strip: 'src/ollama/'
-#            dest: ./
+
 deploy:
   helm:
     releases:
@@ -111,14 +103,7 @@ deploy:
             AUTH_SVC_URL: st-auth-svc:50051
             JOURNAL_SVC_URL: st-journal-svc:50052
             JWT_SECRET_KEY: stauth983
-#      - name: ollama
-#        chartPath: k8s/charts/ollama
-#        valuesFiles:
-#          - k8s/charts/ollama/values.yaml
-#        setValues:
-#          image.repository: ollama
-#          image.tag: latest
-#          service.port: 11434
+
 portForward:
   - resourceType: service
     resourceName: st-auth-svc
@@ -160,8 +145,3 @@ portForward:
     namespace: default
     port: 5433
     localPort: 5433
-#  - resourceType: service
-#    resourceName: ollama
-#    namespace: default
-#    port: 11434
-#    localPort: 11434

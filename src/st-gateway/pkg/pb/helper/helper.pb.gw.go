@@ -57,10 +57,6 @@ func local_request_STHelper_AnalyzeFinancialData_0(ctx context.Context, marshale
 
 }
 
-var (
-	filter_STHelper_GetStockQuote_0 = &utilities.DoubleArray{Encoding: map[string]int{"symbol": 0}, Base: []int{1, 1, 0}, Check: []int{0, 1, 2}}
-)
-
 func request_STHelper_GetStockQuote_0(ctx context.Context, marshaler runtime.Marshaler, client STHelperClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq StockQuoteRequest
 	var metadata runtime.ServerMetadata
@@ -82,11 +78,14 @@ func request_STHelper_GetStockQuote_0(ctx context.Context, marshaler runtime.Mar
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "symbol", err)
 	}
 
-	if err := req.ParseForm(); err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	val, ok = pathParams["provider"]
+	if !ok {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "provider")
 	}
-	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_STHelper_GetStockQuote_0); err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+
+	protoReq.Provider, err = runtime.String(val)
+	if err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "provider", err)
 	}
 
 	msg, err := client.GetStockQuote(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
@@ -115,21 +114,20 @@ func local_request_STHelper_GetStockQuote_0(ctx context.Context, marshaler runti
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "symbol", err)
 	}
 
-	if err := req.ParseForm(); err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	val, ok = pathParams["provider"]
+	if !ok {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "provider")
 	}
-	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_STHelper_GetStockQuote_0); err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+
+	protoReq.Provider, err = runtime.String(val)
+	if err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "provider", err)
 	}
 
 	msg, err := server.GetStockQuote(ctx, &protoReq)
 	return msg, metadata, err
 
 }
-
-var (
-	filter_STHelper_GetHistoricalStockData_0 = &utilities.DoubleArray{Encoding: map[string]int{"symbol": 0}, Base: []int{1, 1, 0}, Check: []int{0, 1, 2}}
-)
 
 func request_STHelper_GetHistoricalStockData_0(ctx context.Context, marshaler runtime.Marshaler, client STHelperClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq HistoricalStockDataRequest
@@ -152,11 +150,34 @@ func request_STHelper_GetHistoricalStockData_0(ctx context.Context, marshaler ru
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "symbol", err)
 	}
 
-	if err := req.ParseForm(); err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	val, ok = pathParams["start_date"]
+	if !ok {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "start_date")
 	}
-	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_STHelper_GetHistoricalStockData_0); err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+
+	protoReq.StartDate, err = runtime.String(val)
+	if err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "start_date", err)
+	}
+
+	val, ok = pathParams["end_date"]
+	if !ok {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "end_date")
+	}
+
+	protoReq.EndDate, err = runtime.String(val)
+	if err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "end_date", err)
+	}
+
+	val, ok = pathParams["provider"]
+	if !ok {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "provider")
+	}
+
+	protoReq.Provider, err = runtime.String(val)
+	if err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "provider", err)
 	}
 
 	msg, err := client.GetHistoricalStockData(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
@@ -185,11 +206,34 @@ func local_request_STHelper_GetHistoricalStockData_0(ctx context.Context, marsha
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "symbol", err)
 	}
 
-	if err := req.ParseForm(); err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	val, ok = pathParams["start_date"]
+	if !ok {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "start_date")
 	}
-	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_STHelper_GetHistoricalStockData_0); err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+
+	protoReq.StartDate, err = runtime.String(val)
+	if err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "start_date", err)
+	}
+
+	val, ok = pathParams["end_date"]
+	if !ok {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "end_date")
+	}
+
+	protoReq.EndDate, err = runtime.String(val)
+	if err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "end_date", err)
+	}
+
+	val, ok = pathParams["provider"]
+	if !ok {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "provider")
+	}
+
+	protoReq.Provider, err = runtime.String(val)
+	if err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "provider", err)
 	}
 
 	msg, err := server.GetHistoricalStockData(ctx, &protoReq)
@@ -236,7 +280,7 @@ func RegisterSTHelperHandlerServer(ctx context.Context, mux *runtime.ServeMux, s
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/helper.STHelper/GetStockQuote", runtime.WithHTTPPathPattern("/v1/stock/quote/{symbol}"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/helper.STHelper/GetStockQuote", runtime.WithHTTPPathPattern("/v1/stock/quote/{symbol}/{provider}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -261,7 +305,7 @@ func RegisterSTHelperHandlerServer(ctx context.Context, mux *runtime.ServeMux, s
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/helper.STHelper/GetHistoricalStockData", runtime.WithHTTPPathPattern("/v1/stock/historical/{symbol}"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/helper.STHelper/GetHistoricalStockData", runtime.WithHTTPPathPattern("/v1/stock/historical/{symbol}/{start_date}/{end_date}/{provider}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -347,7 +391,7 @@ func RegisterSTHelperHandlerClient(ctx context.Context, mux *runtime.ServeMux, c
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/helper.STHelper/GetStockQuote", runtime.WithHTTPPathPattern("/v1/stock/quote/{symbol}"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/helper.STHelper/GetStockQuote", runtime.WithHTTPPathPattern("/v1/stock/quote/{symbol}/{provider}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -369,7 +413,7 @@ func RegisterSTHelperHandlerClient(ctx context.Context, mux *runtime.ServeMux, c
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/helper.STHelper/GetHistoricalStockData", runtime.WithHTTPPathPattern("/v1/stock/historical/{symbol}"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/helper.STHelper/GetHistoricalStockData", runtime.WithHTTPPathPattern("/v1/stock/historical/{symbol}/{start_date}/{end_date}/{provider}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -391,9 +435,9 @@ func RegisterSTHelperHandlerClient(ctx context.Context, mux *runtime.ServeMux, c
 var (
 	pattern_STHelper_AnalyzeFinancialData_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "financial", "analyze"}, ""))
 
-	pattern_STHelper_GetStockQuote_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3}, []string{"v1", "stock", "quote", "symbol"}, ""))
+	pattern_STHelper_GetStockQuote_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3, 1, 0, 4, 1, 5, 4}, []string{"v1", "stock", "quote", "symbol", "provider"}, ""))
 
-	pattern_STHelper_GetHistoricalStockData_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3}, []string{"v1", "stock", "historical", "symbol"}, ""))
+	pattern_STHelper_GetHistoricalStockData_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3, 1, 0, 4, 1, 5, 4, 1, 0, 4, 1, 5, 5, 1, 0, 4, 1, 5, 6}, []string{"v1", "stock", "historical", "symbol", "start_date", "end_date", "provider"}, ""))
 )
 
 var (
