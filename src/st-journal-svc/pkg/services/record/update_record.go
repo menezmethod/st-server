@@ -12,7 +12,7 @@ import (
 
 	"github.com/menezmethod/st-server/src/st-journal-svc/pkg/models"
 	"github.com/menezmethod/st-server/src/st-journal-svc/pkg/pb"
-	"github.com/menezmethod/st-server/src/st-journal-svc/pkg/utils"
+	"github.com/menezmethod/st-server/src/st-journal-svc/pkg/util"
 )
 
 func determineOutcome(req *pb.UpdateRecordRequest, record *models.Record) {
@@ -50,7 +50,7 @@ func createUpdateRecordResponse(record *models.Record, status uint64, errorMessa
 	timestamp := time.Now().Format(time.RFC3339)
 	response := &pb.UpdateRecordResponse{
 		Timestamp: timestamp,
-		Level:     utils.GetStatusLevel(int(status)),
+		Level:     util.GetStatusLevel(int(status)),
 		Status:    status,
 	}
 
@@ -135,7 +135,7 @@ func (s *Server) UpdateRecord(ctx context.Context, req *pb.UpdateRecordRequest) 
 	updateRecordFieldsFromRequest(req, record)
 	determineOutcome(req, record)
 
-	errorMsg := utils.ValidateRecord(record)
+	errorMsg := util.ValidateRecord(record)
 	if errorMsg != "" {
 		s.Logger.Error("Validation failed for UpdateRecord", zap.String("error", errorMsg))
 		return createUpdateRecordResponse(&models.Record{}, http.StatusBadRequest, errorMsg), nil

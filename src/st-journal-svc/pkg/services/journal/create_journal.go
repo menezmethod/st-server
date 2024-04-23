@@ -14,7 +14,7 @@ import (
 	"github.com/menezmethod/st-server/src/st-journal-svc/pkg/db"
 	"github.com/menezmethod/st-server/src/st-journal-svc/pkg/models"
 	"github.com/menezmethod/st-server/src/st-journal-svc/pkg/pb"
-	"github.com/menezmethod/st-server/src/st-journal-svc/pkg/utils"
+	"github.com/menezmethod/st-server/src/st-journal-svc/pkg/util"
 )
 
 type Server struct {
@@ -39,7 +39,7 @@ func (s *Server) CreateJournal(ctx context.Context, req *pb.CreateJournalRequest
 	log.Debug("Received CreateJournal request")
 
 	journal := populateJournalFromRequest(req)
-	errorMsg := utils.ValidateJournal(journal)
+	errorMsg := util.ValidateJournal(journal)
 
 	var resp *pb.CreateJournalResponse
 	if errorMsg != "" {
@@ -55,7 +55,7 @@ func (s *Server) CreateJournal(ctx context.Context, req *pb.CreateJournalRequest
 		}
 	}
 
-	utils.LogResponse(s.Logger, "CreateJournal", resp, int(resp.Status))
+	util.LogResponse(s.Logger, "CreateJournal", resp, int(resp.Status))
 
 	return resp, nil
 }
@@ -74,7 +74,7 @@ func populateJournalFromRequest(req *pb.CreateJournalRequest) *models.Journal {
 func createJournalResponse(journal *models.Journal, status int, message string) *pb.CreateJournalResponse {
 	return &pb.CreateJournalResponse{
 		Timestamp: time.Now().Format(time.RFC1123),
-		Level:     utils.GetStatusLevel(status),
+		Level:     util.GetStatusLevel(status),
 		Message:   message,
 		Status:    uint64(status),
 		Journal: &pb.Journal{
