@@ -1,10 +1,11 @@
-package utils
+package util
 
 import (
 	"encoding/json"
 
-	"github.com/menezmethod/st-server/src/st-journal-svc/pkg/models"
 	"go.uber.org/zap"
+
+	"github.com/menezmethod/st-server/src/st-journal-svc/pkg/models"
 )
 
 func ValidateJournal(journal *models.Journal) string {

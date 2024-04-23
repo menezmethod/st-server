@@ -12,7 +12,7 @@ import (
 
 	"github.com/menezmethod/st-server/src/st-journal-svc/pkg/models"
 	"github.com/menezmethod/st-server/src/st-journal-svc/pkg/pb"
-	"github.com/menezmethod/st-server/src/st-journal-svc/pkg/utils"
+	"github.com/menezmethod/st-server/src/st-journal-svc/pkg/util"
 )
 
 func (s *Server) UpdateJournal(ctx context.Context, req *pb.UpdateJournalRequest) (*pb.UpdateJournalResponse, error) {
@@ -88,7 +88,7 @@ func createUpdateJournalResponse(journal *models.Journal, status uint64, errorMe
 	timestamp := time.Now().Format(time.RFC3339)
 	response := &pb.UpdateJournalResponse{
 		Timestamp: timestamp,
-		Level:     utils.GetStatusLevel(int(status)),
+		Level:     util.GetStatusLevel(int(status)),
 		Status:    status,
 	}
 

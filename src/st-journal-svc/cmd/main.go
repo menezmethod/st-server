@@ -14,7 +14,7 @@ import (
 	"google.golang.org/grpc"
 
 	"github.com/menezmethod/st-server/src/st-journal-svc/pkg/auth"
-	"github.com/menezmethod/st-server/src/st-journal-svc/pkg/config"
+	"github.com/menezmethod/st-server/src/st-journal-svc/pkg/configs"
 	"github.com/menezmethod/st-server/src/st-journal-svc/pkg/db"
 	"github.com/menezmethod/st-server/src/st-journal-svc/pkg/pb"
 	"github.com/menezmethod/st-server/src/st-journal-svc/pkg/services/journal"
@@ -49,8 +49,8 @@ func initLogger() *zap.Logger {
 	return logger
 }
 
-func loadConfig(logger *zap.Logger) *config.Config {
-	c, err := config.LoadConfig()
+func loadConfig(logger *zap.Logger) *configs.Config {
+	c, err := configs.LoadConfig()
 	if err != nil {
 		logger.Fatal("Failed loading configs", zap.Error(err))
 	}
@@ -72,7 +72,7 @@ func initGRPCServer() *grpc.Server {
 	)
 }
 
-func registerServices(grpcServer *grpc.Server, h db.DB, logger *zap.Logger, appConfig *config.Config) {
+func registerServices(grpcServer *grpc.Server, h db.DB, logger *zap.Logger, appConfig *configs.Config) {
 	authServiceClient := auth.InitAuthServiceClient(appConfig)
 	logger.Info("AuthServiceClient initialized successfully")
 

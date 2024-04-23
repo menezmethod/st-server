@@ -13,7 +13,7 @@ logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
 config = configparser.ConfigParser()
-config.read('config.ini')
+config.read('configs.ini')
 obb_pat = config['DEFAULT']['OPENBB_PAT']
 
 obb.account.login(pat=obb_pat)
