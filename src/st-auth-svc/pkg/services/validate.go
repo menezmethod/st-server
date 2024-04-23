@@ -5,9 +5,10 @@ import (
 	"net/http"
 	"time"
 
+	"go.uber.org/zap"
+
 	"github.com/menezmethod/st-server/src/st-auth-svc/pkg/pb"
 	"github.com/menezmethod/st-server/src/st-auth-svc/pkg/utils"
-	"go.uber.org/zap"
 )
 
 func (s *Server) Validate(ctx context.Context, req *pb.ValidateRequest) (*pb.ValidateResponse, error) {
