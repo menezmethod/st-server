@@ -13,7 +13,7 @@ import (
 	"github.com/menezmethod/st-server/src/st-journal-svc/pkg/db"
 	"github.com/menezmethod/st-server/src/st-journal-svc/pkg/models"
 	"github.com/menezmethod/st-server/src/st-journal-svc/pkg/pb"
-	"github.com/menezmethod/st-server/src/st-journal-svc/pkg/utils"
+	"github.com/menezmethod/st-server/src/st-journal-svc/pkg/util"
 )
 
 type Server struct {
@@ -37,7 +37,7 @@ func (s *Server) CreateRecord(ctx context.Context, req *pb.CreateRecordRequest) 
 	log.Debug("Received CreateRecord request")
 
 	record := populateRecordFromRequest(req)
-	errorMsg := utils.ValidateRecord(&record)
+	errorMsg := util.ValidateRecord(&record)
 
 	var resp *pb.CreateRecordResponse
 	if errorMsg != "" {
@@ -53,7 +53,7 @@ func (s *Server) CreateRecord(ctx context.Context, req *pb.CreateRecordRequest) 
 		}
 	}
 
-	utils.LogResponse(s.Logger, "CreateRecord", resp, int(resp.Status))
+	util.LogResponse(s.Logger, "CreateRecord", resp, int(resp.Status))
 
 	return resp, nil
 }
@@ -84,7 +84,7 @@ func createRecordResponse(record *models.Record, status uint64, errorMessage str
 	timestamp := time.Now().Format(time.RFC3339)
 	response := &pb.CreateRecordResponse{
 		Timestamp: timestamp,
-		Level:     utils.GetStatusLevel(int(status)),
+		Level:     util.GetStatusLevel(int(status)),
 		Status:    status,
 	}
 

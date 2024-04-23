@@ -12,7 +12,7 @@ import (
 
 	"github.com/menezmethod/st-server/src/st-journal-svc/pkg/models"
 	"github.com/menezmethod/st-server/src/st-journal-svc/pkg/pb"
-	"github.com/menezmethod/st-server/src/st-journal-svc/pkg/utils"
+	"github.com/menezmethod/st-server/src/st-journal-svc/pkg/util"
 )
 
 func (s *Server) RemoveRecord(ctx context.Context, req *pb.DeleteRecordRequest) (*pb.DeleteRecordResponse, error) {
@@ -93,13 +93,13 @@ func (s *Server) RemoveRecord(ctx context.Context, req *pb.DeleteRecordRequest) 
 	}
 
 	response := createDeleteRecordResponse(uint64(status), message, errorDetail, uint64(rowsAffected))
-	utils.LogResponse(s.Logger, "RemoveRecord", response, status)
+	util.LogResponse(s.Logger, "RemoveRecord", response, status)
 	return response, nil
 }
 
 func createDeleteRecordResponse(status uint64, message, errorDetail string, rowsAffected uint64) *pb.DeleteRecordResponse {
 	response := &pb.DeleteRecordResponse{
-		Level:        utils.GetStatusLevel(int(status)),
+		Level:        util.GetStatusLevel(int(status)),
 		Status:       status,
 		RowsAffected: rowsAffected,
 	}
